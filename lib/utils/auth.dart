@@ -16,7 +16,6 @@ class Authentication {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      // ignore: use_build_context_synchronously
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => HomePage(
