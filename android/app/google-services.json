@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "968012188851",
+    "firebase_url": "https://victu-5bc18-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "victu-5bc18",
+    "storage_bucket": "victu-5bc18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968012188851:android:03fa34e9db35be4a1cb4c6",
+        "android_client_info": {
+          "package_name": "com.victu.victu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "968012188851-33jcq0cbfa6ah6p80tequpc7rse5v2gq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.victu.victu",
+            "certificate_hash": "9a2a0ebda5eb4303edd3cb9a34369f38b1ca570b"
+          }
+        },
+        {
+          "client_id": "968012188851-o008c1pc92v73tc6o7rfv1jtvou0k4sl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWVGP8O2RXj529ufD3Ps4dnCDZ4dzSfVo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "968012188851-euqm6abkudas9r5ec79459e41a2gb9jj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
