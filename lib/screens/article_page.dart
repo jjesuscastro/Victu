@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_new
-
 import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
 
@@ -10,7 +8,7 @@ class ArticlePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffffffff),
+      backgroundColor: const Color(0xffffffff),
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -22,43 +20,44 @@ class ArticlePage extends StatelessWidget {
               children: [
                 ///***If you have exported images you must have to copy those images in assets/images directory.
                 Image(
-                  image: NetworkImage(
+                  image: const NetworkImage(
                       "https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg"),
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.cover,
                 ),
                 Container(
-                  margin: EdgeInsets.all(0),
-                  padding: EdgeInsets.all(0),
+                  margin: const EdgeInsets.all(0),
+                  padding: const EdgeInsets.all(0),
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.4,
                   decoration: BoxDecoration(
-                    color: Color(0x89000000),
+                    color: const Color(0x89000000),
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.zero,
-                    border: Border.all(color: Color(0x4d9e9e9e), width: 1),
+                    border:
+                        Border.all(color: const Color(0x4d9e9e9e), width: 1),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                        padding: EdgeInsets.all(0),
+                        margin: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                        padding: const EdgeInsets.all(0),
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Color(0xffffffff),
+                          color: const Color(0xffffffff),
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                         child: IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.arrow_back,
                             color: Color(0xff000000),
                             size: 24,
@@ -66,7 +65,7 @@ class ArticlePage extends StatelessWidget {
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
-                      Expanded(
+                      const Expanded(
                         flex: 1,
                         child: Padding(
                           padding: EdgeInsets.fromLTRB(80, 0, 0, 0),
@@ -79,9 +78,8 @@ class ArticlePage extends StatelessWidget {
                                   padding: EdgeInsets.fromLTRB(80, 0, 0, 0),
                                   child: LinearProgressIndicator(
                                       backgroundColor: Color(0x81808080),
-                                      valueColor:
-                                          new AlwaysStoppedAnimation<Color>(
-                                              Color(0xff2b9685)),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Color(0xff2b9685)),
                                       value: 0.5,
                                       minHeight: 15),
                                 ),
@@ -113,15 +111,15 @@ class ArticlePage extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Container(
                 alignment: Alignment.topCenter,
-                margin: EdgeInsets.all(0),
-                padding: EdgeInsets.all(0),
+                margin: const EdgeInsets.all(0),
+                padding: const EdgeInsets.all(0),
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.65,
                 decoration: BoxDecoration(
-                  color: Color(0xffffffff),
+                  color: const Color(0xffffffff),
                   shape: BoxShape.rectangle,
                   borderRadius: BorderRadius.circular(16.0),
-                  border: Border.all(color: Color(0x4d9e9e9e), width: 1),
+                  border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
                 ),
                 child: SingleChildScrollView(
                   child: Column(
@@ -130,12 +128,12 @@ class ArticlePage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Padding(
-                        padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                         child: Text(
                           article.title,
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.clip,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             fontStyle: FontStyle.normal,
                             fontSize: 22,
@@ -144,13 +142,13 @@ class ArticlePage extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 16),
                         child: Text(
                           article.author,
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.clip,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontStyle: FontStyle.normal,
                             fontSize: 14,
@@ -159,12 +157,12 @@ class ArticlePage extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Text(
                           article.body.replaceAll('\\n', '\n'),
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.clip,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontStyle: FontStyle.normal,
                             fontSize: 14,

@@ -1,14 +1,8 @@
-///File download from FlutterViz- Drag and drop a tools. For more details visit https://flutterviz.io/
-
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:victu/objects/article.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/reading_goals.dart';
-import 'package:victu/utils/database.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required User user})
@@ -26,9 +20,9 @@ class _HomePageState extends State<HomePage> {
 
   Route _routeToSignInScreen() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => Login(),
+      pageBuilder: (context, animation, secondaryAnimation) => const Login(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(-1.0, 0.0);
+        var begin = const Offset(-1.0, 0.0);
         var end = Offset.zero;
         var curve = Curves.ease;
 
@@ -53,23 +47,23 @@ class _HomePageState extends State<HomePage> {
   void openArticle(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ReadingGoals()),
+      MaterialPageRoute(builder: (context) => const ReadingGoals()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffebebeb),
+      backgroundColor: const Color(0xffebebeb),
       appBar: AppBar(
         elevation: 4,
         centerTitle: false,
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xff2b9685),
-        shape: RoundedRectangleBorder(
+        backgroundColor: const Color(0xff2b9685),
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
-        title: Text(
+        title: const Text(
           "Victu",
           style: TextStyle(
             fontWeight: FontWeight.w700,
@@ -80,25 +74,26 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
               setState(() {});
               await Authentication.signOut(context: context);
               setState(() {});
+              // ignore: use_build_context_synchronously
               Navigator.of(context).pushReplacement(_routeToSignInScreen());
             },
           )
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Padding(
+              const Padding(
                 padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
                 child: Text(
                   "Hello,",
@@ -114,12 +109,12 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                 child: Text(
                   _user.displayName!,
                   textAlign: TextAlign.left,
                   overflow: TextOverflow.clip,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w400,
                     fontStyle: FontStyle.normal,
                     fontSize: 14,
@@ -129,11 +124,11 @@ class _HomePageState extends State<HomePage> {
               ),
               ListView(
                 scrollDirection: Axis.vertical,
-                padding: EdgeInsets.all(0),
+                padding: const EdgeInsets.all(0),
                 shrinkWrap: true,
-                physics: ScrollPhysics(),
+                physics: const ScrollPhysics(),
                 children: [
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
                     child: Align(
                       alignment: Alignment.center,
@@ -153,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   actionCard(
                     "Reading goals",
-                    Icon(
+                    const Icon(
                       Icons.bookmark_outline,
                       color: Color(0xff212435),
                       size: 24,
@@ -162,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   actionCard(
                     "See menu for the week",
-                    Icon(
+                    const Icon(
                       Icons.food_bank_outlined,
                       color: Color(0xff212435),
                       size: 24,
@@ -171,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   actionCard(
                     "Reserve an order",
-                    Icon(
+                    const Icon(
                       Icons.attach_money,
                       color: Color(0xff212435),
                       size: 24,
@@ -193,19 +188,19 @@ Widget actionCard(String text, Icon icon, Function openArticle) {
       onTap: () => {openArticle()},
       child: Container(
           height: 100,
-          margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
           child: Card(
-            color: Color(0xffffffff),
-            shadowColor: Color(0x4d939393),
+            color: const Color(0xffffffff),
+            shadowColor: const Color(0x4d939393),
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
-              side: BorderSide(color: Color(0xff2c9692), width: 2),
+              side: const BorderSide(color: Color(0xff2c9692), width: 2),
             ),
             child: Align(
               alignment: Alignment.center,
               child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -216,7 +211,7 @@ Widget actionCard(String text, Icon icon, Function openArticle) {
                       "\t\t\t\t$text",
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.clip,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontStyle: FontStyle.normal,
                         fontSize: 14,

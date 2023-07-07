@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'screens/login.dart';
 
@@ -19,7 +17,7 @@ class Victu extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff54b860)),
         useMaterial3: true,
       ),
-      home: Login(),
+      home: const Login(),
       debugShowCheckedModeBanner: false,
     );
   }

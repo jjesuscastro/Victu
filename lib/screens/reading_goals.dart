@@ -1,8 +1,3 @@
-///File download from FlutterViz- Drag and drop a tools. For more details visit https://flutterviz.io/
-
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/screens/article_page.dart';
@@ -41,16 +36,16 @@ class _ReadingGoalsState extends State<ReadingGoals> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffebebeb),
+      backgroundColor: const Color(0xffebebeb),
       appBar: AppBar(
         elevation: 4,
         centerTitle: false,
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xff2b9685),
-        shape: RoundedRectangleBorder(
+        backgroundColor: const Color(0xff2b9685),
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
-        title: Text(
+        title: const Text(
           "Reading Goals",
           style: TextStyle(
             fontWeight: FontWeight.w700,
@@ -60,7 +55,7 @@ class _ReadingGoalsState extends State<ReadingGoals> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -106,9 +101,9 @@ class _ArticleListState extends State<ArticleList> {
 
 Widget articleWidget(Article article, Function openArticle) {
   return Card(
-    margin: EdgeInsets.all(10),
-    color: Color(0xffffffff),
-    shadowColor: Color(0xff000000),
+    margin: const EdgeInsets.all(10),
+    color: const Color(0xffffffff),
+    shadowColor: const Color(0xff000000),
     elevation: 1,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12.0),
@@ -118,7 +113,7 @@ Widget articleWidget(Article article, Function openArticle) {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        ClipRRect(
+        const ClipRRect(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(12.0),
               bottomLeft: Radius.circular(12.0)),
@@ -138,7 +133,7 @@ Widget articleWidget(Article article, Function openArticle) {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +143,7 @@ Widget articleWidget(Article article, Function openArticle) {
                       article.title,
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontStyle: FontStyle.normal,
                         fontSize: 14,
@@ -160,7 +155,7 @@ Widget articleWidget(Article article, Function openArticle) {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.person,
                           color: Color(0xff212435),
                           size: 12,
@@ -169,7 +164,7 @@ Widget articleWidget(Article article, Function openArticle) {
                           " ${article.author}",
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.clip,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontStyle: FontStyle.normal,
                             fontSize: 12,
@@ -178,7 +173,7 @@ Widget articleWidget(Article article, Function openArticle) {
                         ),
                       ],
                     ),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
@@ -205,14 +200,14 @@ Widget articleWidget(Article article, Function openArticle) {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(5, 10, 5, 0),
+                padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.arrow_forward,
                           color: Color(0xff212435),
                           size: 24,

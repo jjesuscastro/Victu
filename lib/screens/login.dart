@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables, library_private_types_in_public_api, use_build_context_synchronously
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/screens/home_page.dart';
@@ -19,24 +18,24 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffffffff),
+      backgroundColor: const Color(0xffffffff),
       body: Align(
         alignment: Alignment.center,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(30, 10, 30, 20),
+          padding: const EdgeInsets.fromLTRB(30, 10, 30, 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
               ///***If you have exported images you must have to copy those images in assets/images directory.
-              Image(
+              const Image(
                 image: AssetImage("assets/images/victu_logo.png"),
                 height: 200,
                 width: 200,
                 fit: BoxFit.contain,
               ),
-              Padding(
+              const Padding(
                 padding: EdgeInsets.fromLTRB(0, 8, 0, 30),
                 child: Text(
                   "Victu",
@@ -54,11 +53,11 @@ class _LoginState extends State<Login> {
                 future: Authentication.initializeFirebase(context: context),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return Text('Error initializing Firebase');
+                    return const Text('Error initializing Firebase');
                   } else if (snapshot.connectionState == ConnectionState.done) {
-                    return GoogleSignInButton();
+                    return const GoogleSignInButton();
                   }
-                  return CircularProgressIndicator(
+                  return const CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.orange));
                 },
               ),
@@ -74,6 +73,7 @@ class GoogleSignInButton extends StatefulWidget {
   const GoogleSignInButton({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _GoogleSignInButtonState createState() => _GoogleSignInButtonState();
 }
 
@@ -85,7 +85,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: _isSigningIn
-          ? CircularProgressIndicator(
+          ? const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             )
           : OutlinedButton(
@@ -110,6 +110,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 });
 
                 if (user != null) {
+                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => HomePage(user: user),
@@ -117,8 +118,8 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                   );
                 }
               },
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -128,7 +129,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                       height: 35.0,
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 10),
+                      padding: EdgeInsets.only(left: 10),
                       child: Text(
                         'Sign in with Google',
                         style: TextStyle(
