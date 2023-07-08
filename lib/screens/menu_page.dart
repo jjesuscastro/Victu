@@ -2,9 +2,29 @@
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class MenuPage extends StatelessWidget {
+class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
+
+  @override
+  State<MenuPage> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  @override
+  void initState() {
+    super.initState();
+    getMonday();
+  }
+
+  DateTime getMonday() {
+    DateTime now = DateTime.now();
+    if (now.weekday == 7) now = now.add(const Duration(days: 1));
+    DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
+
+    return weekStart;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +66,27 @@ class MenuPage extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
                 children: [
-                  dayCard("Mon", "July 10, 2023"),
-                  dayCard("Tue", "July 11, 2023"),
-                  dayCard("Wed", "July 12, 2023"),
-                  dayCard("Thu", "July 13, 2023"),
-                  dayCard("Fri", "July 14, 2023"),
-                  dayCard("Sat", "July 15, 2023"),
+                  dayCard("Mon", DateFormat.yMMMMd().format(getMonday())),
+                  dayCard(
+                      "Tue",
+                      DateFormat.yMMMMd()
+                          .format(getMonday().add(const Duration(days: 1)))),
+                  dayCard(
+                      "Wed",
+                      DateFormat.yMMMMd()
+                          .format(getMonday().add(const Duration(days: 2)))),
+                  dayCard(
+                      "Thu",
+                      DateFormat.yMMMMd()
+                          .format(getMonday().add(const Duration(days: 3)))),
+                  dayCard(
+                      "Fri",
+                      DateFormat.yMMMMd()
+                          .format(getMonday().add(const Duration(days: 4)))),
+                  dayCard(
+                      "Sat",
+                      DateFormat.yMMMMd()
+                          .format(getMonday().add(const Duration(days: 5)))),
                 ],
               ),
             ],
@@ -80,27 +115,17 @@ Widget dayCard(String day, String date) {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Container(
-                width: 65,
-                alignment: Alignment.center,
-                margin: const EdgeInsets.all(5),
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Color(0xfff2f2f2),
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  day,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.clip,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 14,
-                    color: Color(0xff000000),
-                  ),
-                ),
-              ),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                  child: Container(
+                    width: 80,
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(16),
+                    child: Image(
+                        image: AssetImage(
+                            "assets/images/${day.toLowerCase()}.png")),
+                  )),
               Expanded(
                 flex: 1,
                 child: Padding(
@@ -129,26 +154,52 @@ Widget dayCard(String day, String date) {
               ),
             ],
           ),
-          collapsed: Container(height: 10),
+          collapsed: Container(),
           expanded: const Padding(
             padding: EdgeInsets.all(10),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(children: [
-                  Text("Breakfast"),
-                  Text("Longganisa"),
-                  Text("Bacon"),
-                ]),
-                Column(children: [
-                  Text("Lunch"),
-                  Text("Longganisa"),
-                  Text("Bacon"),
-                ]),
-                Column(children: [
-                  Text("Dinner"),
-                  Text("Longganisa"),
-                  Text("Bacon"),
-                ]),
+                Padding(
+                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Breakfast",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 20)),
+                          Divider(),
+                          Text("Longganisa"),
+                          Text("Bacon"),
+                        ])),
+                Padding(
+                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Lunch",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 20)),
+                          Divider(),
+                          Text("Longganisa"),
+                          Text("Bacon"),
+                        ])),
+                Padding(
+                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Dinner",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 20)),
+                          Divider(),
+                          Text("Longganisa"),
+                          Text("Bacon"),
+                        ])),
               ],
             ),
           ),
