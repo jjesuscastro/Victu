@@ -124,7 +124,7 @@ Widget dayCard(String day, String date) {
                     padding: const EdgeInsets.all(16),
                     child: Image(
                         image: AssetImage(
-                            "assets/images/${day.toLowerCase()}.png")),
+                            "assets/icons/${day.toLowerCase()}.png")),
                   )),
               Expanded(
                 flex: 1,
