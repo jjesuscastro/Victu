@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  expandable: ^5.0.1
   firebase_core: ^2.14.0
   firebase_auth: ^4.6.3
   firebase_database: ^10.2.3
