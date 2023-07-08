@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:victu/screens/menu_page.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/reading_goals.dart';
@@ -42,13 +43,6 @@ class _HomePageState extends State<HomePage> {
     _user = widget._user;
 
     super.initState();
-  }
-
-  void openArticle(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ReadingGoals()),
-    );
   }
 
   @override
@@ -153,7 +147,11 @@ class _HomePageState extends State<HomePage> {
                       color: Color(0xff212435),
                       size: 24,
                     ),
-                    () => openArticle(context),
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ReadingGoals()),
+                    ),
                   ),
                   actionCard(
                     "See menu for the week",
@@ -162,7 +160,10 @@ class _HomePageState extends State<HomePage> {
                       color: Color(0xff212435),
                       size: 24,
                     ),
-                    () => {},
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MenuPage()),
+                    ),
                   ),
                   actionCard(
                     "Reserve an order",
@@ -183,9 +184,9 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-Widget actionCard(String text, Icon icon, Function openArticle) {
+Widget actionCard(String text, Icon icon, Function action) {
   return InkWell(
-      onTap: () => {openArticle()},
+      onTap: () => {action()},
       child: Container(
           height: 100,
           margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
