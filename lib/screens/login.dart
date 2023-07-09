@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:victu/objects/userData.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/utils/auth.dart';
+import 'package:victu/utils/database.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -80,6 +82,11 @@ class GoogleSignInButton extends StatefulWidget {
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
 
+  void newUser(User user) {
+    var userData = UserData(user.uid, user.displayName!, true, 0, 0, 0);
+    userData.setId(saveUser(userData));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -110,6 +117,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 });
 
                 if (user != null) {
+                  newUser(user);
                   // ignore: use_build_context_synchronously
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(

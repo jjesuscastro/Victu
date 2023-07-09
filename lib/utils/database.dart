@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
+import 'package:victu/objects/userData.dart';
 
 final databaseReference = FirebaseDatabase.instance.ref();
 
@@ -8,6 +9,13 @@ DatabaseReference saveArticle(Article article) {
   id.set(article.toJson());
 
   return id;
+}
+
+String saveUser(UserData userData) {
+  var id = databaseReference.child('users/');
+  id.child(userData.id).set(userData.toJson());
+
+  return userData.id;
 }
 
 Future<List<Article>> getAllArticles() async {
@@ -26,4 +34,22 @@ Future<List<Article>> getAllArticles() async {
   }
 
   return articles;
+}
+
+Future<List<UserData>> getAllUsers() async {
+  DataSnapshot dataSnapshot = await databaseReference.child('users/').get();
+  List<UserData> users = [];
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    values.forEach((key, value) {
+      UserData userData = createUserData(value);
+      userData.setId(userData.id);
+
+      users.add(userData);
+    });
+  }
+
+  return users;
 }
