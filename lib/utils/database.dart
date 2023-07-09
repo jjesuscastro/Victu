@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/userData.dart';
@@ -52,4 +53,23 @@ Future<List<UserData>> getAllUsers() async {
   }
 
   return users;
+}
+
+Future<UserData> getUser(String uid) async {
+  DataSnapshot dataSnapshot = await databaseReference.child('users/$uid').get();
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> value = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    UserData userData = createUserData(value);
+    userData.setId(databaseReference.child('users/$uid'));
+
+    if (!userData.isRegistered) {
+      throw Exception("User found but not registered");
+    }
+
+    return userData;
+  }
+
+  throw Exception("User not found");
 }

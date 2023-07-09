@@ -5,7 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:victu/objects/userData.dart';
 import 'package:victu/screens/home_page.dart';
+import 'package:victu/screens/registration.dart';
+import 'package:victu/utils/database.dart';
 
 class Authentication {
   static Future<FirebaseApp> initializeFirebase({
@@ -16,6 +19,19 @@ class Authentication {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
+      try {
+        await getUser(user.uid);
+      } catch (e) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => Registration(
+              user: user,
+            ),
+          ),
+        );
+        return firebaseApp;
+      }
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => HomePage(
