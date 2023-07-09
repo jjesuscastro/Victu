@@ -205,7 +205,7 @@ class _RegistrationState extends State<Registration> {
                       color: Color(0xff000000),
                     ),
                     filled: true,
-                    fillColor: const Color(0xffe0e0e0),
+                    fillColor: const Color(0xffebebeb),
                     isDense: false,
                     contentPadding:
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
