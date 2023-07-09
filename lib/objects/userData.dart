@@ -1,23 +1,23 @@
 // ignore_for_file: unused_field
 
+import 'package:firebase_database/firebase_database.dart';
+
 class UserData {
-  String id = "";
+  late DatabaseReference _id;
   String displayName = "";
   bool isMale = true;
   int age = 0;
   int height = 0;
   int weight = 0;
 
-  UserData(this.id, this.displayName, this.isMale, this.age, this.height,
-      this.weight);
+  UserData(this.displayName, this.isMale, this.age, this.height, this.weight);
 
-  void setId(String _id) {
-    id = _id;
+  void setId(DatabaseReference id) {
+    _id = id;
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'displayName': displayName,
       'isMale': isMale,
       'age': age,
@@ -29,7 +29,6 @@ class UserData {
 
 UserData createUserData(value) {
   Map<String, dynamic> attributes = {
-    'id': '',
     'displayName': '',
     'isMale': '',
     'age': 0,
@@ -39,13 +38,8 @@ UserData createUserData(value) {
 
   value.forEach((key, value) => {attributes[key] = value});
 
-  UserData userData = UserData(
-      attributes['id'],
-      attributes['displayName'],
-      attributes['isMale'],
-      attributes['age'],
-      attributes['height'],
-      attributes['weight']);
+  UserData userData = UserData(attributes['displayName'], attributes['isMale'],
+      attributes['age'], attributes['height'], attributes['weight']);
 
   return userData;
 }

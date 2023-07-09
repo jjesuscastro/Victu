@@ -11,11 +11,11 @@ DatabaseReference saveArticle(Article article) {
   return id;
 }
 
-String saveUser(UserData userData) {
+DatabaseReference saveUser(String uid, UserData userData) {
   var id = databaseReference.child('users/');
-  id.child(userData.id).set(userData.toJson());
+  id.child(uid).set(userData.toJson());
 
-  return userData.id;
+  return id.child(uid);
 }
 
 Future<List<Article>> getAllArticles() async {
@@ -45,7 +45,7 @@ Future<List<UserData>> getAllUsers() async {
 
     values.forEach((key, value) {
       UserData userData = createUserData(value);
-      userData.setId(userData.id);
+      userData.setId(databaseReference.child('users/$key'));
 
       users.add(userData);
     });

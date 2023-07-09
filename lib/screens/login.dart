@@ -83,8 +83,8 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
 
   void newUser(User user) {
-    var userData = UserData(user.uid, user.displayName!, true, 0, 0, 0);
-    userData.setId(saveUser(userData));
+    var userData = UserData(user.displayName!, true, 0, 0, 0);
+    userData.setId(saveUser(user.uid, userData));
   }
 
   @override
