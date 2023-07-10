@@ -3,8 +3,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:victu/objects/userData.dart';
+import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/utils/auth.dart';
+import 'package:victu/utils/database.dart';
 
 class Registration extends StatefulWidget {
   const Registration({Key? key, required User user})
@@ -30,6 +33,25 @@ class _RegistrationState extends State<Registration> {
     super.initState();
     nameController.text = widget._user.displayName!;
     emailController.text = widget._user.email!;
+  }
+
+  void newUser(User user) {
+    var userData = UserData(false, user.displayName!, true, 0, 0, 0);
+
+    userData.isRegistered = true;
+    userData.displayName = user.displayName!;
+    userData.age = int.parse(ageController.text);
+    userData.isMale = currentSelectedValue == "Male" ? true : false;
+    userData.height = int.parse(heightController.text);
+    userData.weight = int.parse(weightController.text);
+
+    userData.setId(saveUser(user.uid, userData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user),
+      ),
+    );
   }
 
   Route _routeToSignInScreen() {
@@ -366,7 +388,7 @@ class _RegistrationState extends State<Registration> {
                               borderSide: const BorderSide(
                                   color: Color(0xff2d9871), width: 1),
                             ),
-                            hintText: "Height",
+                            hintText: "Height (cm)",
                             hintStyle: const TextStyle(
                               fontWeight: FontWeight.w400,
                               fontStyle: FontStyle.normal,
@@ -419,7 +441,7 @@ class _RegistrationState extends State<Registration> {
                               borderSide: const BorderSide(
                                   color: Color(0xff2d9871), width: 1),
                             ),
-                            hintText: "Weight",
+                            hintText: "Weight (kg)",
                             hintStyle: const TextStyle(
                               fontWeight: FontWeight.w400,
                               fontStyle: FontStyle.normal,
@@ -443,7 +465,7 @@ class _RegistrationState extends State<Registration> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                 child: MaterialButton(
-                  onPressed: () {},
+                  onPressed: () => newUser(widget._user),
                   color: const Color(0xff2d9871),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
