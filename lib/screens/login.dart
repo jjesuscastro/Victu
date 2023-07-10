@@ -1,7 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:victu/objects/userData.dart';
 import 'package:victu/screens/home_page.dart';
+import 'package:victu/screens/registration.dart';
 import 'package:victu/utils/auth.dart';
+import 'package:victu/utils/database.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -12,8 +17,6 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   late User? user;
-
-  void googleSignIn() {}
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +83,11 @@ class GoogleSignInButton extends StatefulWidget {
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
 
+  void newUser(User user) {
+    var userData = UserData(false, user.displayName!, true, 0, 0, 0);
+    userData.setId(saveUser(user.uid, userData));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -110,7 +118,17 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 });
 
                 if (user != null) {
-                  // ignore: use_build_context_synchronously
+                  try {
+                    await getUser(user.uid);
+                  } catch (e) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => Registration(user: user),
+                      ),
+                    );
+                    return;
+                  }
+
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => HomePage(user: user),
