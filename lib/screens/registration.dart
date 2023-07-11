@@ -36,7 +36,7 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newUser(User user) {
-    var userData = UserData(false, user.displayName!, true, 0, 0, 0);
+    var userData = UserData(user.displayName!, true, 0, 0, 0);
 
     userData.isRegistered = true;
     userData.displayName = user.displayName!;
@@ -44,6 +44,7 @@ class _RegistrationState extends State<Registration> {
     userData.isMale = currentSelectedValue == "Male" ? true : false;
     userData.height = int.parse(heightController.text);
     userData.weight = int.parse(weightController.text);
+    userData.type = "student";
 
     userData.setId(saveUser(user.uid, userData));
 
@@ -333,7 +334,6 @@ class _RegistrationState extends State<Registration> {
                                     setState(() {
                                       currentSelectedValue = newValue;
                                     });
-                                    print(currentSelectedValue);
                                   },
                                   icon: const Icon(Icons.accessibility),
                                   iconSize: 24,
