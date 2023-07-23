@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
+import 'package:philippines_rpcmb/philippines_rpcmb.dart';
 
 class FarmerRegistration extends StatefulWidget {
   const FarmerRegistration(
@@ -14,7 +15,10 @@ class FarmerRegistration extends StatefulWidget {
 }
 
 class _FarmerRegistrationState extends State<FarmerRegistration> {
-  var currentSelectedValue;
+  Region? region;
+  Province? province;
+  Municipality? municipality;
+  String? barangay;
 
   @override
   Widget build(BuildContext context) {
@@ -156,53 +160,151 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                 ),
               ),
             ),
-            Row(children: [
-              Expanded(
+            Row(
+              children: [
+                Expanded(
                   flex: 1,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                     child: Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 13),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffffffff),
-                          border: Border.all(
-                              color: const Color(0xff2d9871), width: 1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                            hint: const Text("School"),
-                            value: currentSelectedValue,
-                            items: ["Sample School 1", "Sample School 2"]
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
+                      width: 130,
+                      height: 51,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffffff),
+                        border: Border.all(
+                            color: const Color(0xff2d9871), width: 1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: PhilippineRegionDropdownView(
+                          onChanged: (Region? value) {
+                            setState(
+                              () {
+                                if (region != value) {
+                                  province = null;
+                                  municipality = null;
+                                  barangay = null;
+                                }
+                                region = value;
+                              },
+                            );
+                          },
+                          value: region,
+                          itemBuilder: (context, value) {
+                            String regionName = "";
+
+                            switch (value.regionName) {
+                              case "REGION I":
+                                regionName = "ILOCOS REGION";
+                              case "REGION II":
+                                regionName = "CAGAYAN VALLEY";
+                              case "REGION III":
+                                regionName = "CENTRAL LUZON";
+                              case "REGION IV-A":
+                                regionName = "CALABARZON";
+                              case "REGION IV-B":
+                                regionName = "MIMAROPA";
+                              case "REGION V":
+                                regionName = "BICOL REGION";
+                              case "REGION VI":
+                                regionName = "WESTERN VISAYAS";
+                              case "REGION VII":
+                                regionName = "CENTRAL VISAYAS";
+                              case "REGION VIII":
+                                regionName = "EASTERN VISAYAS";
+                              case "REGION IX":
+                                regionName = "ZAMBOANGA PENINSULA";
+                              case "REGION X":
+                                regionName = "NORTHERN MINDANAO";
+                              case "REGION XI":
+                                regionName = "DAVAO REGION";
+                              case "REGION XII":
+                                regionName = "SOCCSKSARGEN";
+                              case "REGION XIII":
+                                regionName = "CARAGA";
+                            }
+
+                            return DropdownMenuItem(
                                 value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            style: const TextStyle(
-                              color: Color(0xff000000),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.normal,
-                            ),
-                            onChanged: (newValue) {
-                              setState(() {
-                                currentSelectedValue = newValue;
-                              });
-                            },
-                            icon: const Icon(Icons.account_balance),
-                            iconSize: 24,
-                            iconEnabledColor: const Color(0xff212435),
-                            elevation: 8,
-                            isExpanded: true,
-                          ),
-                        )),
-                  ))
-            ]),
+                                child: Text(regionName == ""
+                                    ? value.regionName
+                                    : regionName));
+                          }),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Container(
+                      width: 130,
+                      height: 51,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffffff),
+                        border: Border.all(
+                            color: const Color(0xff2d9871), width: 1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: PhilippineProvinceDropdownView(
+                        provinces: region?.provinces ?? [],
+                        onChanged: (Province? value) {
+                          setState(() {
+                            if (province != value) {
+                              municipality = null;
+                              barangay = null;
+                            }
+                            province = value;
+                          });
+                        },
+                        value: province,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Container(
+                      width: 130,
+                      height: 51,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffffff),
+                        border: Border.all(
+                            color: const Color(0xff2d9871), width: 1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: PhilippineMunicipalityDropdownView(
+                        municipalities: province?.municipalities ?? [],
+                        onChanged: (value) {
+                          setState(() {
+                            if (municipality != value) {
+                              barangay = null;
+                            }
+                            municipality = value;
+                          });
+                        },
+                        value: municipality,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

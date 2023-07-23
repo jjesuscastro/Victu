@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:philippines_rpcmb/philippines_rpcmb.dart';
 
 class UserRegistration extends StatefulWidget {
   const UserRegistration(
@@ -23,6 +24,10 @@ class UserRegistration extends StatefulWidget {
 }
 
 class _UserRegistrationState extends State<UserRegistration> {
+  Region? region;
+  Province? province;
+  Municipality? municipality;
+  String? barangay;
   var currentSelectedValue;
 
   @override
@@ -391,6 +396,53 @@ class _UserRegistrationState extends State<UserRegistration> {
                 ],
               ),
             ),
+            Row(children: [
+              Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Container(
+                        width: 130,
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 13),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffffffff),
+                          border: Border.all(
+                              color: const Color(0xff2d9871), width: 1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                            hint: const Text("School"),
+                            value: currentSelectedValue,
+                            items: ["Sample School 1", "Sample School 2"]
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            style: const TextStyle(
+                              color: Color(0xff000000),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              fontStyle: FontStyle.normal,
+                            ),
+                            onChanged: (newValue) {
+                              setState(() {
+                                currentSelectedValue = newValue;
+                              });
+                            },
+                            icon: const Icon(Icons.account_balance),
+                            iconSize: 24,
+                            iconEnabledColor: const Color(0xff212435),
+                            elevation: 8,
+                            isExpanded: true,
+                          ),
+                        )),
+                  )),
+            ]),
           ],
         ),
       ),

@@ -87,7 +87,8 @@ class _RegistrationState extends State<Registration> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffebebeb),
-      body: Stepper(
+      body: SafeArea(
+          child: Stepper(
         type: StepperType.horizontal,
         steps: getSteps(),
         currentStep: currentStep,
@@ -151,7 +152,7 @@ class _RegistrationState extends State<Registration> {
             ),
           ]);
         },
-      ),
+      )),
     );
   }
 

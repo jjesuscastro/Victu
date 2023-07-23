@@ -282,20 +282,59 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: PhilippineRegionDropdownView(
-                        onChanged: (Region? value) {
-                          setState(
-                            () {
-                              if (region != value) {
-                                province = null;
-                                municipality = null;
-                                barangay = null;
-                              }
-                              region = value;
-                            },
-                          );
-                        },
-                        value: region,
-                      ),
+                          onChanged: (Region? value) {
+                            setState(
+                              () {
+                                if (region != value) {
+                                  province = null;
+                                  municipality = null;
+                                  barangay = null;
+                                }
+                                region = value;
+                              },
+                            );
+                          },
+                          value: region,
+                          itemBuilder: (context, value) {
+                            String regionName = "";
+
+                            switch (value.regionName) {
+                              case "REGION I":
+                                regionName = "ILOCOS REGION";
+                              case "REGION II":
+                                regionName = "CAGAYAN VALLEY";
+                              case "REGION III":
+                                regionName = "CENTRAL LUZON";
+                              case "REGION IV-A":
+                                regionName = "CALABARZON";
+                              case "REGION IV-B":
+                                regionName = "MIMAROPA";
+                              case "REGION V":
+                                regionName = "BICOL REGION";
+                              case "REGION VI":
+                                regionName = "WESTERN VISAYAS";
+                              case "REGION VII":
+                                regionName = "CENTRAL VISAYAS";
+                              case "REGION VIII":
+                                regionName = "EASTERN VISAYAS";
+                              case "REGION IX":
+                                regionName = "ZAMBOANGA PENINSULA";
+                              case "REGION X":
+                                regionName = "NORTHERN MINDANAO";
+                              case "REGION XI":
+                                regionName = "DAVAO REGION";
+                              case "REGION XII":
+                                regionName = "SOCCSKSARGEN";
+                              case "REGION XIII":
+                                regionName = "CARAGA";
+                            }
+
+                            return DropdownMenuItem(
+                                value: value,
+                                child: Text(regionName == ""
+                                    ? value.regionName
+                                    : regionName));
+                          }),
                     ),
                   ),
                 ),
@@ -365,35 +404,6 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                         },
                         value: municipality,
                       ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                    child: Container(
-                      width: 130,
-                      height: 51,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 13),
-                      decoration: BoxDecoration(
-                        color: const Color(0xffffffff),
-                        border: Border.all(
-                            color: const Color(0xff2d9871), width: 1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: PhilippineBarangayDropdownView(
-                          barangays: municipality?.barangays ?? [],
-                          onChanged: (value) {
-                            setState(() {
-                              barangay = value;
-                            });
-                          }),
                     ),
                   ),
                 ),
