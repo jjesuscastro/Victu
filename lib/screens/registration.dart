@@ -3,7 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/objects/user_data.dart';
-import 'package:victu/screens/registration/canteen_registration.dart';
+import 'package:victu/screens/registration/vendor_registration.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/registration/farmer_registration.dart';
 import 'package:victu/screens/registration/user_registration.dart';
@@ -33,7 +33,7 @@ class _RegistrationState extends State<Registration> {
   TextEditingController contactNumberController = TextEditingController();
   TextEditingController canteenNameController = TextEditingController();
 
-  UserType? userType = UserType.student;
+  UserType? userType = UserType.consumer;
   var currentSelectedValue;
   int currentStep = 0;
 
@@ -94,7 +94,7 @@ class _RegistrationState extends State<Registration> {
         onStepContinue: () {
           final isLastStep = currentStep == getSteps().length - 1;
           if (isLastStep) {
-            print("Complete registration");
+            // TODO: Save user to DB
           } else {
             currentStep < getSteps().length - 1
                 ? setState(() => currentStep++)
@@ -142,8 +142,12 @@ class _RegistrationState extends State<Registration> {
               style: TextButton.styleFrom(
                   textStyle: const TextStyle(fontSize: 12),
                   foregroundColor: const Color.fromARGB(255, 90, 90, 90)),
-              onPressed: details.onStepCancel,
-              child: const Text('Cancel'),
+              onPressed: currentStep == getSteps().length - 1
+                  ? details.onStepCancel
+                  : null,
+              child: currentStep == getSteps().length - 1
+                  ? const Text('Back')
+                  : const Text(""),
             ),
           ]);
         },
@@ -172,9 +176,9 @@ class _RegistrationState extends State<Registration> {
                       ),
                     ),
                     ListTile(
-                      title: const Text('Student'),
+                      title: const Text('Consumer'),
                       leading: Radio<UserType>(
-                        value: UserType.student,
+                        value: UserType.consumer,
                         groupValue: userType,
                         onChanged: (UserType? value) {
                           setState(() {
@@ -183,10 +187,14 @@ class _RegistrationState extends State<Registration> {
                         },
                       ),
                     ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
+                        child: Text(
+                            "Consumers can view the menu for the week and reserve orders.")),
                     ListTile(
-                      title: const Text('Canteen'),
+                      title: const Text('Vendor'),
                       leading: Radio<UserType>(
-                        value: UserType.canteen,
+                        value: UserType.vendor,
                         groupValue: userType,
                         onChanged: (UserType? value) {
                           setState(() {
@@ -195,6 +203,10 @@ class _RegistrationState extends State<Registration> {
                         },
                       ),
                     ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
+                        child: Text(
+                            "Vendors can curate their weekly menus and view reserved orders.")),
                     ListTile(
                       title: const Text('Farmer'),
                       leading: Radio<UserType>(
@@ -207,20 +219,24 @@ class _RegistrationState extends State<Registration> {
                         },
                       ),
                     ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
+                        child: Text(
+                            "Farmers can list the crops they can provide to help canteens complete their dishes.")),
                   ],
                 ))),
         Step(
             isActive: currentStep >= 1,
             title: const Text("User Registration"),
-            content: userType == UserType.student
+            content: userType == UserType.consumer
                 ? UserRegistration(
                     nameController: nameController,
                     emailController: emailController,
                     ageController: ageController,
                     heightController: heightController,
                     weightController: weightController)
-                : userType == UserType.canteen
-                    ? CanteenRegistration(
+                : userType == UserType.vendor
+                    ? VendorRegistration(
                         nameController: nameController,
                         emailController: emailController,
                         contactNumberController: contactNumberController,
@@ -231,4 +247,4 @@ class _RegistrationState extends State<Registration> {
       ];
 }
 
-enum UserType { student, canteen, farmer }
+enum UserType { consumer, vendor, farmer }

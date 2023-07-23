@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class CanteenRegistration extends StatefulWidget {
-  const CanteenRegistration(
+class VendorRegistration extends StatefulWidget {
+  const VendorRegistration(
       {super.key,
       required this.nameController,
       required this.emailController,
@@ -17,10 +17,10 @@ class CanteenRegistration extends StatefulWidget {
   final TextEditingController canteenNameController;
 
   @override
-  State<CanteenRegistration> createState() => _CanteenRegistrationState();
+  State<VendorRegistration> createState() => _VendorRegistrationState();
 }
 
-class _CanteenRegistrationState extends State<CanteenRegistration> {
+class _VendorRegistrationState extends State<VendorRegistration> {
   var currentSelectedValue;
 
   @override
