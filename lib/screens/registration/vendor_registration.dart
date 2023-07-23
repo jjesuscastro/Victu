@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:philippines_rpcmb/philippines_rpcmb.dart';
 
 class VendorRegistration extends StatefulWidget {
   const VendorRegistration(
@@ -21,6 +22,10 @@ class VendorRegistration extends StatefulWidget {
 }
 
 class _VendorRegistrationState extends State<VendorRegistration> {
+  Region? region;
+  Province? province;
+  Municipality? municipality;
+  String? barangay;
   var currentSelectedValue;
 
   @override
@@ -259,6 +264,141 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                 ),
               ),
             ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Container(
+                      width: 130,
+                      height: 51,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffffff),
+                        border: Border.all(
+                            color: const Color(0xff2d9871), width: 1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: PhilippineRegionDropdownView(
+                        onChanged: (Region? value) {
+                          setState(
+                            () {
+                              if (region != value) {
+                                province = null;
+                                municipality = null;
+                                barangay = null;
+                              }
+                              region = value;
+                            },
+                          );
+                        },
+                        value: region,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Container(
+                      width: 130,
+                      height: 51,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffffff),
+                        border: Border.all(
+                            color: const Color(0xff2d9871), width: 1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: PhilippineProvinceDropdownView(
+                        provinces: region?.provinces ?? [],
+                        onChanged: (Province? value) {
+                          setState(() {
+                            if (province != value) {
+                              municipality = null;
+                              barangay = null;
+                            }
+                            province = value;
+                          });
+                        },
+                        value: province,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Container(
+                      width: 130,
+                      height: 51,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffffff),
+                        border: Border.all(
+                            color: const Color(0xff2d9871), width: 1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: PhilippineMunicipalityDropdownView(
+                        municipalities: province?.municipalities ?? [],
+                        onChanged: (value) {
+                          setState(() {
+                            if (municipality != value) {
+                              barangay = null;
+                            }
+                            municipality = value;
+                          });
+                        },
+                        value: municipality,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Container(
+                      width: 130,
+                      height: 51,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 13),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffffff),
+                        border: Border.all(
+                            color: const Color(0xff2d9871), width: 1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: PhilippineBarangayDropdownView(
+                          barangays: municipality?.barangays ?? [],
+                          onChanged: (value) {
+                            setState(() {
+                              barangay = value;
+                            });
+                          }),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             Row(children: [
               Expanded(
                   flex: 1,
@@ -304,7 +444,7 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                             isExpanded: true,
                           ),
                         )),
-                  ))
+                  )),
             ]),
           ],
         ),
