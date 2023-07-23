@@ -2,7 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:victu/objects/userData.dart';
+import 'package:victu/objects/user_data.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/registration.dart';
 import 'package:victu/utils/auth.dart';

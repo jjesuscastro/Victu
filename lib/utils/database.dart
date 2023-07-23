@@ -1,6 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
-import 'package:victu/objects/userData.dart';
+import 'package:victu/objects/user_data.dart';
 
 final databaseReference = FirebaseDatabase.instance.ref();
 
