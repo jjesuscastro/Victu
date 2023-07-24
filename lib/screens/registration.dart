@@ -2,7 +2,10 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:victu/objects/user_data.dart';
+import 'package:victu/objects/users/consumer_data.dart';
+import 'package:victu/objects/users/farmer_data.dart';
+import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/registration/vendor_registration.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/registration/farmer_registration.dart';
@@ -34,7 +37,9 @@ class _RegistrationState extends State<Registration> {
   TextEditingController canteenNameController = TextEditingController();
 
   UserType? userType = UserType.consumer;
-  var currentSelectedValue;
+  var genderValue;
+  var schoolValue;
+  var locationValue;
   int currentStep = 0;
 
   @override
@@ -44,26 +49,7 @@ class _RegistrationState extends State<Registration> {
     emailController.text = widget._user.email!;
   }
 
-  void newUser(User user) {
-    var userData = UserData(user.displayName!, true, 0, 0, 0);
-
-    userData.isRegistered = true;
-    userData.displayName = user.displayName!;
-    userData.age = int.parse(ageController.text);
-    userData.isMale = currentSelectedValue == "Male" ? true : false;
-    userData.height = int.parse(heightController.text);
-    userData.weight = int.parse(weightController.text);
-    userData.type = "student";
-
-    userData.setId(saveUser(user.uid, userData));
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => HomePage(user: user),
-      ),
-    );
-  }
-
+  //! Unused function, keeping in case a logout button will be added
   // Route _routeToSignInScreen() {
   //   return PageRouteBuilder(
   //     pageBuilder: (context, animation, secondaryAnimation) => const Login(),
@@ -95,7 +81,16 @@ class _RegistrationState extends State<Registration> {
         onStepContinue: () {
           final isLastStep = currentStep == getSteps().length - 1;
           if (isLastStep) {
-            // TODO: Save user to DB
+            //TODO: Save user to DB
+            switch (userType) {
+              case UserType.consumer:
+                newConsumer(widget._user);
+              case UserType.farmer:
+                newFarmer(widget._user);
+              case UserType.vendor:
+                newVendor(widget._user);
+              default:
+            }
           } else {
             currentStep < getSteps().length - 1
                 ? setState(() => currentStep++)
@@ -227,25 +222,112 @@ class _RegistrationState extends State<Registration> {
                   ],
                 ))),
         Step(
-            isActive: currentStep >= 1,
-            title: const Text("User Registration"),
-            content: userType == UserType.consumer
-                ? UserRegistration(
-                    nameController: nameController,
-                    emailController: emailController,
-                    ageController: ageController,
-                    heightController: heightController,
-                    weightController: weightController)
-                : userType == UserType.vendor
-                    ? VendorRegistration(
-                        nameController: nameController,
-                        emailController: emailController,
-                        contactNumberController: contactNumberController,
-                        canteenNameController: canteenNameController)
-                    : FarmerRegistration(
-                        nameController: nameController,
-                        emailController: emailController))
+          isActive: currentStep >= 1,
+          title: const Text("User Registration"),
+          content: userType == UserType.consumer
+              ? UserRegistration(
+                  nameController: nameController,
+                  emailController: emailController,
+                  ageController: ageController,
+                  heightController: heightController,
+                  weightController: weightController,
+                  genderCallback: genderCallback,
+                  schoolCallback: schoolCallback,
+                )
+              : userType == UserType.vendor
+                  ? VendorRegistration(
+                      nameController: nameController,
+                      emailController: emailController,
+                      contactNumberController: contactNumberController,
+                      canteenNameController: canteenNameController,
+                      locationCallback: locationCallback,
+                      schoolCallback: schoolCallback,
+                    )
+                  : FarmerRegistration(
+                      nameController: nameController,
+                      emailController: emailController,
+                      locationCallback: locationCallback,
+                    ),
+        )
       ];
+
+  void newUser(User user) {
+    var userData = UserData(user.displayName!);
+
+    userData.isRegistered = true;
+    userData.displayName = user.displayName!;
+
+    userData.setId(saveUser(user.uid, userData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user),
+      ),
+    );
+  }
+
+  void newConsumer(User user) {
+    var consumerData = ConsumerData(
+        user.displayName!,
+        genderValue == "Male" ? true : false,
+        int.parse(ageController.text),
+        int.parse(heightController.text),
+        int.parse(weightController.text));
+
+    consumerData.isRegistered = true;
+    consumerData.displayName = user.displayName!;
+
+    consumerData.setId(saveUser(user.uid, consumerData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user),
+      ),
+    );
+  }
+
+  genderCallback(genderValue) {
+    this.genderValue = genderValue;
+  }
+
+  schoolCallback(schoolValue) {
+    this.schoolValue = schoolValue;
+  }
+
+  void newFarmer(User user) {
+    var farmerData = FarmerData(user.displayName!, locationValue);
+
+    farmerData.isRegistered = true;
+    farmerData.displayName = user.displayName!;
+
+    farmerData.setId(saveUser(user.uid, farmerData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user),
+      ),
+    );
+  }
+
+  void newVendor(User user) {
+    var vendorData = VendorData(user.displayName!, locationValue,
+        canteenNameController.text, contactNumberController.text, schoolValue);
+
+    vendorData.isRegistered = true;
+    vendorData.displayName = user.displayName!;
+
+    vendorData.setId(saveUser(user.uid, vendorData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user),
+      ),
+    );
+  }
+
+  locationCallback(locationValue) {
+    this.locationValue = locationValue;
+  }
 }
 
 enum UserType { consumer, vendor, farmer }

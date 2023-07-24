@@ -2,7 +2,6 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:victu/objects/user_data.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/registration.dart';
 import 'package:victu/utils/auth.dart';
@@ -83,10 +82,11 @@ class GoogleSignInButton extends StatefulWidget {
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
 
-  void newUser(User user) {
-    var userData = UserData(user.displayName!, true, 0, 0, 0);
-    userData.setId(saveUser(user.uid, userData));
-  }
+  //! Unused function, keeping as a template for saving users in database
+  // void newUser(User user) {
+  //   var userData = UserData(user.displayName!, true, 0, 0, 0);
+  //   userData.setId(saveUser(user.uid, userData));
+  // }
 
   @override
   Widget build(BuildContext context) {

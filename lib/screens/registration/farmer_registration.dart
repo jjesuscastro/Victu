@@ -5,10 +5,14 @@ import 'package:philippines_rpcmb/philippines_rpcmb.dart';
 
 class FarmerRegistration extends StatefulWidget {
   const FarmerRegistration(
-      {super.key, required this.nameController, required this.emailController});
+      {super.key,
+      required this.nameController,
+      required this.emailController,
+      required this.locationCallback});
 
   final TextEditingController nameController;
   final TextEditingController emailController;
+  final Function locationCallback;
 
   @override
   State<FarmerRegistration> createState() => _FarmerRegistrationState();
@@ -18,7 +22,6 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
   Region? region;
   Province? province;
   Municipality? municipality;
-  String? barangay;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +58,7 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
             const Padding(
               padding: EdgeInsets.fromLTRB(50, 8, 50, 0),
               child: Text(
-                "Provide your business details so we can get you all set up.",
+                "Provide your farm's details so we can tell vendors about you.",
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.clip,
                 style: TextStyle(
@@ -168,7 +171,7 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                     padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                     child: Container(
                       width: 130,
-                      height: 51,
+                      height: 54,
                       padding: const EdgeInsets.symmetric(
                           vertical: 4, horizontal: 13),
                       decoration: BoxDecoration(
@@ -184,7 +187,6 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                                 if (region != value) {
                                   province = null;
                                   municipality = null;
-                                  barangay = null;
                                 }
                                 region = value;
                               },
@@ -244,7 +246,7 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                     padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                     child: Container(
                       width: 130,
-                      height: 51,
+                      height: 54,
                       padding: const EdgeInsets.symmetric(
                           vertical: 4, horizontal: 13),
                       decoration: BoxDecoration(
@@ -259,7 +261,6 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                           setState(() {
                             if (province != value) {
                               municipality = null;
-                              barangay = null;
                             }
                             province = value;
                           });
@@ -279,7 +280,7 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                     padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                     child: Container(
                       width: 130,
-                      height: 51,
+                      height: 54,
                       padding: const EdgeInsets.symmetric(
                           vertical: 4, horizontal: 13),
                       decoration: BoxDecoration(
@@ -292,10 +293,10 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                         municipalities: province?.municipalities ?? [],
                         onChanged: (value) {
                           setState(() {
-                            if (municipality != value) {
-                              barangay = null;
-                            }
                             municipality = value;
+
+                            widget.locationCallback(
+                                "${province!.id}|${municipality!.id}");
                           });
                         },
                         value: municipality,

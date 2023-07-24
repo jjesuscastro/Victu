@@ -11,13 +11,17 @@ class UserRegistration extends StatefulWidget {
       required this.emailController,
       required this.ageController,
       required this.heightController,
-      required this.weightController});
+      required this.weightController,
+      required this.genderCallback,
+      required this.schoolCallback});
 
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController ageController;
   final TextEditingController heightController;
   final TextEditingController weightController;
+  final Function genderCallback;
+  final Function schoolCallback;
 
   @override
   State<UserRegistration> createState() => _UserRegistrationState();
@@ -28,7 +32,8 @@ class _UserRegistrationState extends State<UserRegistration> {
   Province? province;
   Municipality? municipality;
   String? barangay;
-  var currentSelectedValue;
+  var selectedGender;
+  var selectedSchool;
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +253,7 @@ class _UserRegistrationState extends State<UserRegistration> {
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton(
                                 hint: const Text("Gender"),
-                                value: currentSelectedValue,
+                                value: selectedGender,
                                 items: [
                                   "Male",
                                   "Female"
@@ -266,7 +271,8 @@ class _UserRegistrationState extends State<UserRegistration> {
                                 ),
                                 onChanged: (newValue) {
                                   setState(() {
-                                    currentSelectedValue = newValue;
+                                    widget.genderCallback(newValue);
+                                    selectedGender = newValue;
                                   });
                                 },
                                 icon: const Icon(Icons.accessibility),
@@ -415,7 +421,7 @@ class _UserRegistrationState extends State<UserRegistration> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton(
                             hint: const Text("School"),
-                            value: currentSelectedValue,
+                            value: selectedSchool,
                             items: ["Sample School 1", "Sample School 2"]
                                 .map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
@@ -431,7 +437,8 @@ class _UserRegistrationState extends State<UserRegistration> {
                             ),
                             onChanged: (newValue) {
                               setState(() {
-                                currentSelectedValue = newValue;
+                                widget.schoolCallback(newValue);
+                                selectedSchool = newValue;
                               });
                             },
                             icon: const Icon(Icons.account_balance),

@@ -1,6 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
-import 'package:victu/objects/user_data.dart';
+import 'package:victu/objects/users/farmer_data.dart';
+import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/objects/users/vendor_data.dart';
+
+import '../objects/users/consumer_data.dart';
 
 final databaseReference = FirebaseDatabase.instance.ref();
 
@@ -36,24 +40,6 @@ Future<List<Article>> getAllArticles() async {
   return articles;
 }
 
-Future<List<UserData>> getAllUsers() async {
-  DataSnapshot dataSnapshot = await databaseReference.child('users/').get();
-  List<UserData> users = [];
-
-  if (dataSnapshot.exists) {
-    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
-
-    values.forEach((key, value) {
-      UserData userData = createUserData(value);
-      userData.setId(databaseReference.child('users/$key'));
-
-      users.add(userData);
-    });
-  }
-
-  return users;
-}
-
 Future<UserData> getUser(String uid) async {
   DataSnapshot dataSnapshot = await databaseReference.child('users/$uid').get();
 
@@ -71,4 +57,61 @@ Future<UserData> getUser(String uid) async {
   }
 
   throw Exception("User not found");
+}
+
+Future<ConsumerData> getConsumer(String uid) async {
+  DataSnapshot dataSnapshot = await databaseReference.child('users/$uid').get();
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> value = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    ConsumerData consumerData = createConsumerData(value);
+    consumerData.setId(databaseReference.child('users/$uid'));
+
+    if (!consumerData.isRegistered) {
+      throw Exception("Consumer found but not registered");
+    }
+
+    return consumerData;
+  }
+
+  throw Exception("Consumer not found");
+}
+
+Future<FarmerData> getFarmer(String uid) async {
+  DataSnapshot dataSnapshot = await databaseReference.child('users/$uid').get();
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> value = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    FarmerData farmerData = createFarmerData(value);
+    farmerData.setId(databaseReference.child('users/$uid'));
+
+    if (!farmerData.isRegistered) {
+      throw Exception("Farmer found but not registered");
+    }
+
+    return farmerData;
+  }
+
+  throw Exception("Farmer not found");
+}
+
+Future<VendorData> getVendor(String uid) async {
+  DataSnapshot dataSnapshot = await databaseReference.child('users/$uid').get();
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> value = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    VendorData vendorData = createVendorData(value);
+    vendorData.setId(databaseReference.child('users/$uid'));
+
+    if (!vendorData.isRegistered) {
+      throw Exception("Farmer found but not registered");
+    }
+
+    return vendorData;
+  }
+
+  throw Exception("Farmer not found");
 }

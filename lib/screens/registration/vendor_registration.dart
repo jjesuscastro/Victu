@@ -10,12 +10,16 @@ class VendorRegistration extends StatefulWidget {
       required this.nameController,
       required this.emailController,
       required this.contactNumberController,
-      required this.canteenNameController});
+      required this.canteenNameController,
+      required this.locationCallback,
+      required this.schoolCallback});
 
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController contactNumberController;
   final TextEditingController canteenNameController;
+  final Function locationCallback;
+  final Function schoolCallback;
 
   @override
   State<VendorRegistration> createState() => _VendorRegistrationState();
@@ -25,7 +29,6 @@ class _VendorRegistrationState extends State<VendorRegistration> {
   Region? region;
   Province? province;
   Municipality? municipality;
-  String? barangay;
   var currentSelectedValue;
 
   @override
@@ -288,7 +291,6 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                                 if (region != value) {
                                   province = null;
                                   municipality = null;
-                                  barangay = null;
                                 }
                                 region = value;
                               },
@@ -363,7 +365,6 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                           setState(() {
                             if (province != value) {
                               municipality = null;
-                              barangay = null;
                             }
                             province = value;
                           });
@@ -396,10 +397,10 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                         municipalities: province?.municipalities ?? [],
                         onChanged: (value) {
                           setState(() {
-                            if (municipality != value) {
-                              barangay = null;
-                            }
                             municipality = value;
+
+                            widget.locationCallback(
+                                "${province!.id}|${municipality!.id}");
                           });
                         },
                         value: municipality,
@@ -444,6 +445,7 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                             ),
                             onChanged: (newValue) {
                               setState(() {
+                                widget.schoolCallback(newValue);
                                 currentSelectedValue = newValue;
                               });
                             },

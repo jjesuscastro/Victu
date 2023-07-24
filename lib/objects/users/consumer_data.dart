@@ -1,24 +1,25 @@
 // ignore_for_file: unused_field
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:victu/objects/users/user_data.dart';
 
-class UserData {
+class ConsumerData extends UserData {
   late DatabaseReference _id;
-  String type = "";
-  String displayName = "";
-  bool isRegistered = false;
   bool isMale = true;
   int age = 0;
   int height = 0;
   int weight = 0;
 
-  UserData(this.displayName, this.isMale, this.age, this.height, this.weight,
-      {this.isRegistered = false, this.type = ""});
+  ConsumerData(
+      super.displayName, this.isMale, this.age, this.height, this.weight,
+      {super.isRegistered = false});
 
+  @override
   void setId(DatabaseReference id) {
     _id = id;
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'displayName': displayName,
@@ -27,12 +28,11 @@ class UserData {
       'height': height,
       'weight': weight,
       'isRegistered': isRegistered,
-      'type': type,
     };
   }
 }
 
-UserData createUserData(value) {
+ConsumerData createConsumerData(value) {
   Map<String, dynamic> attributes = {
     'displayName': '',
     'isMale': true,
@@ -40,14 +40,18 @@ UserData createUserData(value) {
     'height': 0,
     'weight': 0,
     'isRegistered': false,
-    'type': ''
   };
 
   value.forEach((key, value) => {attributes[key] = value});
 
-  UserData userData = UserData(attributes['displayName'], attributes['isMale'],
-      attributes['age'], attributes['height'], attributes['weight'],
-      isRegistered: attributes['isRegistered'], type: attributes['type']);
+  ConsumerData userData = ConsumerData(
+    attributes['displayName'],
+    attributes['isMale'],
+    attributes['age'],
+    attributes['height'],
+    attributes['weight'],
+    isRegistered: attributes['isRegistered'],
+  );
 
   return userData;
 }
