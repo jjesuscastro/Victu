@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
@@ -252,10 +253,8 @@ class _RegistrationState extends State<Registration> {
       ];
 
   void newUser(User user) {
-    var userData = UserData(user.displayName!);
-
-    userData.isRegistered = true;
-    userData.displayName = user.displayName!;
+    var userData =
+        UserData(user.displayName!, UserType.none, isRegistered: true);
 
     userData.setId(saveUser(user.uid, userData));
 
@@ -269,13 +268,12 @@ class _RegistrationState extends State<Registration> {
   void newConsumer(User user) {
     var consumerData = ConsumerData(
         user.displayName!,
+        UserType.consumer,
         genderValue == "Male" ? true : false,
         int.parse(ageController.text),
         int.parse(heightController.text),
-        int.parse(weightController.text));
-
-    consumerData.isRegistered = true;
-    consumerData.displayName = user.displayName!;
+        int.parse(weightController.text),
+        isRegistered: true);
 
     consumerData.setId(saveUser(user.uid, consumerData));
 
@@ -295,10 +293,9 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newFarmer(User user) {
-    var farmerData = FarmerData(user.displayName!, locationValue);
-
-    farmerData.isRegistered = true;
-    farmerData.displayName = user.displayName!;
+    var farmerData = FarmerData(
+        user.displayName!, UserType.farmer, locationValue,
+        isRegistered: true);
 
     farmerData.setId(saveUser(user.uid, farmerData));
 
@@ -310,11 +307,14 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newVendor(User user) {
-    var vendorData = VendorData(user.displayName!, locationValue,
-        canteenNameController.text, contactNumberController.text, schoolValue);
-
-    vendorData.isRegistered = true;
-    vendorData.displayName = user.displayName!;
+    var vendorData = VendorData(
+        user.displayName!,
+        UserType.vendor,
+        locationValue,
+        canteenNameController.text,
+        contactNumberController.text,
+        schoolValue,
+        isRegistered: true);
 
     vendorData.setId(saveUser(user.uid, vendorData));
 
@@ -329,5 +329,3 @@ class _RegistrationState extends State<Registration> {
     this.locationValue = locationValue;
   }
 }
-
-enum UserType { consumer, vendor, farmer }

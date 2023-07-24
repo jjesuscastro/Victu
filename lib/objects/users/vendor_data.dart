@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 
 class VendorData extends FarmerData {
@@ -9,8 +10,8 @@ class VendorData extends FarmerData {
   String contactNumber;
   String school;
 
-  VendorData(super.displayName, super.location, this.canteenName,
-      this.contactNumber, this.school,
+  VendorData(super.displayName, super.userType, super.location,
+      this.canteenName, this.contactNumber, this.school,
       {super.isRegistered = false});
 
   @override
@@ -22,6 +23,7 @@ class VendorData extends FarmerData {
   Map<String, dynamic> toJson() {
     return {
       'displayName': displayName,
+      'userType': userType.toJson(),
       'location': location,
       'canteenName': canteenName,
       'contactNumber': contactNumber,
@@ -34,6 +36,7 @@ class VendorData extends FarmerData {
 VendorData createVendorData(value) {
   Map<String, dynamic> attributes = {
     'displayName': '',
+    'userType': UserType.vendor,
     'location': '',
     'canteenName': '',
     'contactNumber': '',
@@ -45,6 +48,7 @@ VendorData createVendorData(value) {
 
   VendorData userData = VendorData(
     attributes['displayName'],
+    UserType.fromJson(attributes['userType']),
     attributes['location'],
     attributes['canteenName'],
     attributes['contactNumber'],
