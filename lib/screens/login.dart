@@ -82,12 +82,6 @@ class GoogleSignInButton extends StatefulWidget {
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
 
-  //! Unused function, keeping as a template for saving users in database
-  // void newUser(User user) {
-  //   var userData = UserData(user.displayName!, true, 0, 0, 0);
-  //   userData.setId(saveUser(user.uid, userData));
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
