@@ -260,7 +260,7 @@ class _RegistrationState extends State<Registration> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => HomePage(user: user),
+        builder: (context) => HomePage(user: user, userData: userData),
       ),
     );
   }
@@ -279,7 +279,7 @@ class _RegistrationState extends State<Registration> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => HomePage(user: user),
+        builder: (context) => HomePage(user: user, userData: consumerData),
       ),
     );
   }
@@ -301,7 +301,7 @@ class _RegistrationState extends State<Registration> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => HomePage(user: user),
+        builder: (context) => HomePage(user: user, userData: farmerData),
       ),
     );
   }
@@ -320,7 +320,7 @@ class _RegistrationState extends State<Registration> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => HomePage(user: user),
+        builder: (context) => HomePage(user: user, userData: vendorData),
       ),
     );
   }

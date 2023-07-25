@@ -1,16 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:victu/objects/user_type.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/menu_page.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/reading_goals.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required User user})
+  const HomePage({Key? key, required User user, required UserData userData})
       : _user = user,
+        _userData = userData,
         super(key: key);
 
   final User _user;
+  final UserData _userData;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -140,40 +144,12 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  actionCard(
-                    "Reading goals",
-                    const Icon(
-                      Icons.bookmark_outline,
-                      color: Color(0xff212435),
-                      size: 24,
-                    ),
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ReadingGoals()),
-                    ),
-                  ),
-                  actionCard(
-                    "See menu for the week",
-                    const Icon(
-                      Icons.food_bank_outlined,
-                      color: Color(0xff212435),
-                      size: 24,
-                    ),
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MenuPage()),
-                    ),
-                  ),
-                  actionCard(
-                    "Reserve an order",
-                    const Icon(
-                      Icons.attach_money,
-                      color: Color(0xff212435),
-                      size: 24,
-                    ),
-                    () => {},
-                  ),
+                  if (widget._userData.userType == UserType.consumer)
+                    ...consumerActionCards(context),
+                  if (widget._userData.userType == UserType.farmer)
+                    ...farmerActionCards(context),
+                  if (widget._userData.userType == UserType.vendor)
+                    ...vendorActionCards(context)
                 ],
               ),
             ],
@@ -182,6 +158,102 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+List<Widget> consumerActionCards(BuildContext context) {
+  return [
+    actionCard(
+      "Reading goals",
+      const Icon(
+        Icons.bookmark_outline,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ReadingGoals()),
+      ),
+    ),
+    actionCard(
+      "See menu for the week",
+      const Icon(
+        Icons.food_bank_outlined,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const MenuPage()),
+      ),
+    ),
+    actionCard(
+      "Reserve an order",
+      const Icon(
+        Icons.attach_money,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => {},
+    ),
+  ];
+}
+
+List<Widget> vendorActionCards(BuildContext context) {
+  return [
+    actionCard(
+      "Schedule Recipes",
+      const Icon(
+        Icons.bookmark_outline,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ReadingGoals()),
+      ),
+    ),
+    actionCard(
+      "Check Orders",
+      const Icon(
+        Icons.food_bank_outlined,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const MenuPage()),
+      ),
+    ),
+  ];
+}
+
+List<Widget> farmerActionCards(BuildContext context) {
+  return [
+    actionCard(
+      "Update Available Products",
+      const Icon(
+        Icons.bookmark_outline,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ReadingGoals()),
+      ),
+    ),
+    actionCard(
+      "See Nearby Canteens",
+      const Icon(
+        Icons.food_bank_outlined,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const MenuPage()),
+      ),
+    ),
+  ];
 }
 
 Widget actionCard(String text, Icon icon, Function action) {
