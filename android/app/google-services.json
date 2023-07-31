@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "968012188851-33jcq0cbfa6ah6p80tequpc7rse5v2gq.apps.googleusercontent.com",
+          "client_id": "968012188851-7liqs4343knh83p0c63h8nedslrspcfu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.victu.victu",
-            "certificate_hash": "9a2a0ebda5eb4303edd3cb9a34369f38b1ca570b"
+            "certificate_hash": "8298588dff6897ecbb044b3805b8164d0f0d8b30"
           }
         },
         {

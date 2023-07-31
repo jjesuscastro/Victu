@@ -2,7 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:victu/objects/userData.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/registration.dart';
 import 'package:victu/utils/auth.dart';
@@ -83,11 +83,6 @@ class GoogleSignInButton extends StatefulWidget {
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
 
-  void newUser(User user) {
-    var userData = UserData(false, user.displayName!, true, 0, 0, 0);
-    userData.setId(saveUser(user.uid, userData));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -118,8 +113,9 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 });
 
                 if (user != null) {
+                  UserData userData;
                   try {
-                    await getUser(user.uid);
+                    userData = await getUser(user.uid);
                   } catch (e) {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
@@ -131,7 +127,8 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => HomePage(user: user),
+                      builder: (context) =>
+                          HomePage(user: user, userData: userData),
                     ),
                   );
                 }

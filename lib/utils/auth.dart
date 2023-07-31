@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/registration.dart';
 import 'package:victu/utils/database.dart';
@@ -18,8 +19,9 @@ class Authentication {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
+      UserData userData;
       try {
-        await getUser(user.uid);
+        userData = await getUser(user.uid);
       } catch (e) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -35,6 +37,7 @@ class Authentication {
         MaterialPageRoute(
           builder: (context) => HomePage(
             user: user,
+            userData: userData,
           ),
         ),
       );

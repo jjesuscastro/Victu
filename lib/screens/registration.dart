@@ -2,11 +2,15 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:victu/objects/userData.dart';
+import 'package:victu/objects/user_type.dart';
+import 'package:victu/objects/users/consumer_data.dart';
+import 'package:victu/objects/users/farmer_data.dart';
+import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/home_page.dart';
-import 'package:victu/screens/login.dart';
-import 'package:victu/utils/auth.dart';
+import 'package:victu/screens/registration/farmer_registration.dart';
+import 'package:victu/screens/registration/user_registration.dart';
+import 'package:victu/screens/registration/vendor_registration.dart';
 import 'package:victu/utils/database.dart';
 
 class Registration extends StatefulWidget {
@@ -23,10 +27,21 @@ class Registration extends StatefulWidget {
 class _RegistrationState extends State<Registration> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+
+  //User Values
   TextEditingController ageController = TextEditingController();
   TextEditingController heightController = TextEditingController();
   TextEditingController weightController = TextEditingController();
-  var currentSelectedValue;
+
+  //Canteen Values
+  TextEditingController contactNumberController = TextEditingController();
+  TextEditingController canteenNameController = TextEditingController();
+
+  UserType? userType = UserType.consumer;
+  var genderValue;
+  var schoolValue;
+  var locationValue;
+  int currentStep = 0;
 
   @override
   void initState() {
@@ -35,460 +50,282 @@ class _RegistrationState extends State<Registration> {
     emailController.text = widget._user.email!;
   }
 
-  void newUser(User user) {
-    var userData = UserData(false, user.displayName!, true, 0, 0, 0);
+  //! Unused function, keeping in case a logout button will be added
+  // Route _routeToSignInScreen() {
+  //   return PageRouteBuilder(
+  //     pageBuilder: (context, animation, secondaryAnimation) => const Login(),
+  //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //       var begin = const Offset(-1.0, 0.0);
+  //       var end = Offset.zero;
+  //       var curve = Curves.ease;
 
-    userData.isRegistered = true;
-    userData.displayName = user.displayName!;
-    userData.age = int.parse(ageController.text);
-    userData.isMale = currentSelectedValue == "Male" ? true : false;
-    userData.height = int.parse(heightController.text);
-    userData.weight = int.parse(weightController.text);
+  //       var tween =
+  //           Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
-    userData.setId(saveUser(user.uid, userData));
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => HomePage(user: user),
-      ),
-    );
-  }
-
-  Route _routeToSignInScreen() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const Login(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(-1.0, 0.0);
-        var end = Offset.zero;
-        var curve = Curves.ease;
-
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
+  //       return SlideTransition(
+  //         position: animation.drive(tween),
+  //         child: child,
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffebebeb),
-      appBar: AppBar(
-        elevation: 4,
-        centerTitle: false,
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xffffffff),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.black),
-            onPressed: () async {
-              setState(() {});
-              await Authentication.signOut(context: context);
-              setState(() {});
-              // ignore: use_build_context_synchronously
-              Navigator.of(context).pushReplacement(_routeToSignInScreen());
-            },
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 30, 16, 16),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              ///***If you have exported images you must have to copy those images in assets/images directory.
-              const Image(
-                image: NetworkImage(
-                    "https://cdn4.iconfinder.com/data/icons/security-overcolor/512/password_code-256.png"),
-                height: 100,
-                width: 100,
-                fit: BoxFit.cover,
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
-                child: Text(
-                  "Let's Get Started!",
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.clip,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 22,
-                    color: Color(0xff2d9871),
-                  ),
+      body: SafeArea(
+          child: Stepper(
+        type: StepperType.horizontal,
+        steps: getSteps(),
+        currentStep: currentStep,
+        onStepContinue: () {
+          final isLastStep = currentStep == getSteps().length - 1;
+          if (isLastStep) {
+            //TODO: Save user to DB
+            switch (userType) {
+              case UserType.consumer:
+                newConsumer(widget._user);
+              case UserType.farmer:
+                newFarmer(widget._user);
+              case UserType.vendor:
+                newVendor(widget._user);
+              default:
+            }
+          } else {
+            currentStep < getSteps().length - 1
+                ? setState(() => currentStep++)
+                : null;
+          }
+        },
+        onStepCancel: () {
+          currentStep == 0 ? null : setState(() => currentStep--);
+        },
+        controlsBuilder: (BuildContext context, ControlsDetails details) {
+          return Column(children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 16, 15, 0),
+              child: MaterialButton(
+                onPressed: details.onStepContinue,
+                color: const Color(0xff2d9871),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(50, 8, 50, 0),
-                child: Text(
-                  "Provide your details to help vendors curate their menus.",
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.clip,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 14,
-                    color: Color(0xff000000),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 40, 0, 0),
-                child: TextField(
-                  enabled: false,
-                  controller: nameController,
-                  obscureText: false,
-                  textAlign: TextAlign.start,
-                  maxLines: 1,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 14,
-                    color: Color(0xff000000),
-                  ),
-                  decoration: InputDecoration(
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    hintText: "Name",
-                    hintStyle: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.normal,
-                      fontSize: 14,
-                      color: Color(0xff000000),
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xffebebeb),
-                    isDense: false,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    prefixIcon: const Icon(Icons.person,
-                        color: Color(0xff212435), size: 24),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                child: TextField(
-                  enabled: false,
-                  controller: emailController,
-                  obscureText: false,
-                  textAlign: TextAlign.start,
-                  maxLines: 1,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 14,
-                    color: Color(0xff000000),
-                  ),
-                  decoration: InputDecoration(
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    hintText: "Email Address",
-                    hintStyle: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.normal,
-                      fontSize: 14,
-                      color: Color(0xff000000),
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xffebebeb),
-                    isDense: false,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    prefixIcon: const Icon(Icons.mail,
-                        color: Color(0xff212435), size: 24),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          controller: ageController,
-                          obscureText: false,
-                          textAlign: TextAlign.start,
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontStyle: FontStyle.normal,
-                            fontSize: 14,
-                            color: Color(0xff000000),
-                          ),
-                          decoration: InputDecoration(
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            hintText: "Age",
-                            hintStyle: const TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.normal,
-                              fontSize: 14,
-                              color: Color(0xff000000),
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xffffffff),
-                            isDense: false,
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            prefixIcon: const Icon(Icons.calendar_today,
-                                color: Color(0xff212435), size: 24),
-                          ),
+                padding: const EdgeInsets.all(16),
+                textColor: const Color(0xffffffff),
+                height: 45,
+                minWidth: MediaQuery.of(context).size.width,
+                child: currentStep == getSteps().length - 1
+                    ? const Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          fontStyle: FontStyle.normal,
+                        ),
+                      )
+                    : const Text(
+                        "Continue",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          fontStyle: FontStyle.normal,
                         ),
                       ),
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 12),
+                  foregroundColor: const Color.fromARGB(255, 90, 90, 90)),
+              onPressed: currentStep == getSteps().length - 1
+                  ? details.onStepCancel
+                  : null,
+              child: currentStep == getSteps().length - 1
+                  ? const Text('Back')
+                  : const Text(""),
+            ),
+          ]);
+        },
+      )),
+    );
+  }
+
+  List<Step> getSteps() => [
+        Step(
+            isActive: currentStep >= 0,
+            title: const Text("User Type"),
+            content: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 30, 16, 16),
+                child: Column(
+                  children: <Widget>[
+                    const Text(
+                      "What would you like to register as?",
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.clip,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 18,
+                        color: Color(0xff000000),
+                      ),
                     ),
-                    Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                          child: Container(
-                              width: 130,
-                              height: 50,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 13),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffffffff),
-                                border: Border.all(
-                                    color: const Color(0xff2d9871), width: 1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton(
-                                  hint: Text("Gender"),
-                                  value: currentSelectedValue,
-                                  items: ["Male", "Female"]
-                                      .map<DropdownMenuItem<String>>(
-                                          (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                  style: const TextStyle(
-                                    color: Color(0xff000000),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    fontStyle: FontStyle.normal,
-                                  ),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      currentSelectedValue = newValue;
-                                    });
-                                    print(currentSelectedValue);
-                                  },
-                                  icon: const Icon(Icons.accessibility),
-                                  iconSize: 24,
-                                  iconEnabledColor: const Color(0xff212435),
-                                  elevation: 8,
-                                  isExpanded: true,
-                                ),
-                              )),
-                        )),
+                    ListTile(
+                      title: const Text('Consumer'),
+                      leading: Radio<UserType>(
+                        value: UserType.consumer,
+                        groupValue: userType,
+                        onChanged: (UserType? value) {
+                          setState(() {
+                            userType = value;
+                          });
+                        },
+                      ),
+                    ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
+                        child: Text(
+                            "Consumers can view the menu for the week and reserve orders.")),
+                    ListTile(
+                      title: const Text('Vendor'),
+                      leading: Radio<UserType>(
+                        value: UserType.vendor,
+                        groupValue: userType,
+                        onChanged: (UserType? value) {
+                          setState(() {
+                            userType = value;
+                          });
+                        },
+                      ),
+                    ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
+                        child: Text(
+                            "Vendors can curate their weekly menus and view reserved orders.")),
+                    ListTile(
+                      title: const Text('Farmer'),
+                      leading: Radio<UserType>(
+                        value: UserType.farmer,
+                        groupValue: userType,
+                        onChanged: (UserType? value) {
+                          setState(() {
+                            userType = value;
+                          });
+                        },
+                      ),
+                    ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
+                        child: Text(
+                            "Farmers can list the crops they can provide to help canteens complete their dishes.")),
                   ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          controller: heightController,
-                          obscureText: false,
-                          textAlign: TextAlign.start,
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontStyle: FontStyle.normal,
-                            fontSize: 14,
-                            color: Color(0xff000000),
-                          ),
-                          decoration: InputDecoration(
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            hintText: "Height (cm)",
-                            hintStyle: const TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.normal,
-                              fontSize: 14,
-                              color: Color(0xff000000),
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xffffffff),
-                            isDense: false,
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                            prefixIcon: const Icon(Icons.height,
-                                color: Color(0xff212435), size: 24),
-                          ),
-                        ),
-                      ),
+                ))),
+        Step(
+          isActive: currentStep >= 1,
+          title: const Text("User Registration"),
+          content: userType == UserType.consumer
+              ? UserRegistration(
+                  nameController: nameController,
+                  emailController: emailController,
+                  ageController: ageController,
+                  heightController: heightController,
+                  weightController: weightController,
+                  genderCallback: genderCallback,
+                  schoolCallback: schoolCallback,
+                )
+              : userType == UserType.vendor
+                  ? VendorRegistration(
+                      nameController: nameController,
+                      emailController: emailController,
+                      contactNumberController: contactNumberController,
+                      canteenNameController: canteenNameController,
+                      locationCallback: locationCallback,
+                      schoolCallback: schoolCallback,
+                    )
+                  : FarmerRegistration(
+                      nameController: nameController,
+                      emailController: emailController,
+                      locationCallback: locationCallback,
                     ),
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          controller: weightController,
-                          obscureText: false,
-                          textAlign: TextAlign.start,
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontStyle: FontStyle.normal,
-                            fontSize: 14,
-                            color: Color(0xff000000),
-                          ),
-                          decoration: InputDecoration(
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                  color: Color(0xff2d9871), width: 1),
-                            ),
-                            hintText: "Weight (kg)",
-                            hintStyle: const TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.normal,
-                              fontSize: 14,
-                              color: Color(0xff000000),
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xffffffff),
-                            isDense: false,
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            prefixIcon: const Icon(Icons.timer,
-                                color: Color(0xff212435), size: 24),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                child: MaterialButton(
-                  onPressed: () => newUser(widget._user),
-                  color: const Color(0xff2d9871),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  textColor: const Color(0xffffffff),
-                  height: 45,
-                  minWidth: MediaQuery.of(context).size.width,
-                  child: const Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      fontStyle: FontStyle.normal,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        )
+      ];
+
+  void newUser(User user) {
+    var userData =
+        UserData(user.displayName!, UserType.none, isRegistered: true);
+
+    userData.setId(saveUser(user.uid, userData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user, userData: userData),
       ),
     );
+  }
+
+  void newConsumer(User user) {
+    var consumerData = ConsumerData(
+        user.displayName!,
+        UserType.consumer,
+        genderValue == "Male" ? true : false,
+        int.parse(ageController.text),
+        int.parse(heightController.text),
+        int.parse(weightController.text),
+        isRegistered: true);
+
+    consumerData.setId(saveUser(user.uid, consumerData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user, userData: consumerData),
+      ),
+    );
+  }
+
+  genderCallback(genderValue) {
+    this.genderValue = genderValue;
+  }
+
+  schoolCallback(schoolValue) {
+    this.schoolValue = schoolValue;
+  }
+
+  void newFarmer(User user) {
+    var farmerData = FarmerData(
+        user.displayName!, UserType.farmer, locationValue,
+        isRegistered: true);
+
+    farmerData.setId(saveUser(user.uid, farmerData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user, userData: farmerData),
+      ),
+    );
+  }
+
+  void newVendor(User user) {
+    var vendorData = VendorData(
+        user.displayName!,
+        UserType.vendor,
+        locationValue,
+        canteenNameController.text,
+        contactNumberController.text,
+        schoolValue,
+        isRegistered: true);
+
+    vendorData.setId(saveUser(user.uid, vendorData));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => HomePage(user: user, userData: vendorData),
+      ),
+    );
+  }
+
+  locationCallback(locationValue) {
+    this.locationValue = locationValue;
   }
 }
