@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/user_data.dart';
-import 'package:victu/screens/menu_page.dart';
-import 'package:victu/utils/auth.dart';
+import 'package:victu/screens/consumer/menu_page.dart';
+import 'package:victu/screens/consumer/reading_goals.dart';
 import 'package:victu/screens/login.dart';
-import 'package:victu/screens/reading_goals.dart';
+import 'package:victu/screens/vendor/edit_menu.dart';
+import 'package:victu/utils/auth.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required User user, required UserData userData})
@@ -209,7 +210,7 @@ List<Widget> vendorActionCards(BuildContext context) {
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const ReadingGoals()),
+        MaterialPageRoute(builder: (context) => const EditMenu()),
       ),
     ),
     actionCard(

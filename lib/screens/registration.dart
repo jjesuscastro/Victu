@@ -7,10 +7,10 @@ import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
-import 'package:victu/screens/registration/vendor_registration.dart';
 import 'package:victu/screens/home_page.dart';
 import 'package:victu/screens/registration/farmer_registration.dart';
 import 'package:victu/screens/registration/user_registration.dart';
+import 'package:victu/screens/registration/vendor_registration.dart';
 import 'package:victu/utils/database.dart';
 
 class Registration extends StatefulWidget {
