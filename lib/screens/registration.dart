@@ -50,6 +50,19 @@ class _RegistrationState extends State<Registration> {
     emailController.text = widget._user.email!;
   }
 
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    ageController.dispose();
+    heightController.dispose();
+    weightController.dispose();
+    contactNumberController.dispose();
+    canteenNameController.dispose();
+
+    super.dispose();
+  }
+
   //! Unused function, keeping in case a logout button will be added
   // Route _routeToSignInScreen() {
   //   return PageRouteBuilder(
