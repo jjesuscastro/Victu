@@ -3,6 +3,7 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:victu/screens/about_meal.dart';
 import 'package:victu/screens/vendor/create_meal.dart';
 
 class EditMenu extends StatefulWidget {
@@ -265,7 +266,10 @@ class _MenuEntryState extends State<MenuEntry> {
         child: Padding(
           padding: EdgeInsets.zero,
           child: MaterialButton(
-            onPressed: () {},
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AboutMeal()),
+            ),
             color: const Color(0xff2d9871),
             elevation: 0,
             shape: RoundedRectangleBorder(

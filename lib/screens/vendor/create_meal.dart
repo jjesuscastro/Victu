@@ -12,6 +12,7 @@ class CreateMeal extends StatefulWidget {
 
 class _CreateMealState extends State<CreateMeal> {
   TextEditingController dishNameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   TextEditingController recipeController = TextEditingController();
   List<TextEditingController> ingredientControllers =
       List<TextEditingController>.empty(growable: true);
@@ -153,6 +154,53 @@ class _CreateMealState extends State<CreateMeal> {
                     contentPadding:
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     prefixIcon: const Icon(Icons.menu_book,
+                        color: Color(0xff212435), size: 24),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                child: TextField(
+                  controller: descriptionController,
+                  textAlign: TextAlign.start,
+                  maxLines: null,
+                  minLines: 10,
+                  keyboardType: TextInputType.multiline,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
+                  decoration: InputDecoration(
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          const BorderSide(color: Color(0xff2d9871), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          const BorderSide(color: Color(0xff2d9871), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          const BorderSide(color: Color(0xff2d9871), width: 1),
+                    ),
+                    label: const Text("Description"),
+                    hintStyle: const TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.normal,
+                      fontSize: 14,
+                      color: Color(0xff000000),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xffffffff),
+                    isDense: false,
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    prefixIcon: const Icon(Icons.description,
                         color: Color(0xff212435), size: 24),
                   ),
                 ),
