@@ -3,6 +3,7 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:victu/screens/vendor/create_meal.dart';
 
 class EditMenu extends StatefulWidget {
   const EditMenu({super.key});
@@ -39,7 +40,7 @@ class _EditMenuState extends State<EditMenu> {
           borderRadius: BorderRadius.zero,
         ),
         title: const Text(
-          "Menu For The Week",
+          "Schedule Recipes",
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontStyle: FontStyle.normal,
@@ -53,9 +54,10 @@ class _EditMenuState extends State<EditMenu> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your onPressed code here!
-        },
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CreateMeal()),
+        ),
         shape: const CircleBorder(),
         backgroundColor: const Color(0xff2d9871),
         foregroundColor: Colors.white,
