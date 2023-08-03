@@ -4,7 +4,6 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/screens/about_meal.dart';
-import 'package:victu/screens/vendor/create_meal.dart';
 
 class EditMenu extends StatefulWidget {
   const EditMenu({super.key});
@@ -54,16 +53,17 @@ class _EditMenuState extends State<EditMenu> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CreateMeal()),
-        ),
-        shape: const CircleBorder(),
-        backgroundColor: const Color(0xff2d9871),
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
-      ),
+      //? Floating Action Button: Uncomment to add ability to create meals
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => const CreateMeal()),
+      //   ),
+      //   shape: const CircleBorder(),
+      //   backgroundColor: const Color(0xff2d9871),
+      //   foregroundColor: Colors.white,
+      //   child: const Icon(Icons.add),
+      // ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
         child: SingleChildScrollView(
@@ -78,24 +78,30 @@ class _EditMenuState extends State<EditMenu> {
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
                 children: [
-                  dayCard("Mon", DateFormat.yMMMMd().format(getMonday())),
                   dayCard(
+                      context, "Mon", DateFormat.yMMMMd().format(getMonday())),
+                  dayCard(
+                      context,
                       "Tue",
                       DateFormat.yMMMMd()
                           .format(getMonday().add(const Duration(days: 1)))),
                   dayCard(
+                      context,
                       "Wed",
                       DateFormat.yMMMMd()
                           .format(getMonday().add(const Duration(days: 2)))),
                   dayCard(
+                      context,
                       "Thu",
                       DateFormat.yMMMMd()
                           .format(getMonday().add(const Duration(days: 3)))),
                   dayCard(
+                      context,
                       "Fri",
                       DateFormat.yMMMMd()
                           .format(getMonday().add(const Duration(days: 4)))),
                   dayCard(
+                      context,
                       "Sat",
                       DateFormat.yMMMMd()
                           .format(getMonday().add(const Duration(days: 5)))),
@@ -109,7 +115,7 @@ class _EditMenuState extends State<EditMenu> {
   }
 }
 
-Widget dayCard(String day, String date) {
+Widget dayCard(BuildContext context, String day, String date) {
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -167,51 +173,117 @@ Widget dayCard(String day, String date) {
             ],
           ),
           collapsed: Container(),
-          expanded: const Padding(
-            padding: EdgeInsets.all(10),
+          expanded: Padding(
+            padding: const EdgeInsets.all(10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Breakfast",
+                          const Text("Breakfast",
                               style: TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 20)),
-                          Divider(),
-                          MenuEntry("Longganisa w/ Rice", 20),
-                          MenuEntry("Corned Beef w/ Rice", 20),
-                          MenuEntry("Bacon & Eggs", 10),
+                          const Divider(),
+                          const MenuEntry("Longganisa w/ Rice", 20),
+                          const MenuEntry("Corned Beef w/ Rice", 20),
+                          const MenuEntry("Bacon & Eggs", 10),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                            child: MaterialButton(
+                              onPressed: () {},
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.all(10),
+                              textColor: const Color(0xff2d9871),
+                              height: 25,
+                              minWidth: MediaQuery.of(context).size.width,
+                              child: const Text(
+                                "Add Meal",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  fontStyle: FontStyle.normal,
+                                ),
+                              ),
+                            ),
+                          ),
                         ])),
                 Padding(
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Lunch",
+                          const Text("Lunch",
                               style: TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 20)),
-                          Divider(),
-                          MenuEntry("Sinigang w/ Rice", 30),
-                          MenuEntry("Tapa w/ Rice", 30),
-                          MenuEntry("Lumpia w/ Rice", 50),
+                          const Divider(),
+                          const MenuEntry("Sinigang w/ Rice", 30),
+                          const MenuEntry("Tapa w/ Rice", 30),
+                          const MenuEntry("Lumpia w/ Rice", 50),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                            child: MaterialButton(
+                              onPressed: () {},
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.all(10),
+                              textColor: const Color(0xff2d9871),
+                              height: 25,
+                              minWidth: MediaQuery.of(context).size.width,
+                              child: const Text(
+                                "Add Meal",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  fontStyle: FontStyle.normal,
+                                ),
+                              ),
+                            ),
+                          ),
                         ])),
                 Padding(
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Dinner",
+                          const Text("Dinner",
                               style: TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 20)),
-                          Divider(),
-                          MenuEntry("Fried Chicken w/ Rice", 80),
+                          const Divider(),
+                          const MenuEntry("Fried Chicken w/ Rice", 80),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                            child: MaterialButton(
+                              onPressed: () {},
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.all(10),
+                              textColor: const Color(0xff2d9871),
+                              height: 25,
+                              minWidth: MediaQuery.of(context).size.width,
+                              child: const Text(
+                                "Add Meal",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  fontStyle: FontStyle.normal,
+                                ),
+                              ),
+                            ),
+                          ),
                         ])),
               ],
             ),
@@ -238,14 +310,6 @@ class _MenuEntryState extends State<MenuEntry> {
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      Checkbox(
-        value: value,
-        onChanged: (value) {
-          setState(() {
-            this.value = value!;
-          });
-        },
-      ),
       Expanded(
           child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
