@@ -23,6 +23,13 @@ DatabaseReference saveUser(String uid, UserData userData) {
   return id.child(uid);
 }
 
+DatabaseReference saveMeal(Meal meal) {
+  var id = databaseReference.child('meals/').push();
+  id.set(meal.toJson());
+
+  return id;
+}
+
 Future<List<Article>> getAllArticles() async {
   DataSnapshot dataSnapshot = await databaseReference.child('articles/').get();
   List<Article> articles = [];
