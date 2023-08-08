@@ -2,8 +2,11 @@
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:victu/objects/meal.dart';
 import 'package:victu/screens/about_meal.dart';
+import 'package:victu/utils/database.dart';
 
 class EditMenu extends StatefulWidget {
   const EditMenu({super.key});
@@ -13,10 +16,20 @@ class EditMenu extends StatefulWidget {
 }
 
 class _EditMenuState extends State<EditMenu> {
+  List<Meal> meals = [];
   @override
   void initState() {
     super.initState();
     getMonday();
+    updateMeals();
+  }
+
+  void updateMeals() {
+    getAllMeals().then((meals) => {
+          setState(() {
+            this.meals = meals;
+          })
+        });
   }
 
   DateTime getMonday() {
@@ -78,33 +91,38 @@ class _EditMenuState extends State<EditMenu> {
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
                 children: [
-                  dayCard(
-                      context, "Mon", DateFormat.yMMMMd().format(getMonday())),
+                  dayCard(context, "Mon",
+                      DateFormat.yMMMMd().format(getMonday()), meals),
                   dayCard(
                       context,
                       "Tue",
                       DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 1)))),
+                          .format(getMonday().add(const Duration(days: 1))),
+                      meals),
                   dayCard(
                       context,
                       "Wed",
                       DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 2)))),
+                          .format(getMonday().add(const Duration(days: 2))),
+                      meals),
                   dayCard(
                       context,
                       "Thu",
                       DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 3)))),
+                          .format(getMonday().add(const Duration(days: 3))),
+                      meals),
                   dayCard(
                       context,
                       "Fri",
                       DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 4)))),
+                          .format(getMonday().add(const Duration(days: 4))),
+                      meals),
                   dayCard(
                       context,
                       "Sat",
                       DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 5)))),
+                          .format(getMonday().add(const Duration(days: 5))),
+                      meals),
                 ],
               ),
             ],
@@ -115,7 +133,8 @@ class _EditMenuState extends State<EditMenu> {
   }
 }
 
-Widget dayCard(BuildContext context, String day, String date) {
+Widget dayCard(
+    BuildContext context, String day, String date, List<Meal> meals) {
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -134,16 +153,17 @@ Widget dayCard(BuildContext context, String day, String date) {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-                  child: Container(
-                    width: 80,
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.all(5),
-                    padding: const EdgeInsets.all(16),
-                    child: Image(
-                        image: AssetImage(
-                            "assets/icons/${day.toLowerCase()}.png")),
-                  )),
+                padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                child: Container(
+                  width: 80,
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(16),
+                  child: Image(
+                      image:
+                          AssetImage("assets/icons/${day.toLowerCase()}.png")),
+                ),
+              ),
               Expanded(
                 flex: 1,
                 child: Padding(
@@ -179,112 +199,9 @@ Widget dayCard(BuildContext context, String day, String date) {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Breakfast",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 20)),
-                          const Divider(),
-                          const MenuEntry("Longganisa w/ Rice", 20),
-                          const MenuEntry("Corned Beef w/ Rice", 20),
-                          const MenuEntry("Bacon & Eggs", 10),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                            child: MaterialButton(
-                              onPressed: () {},
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: const EdgeInsets.all(10),
-                              textColor: const Color(0xff2d9871),
-                              height: 25,
-                              minWidth: MediaQuery.of(context).size.width,
-                              child: const Text(
-                                "Add Meal",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  fontStyle: FontStyle.normal,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ])),
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Lunch",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 20)),
-                          const Divider(),
-                          const MenuEntry("Sinigang w/ Rice", 30),
-                          const MenuEntry("Tapa w/ Rice", 30),
-                          const MenuEntry("Lumpia w/ Rice", 50),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                            child: MaterialButton(
-                              onPressed: () {},
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: const EdgeInsets.all(10),
-                              textColor: const Color(0xff2d9871),
-                              height: 25,
-                              minWidth: MediaQuery.of(context).size.width,
-                              child: const Text(
-                                "Add Meal",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  fontStyle: FontStyle.normal,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ])),
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Dinner",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 20)),
-                          const Divider(),
-                          const MenuEntry("Fried Chicken w/ Rice", 80),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                            child: MaterialButton(
-                              onPressed: () {},
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: const EdgeInsets.all(10),
-                              textColor: const Color(0xff2d9871),
-                              height: 25,
-                              minWidth: MediaQuery.of(context).size.width,
-                              child: const Text(
-                                "Add Meal",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  fontStyle: FontStyle.normal,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ])),
+                MealTime(time: "Breakfast", meals: meals),
+                MealTime(time: "Lunch", meals: meals),
+                MealTime(time: "Dinner", meals: meals)
               ],
             ),
           ),
@@ -292,6 +209,219 @@ Widget dayCard(BuildContext context, String day, String date) {
       ),
     ),
   );
+}
+
+class MealTime extends StatefulWidget {
+  const MealTime({super.key, required this.time, required this.meals});
+  final String time;
+  final List<Meal> meals;
+  @override
+  State<MealTime> createState() => _MealTimeState();
+}
+
+class _MealTimeState extends State<MealTime> {
+  bool showDropdown = false;
+  TextEditingController quantityController = TextEditingController();
+  var currentMeal;
+
+  showMealDropDown(bool value) {
+    showDropdown = value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.time,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+          const Divider(),
+          // const MenuEntry("Longganisa w/ Rice", 20),
+          showDropdown
+              ? Row(children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 10, 0),
+                      child: Container(
+                        width: 130,
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 13),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffffffff),
+                          border: Border.all(
+                              color: const Color(0xff2d9871), width: 1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                            hint: const Text("Meal"),
+                            value: currentMeal,
+                            items: widget.meals
+                                .map<DropdownMenuItem<Meal>>((Meal value) {
+                              return DropdownMenuItem<Meal>(
+                                value: value,
+                                child: Text(value.title),
+                              );
+                            }).toList(),
+                            style: const TextStyle(
+                              color: Color(0xff000000),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              fontStyle: FontStyle.normal,
+                            ),
+                            onChanged: (newValue) {
+                              setState(() {
+                                currentMeal = newValue;
+                              });
+                            },
+                            icon: const Icon(Icons.food_bank),
+                            iconSize: 24,
+                            iconEnabledColor: const Color(0xff212435),
+                            elevation: 8,
+                            isExpanded: true,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 75,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(2, 14, 12, 0),
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(3),
+                        ],
+                        controller: quantityController,
+                        obscureText: false,
+                        textAlign: TextAlign.start,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.normal,
+                          fontSize: 14,
+                          color: Color(0xff000000),
+                        ),
+                        decoration: InputDecoration(
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                                color: Color(0xff2d9871), width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                                color: Color(0xff2d9871), width: 1),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                                color: Color(0xff2d9871), width: 1),
+                          ),
+                          hintText: "Qty",
+                          hintStyle: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontStyle: FontStyle.normal,
+                            fontSize: 14,
+                            color: Color(0xff000000),
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xffffffff),
+                          isDense: false,
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 40,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+                      child: MaterialButton(
+                        onPressed: () {
+                          setState(() {
+                            showMealDropDown(false);
+                          });
+                        },
+                        color: Colors.red,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(0),
+                        textColor: const Color(0xffffffff),
+                        height: 45,
+                        minWidth: MediaQuery.of(context).size.width,
+                        child: const Icon(Icons.cancel),
+                      ),
+                    ),
+                  ),
+                ])
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                  child: MaterialButton(
+                    onPressed: () {
+                      setState(() {
+                        showMealDropDown(true);
+                      });
+                    },
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    textColor: const Color(0xff2d9871),
+                    height: 25,
+                    minWidth: MediaQuery.of(context).size.width,
+                    child: const Text(
+                      "Add Meal",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.normal,
+                      ),
+                    ),
+                  ),
+                ),
+          if (showDropdown)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: MaterialButton(
+                onPressed: () {
+                  setState(() {
+                    showMealDropDown(false);
+                  });
+                },
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: const EdgeInsets.all(10),
+                textColor: const Color(0xff2d9871),
+                height: 25,
+                minWidth: MediaQuery.of(context).size.width,
+                child: const Text(
+                  "Save",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontStyle: FontStyle.normal,
+                  ),
+                ),
+              ),
+            )
+        ],
+      ),
+    );
+  }
 }
 
 class MenuEntry extends StatefulWidget {
@@ -339,7 +469,7 @@ class _MenuEntryState extends State<MenuEntry> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
-            padding: const EdgeInsets.all(5),
+            padding: const EdgeInsets.all(14),
             textColor: const Color(0xffffffff),
             height: 30,
             minWidth: 60,
@@ -353,7 +483,28 @@ class _MenuEntryState extends State<MenuEntry> {
             ),
           ),
         ),
-      )
+      ),
+      SizedBox(
+        width: 40,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: MaterialButton(
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            color: Colors.red,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: const EdgeInsets.all(0),
+            textColor: const Color(0xffffffff),
+            height: 45,
+            minWidth: MediaQuery.of(context).size.width,
+            child: const Icon(Icons.delete),
+          ),
+        ),
+      ),
     ]);
   }
 }

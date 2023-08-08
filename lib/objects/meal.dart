@@ -29,14 +29,19 @@ Meal createMeal(value) {
   Map<String, dynamic> attributes = {
     'title': '',
     'description': '',
-    'ingredients': {},
-    'recipe': {},
+    'ingredients': [],
+    'recipe': [],
   };
 
   value.forEach((key, value) => {attributes[key] = value});
 
-  Meal meal = Meal(attributes['title'], attributes['description'],
-      attributes['ingredients'], attributes['recipe']);
+  Meal meal = Meal(
+      attributes['title'],
+      attributes['description'],
+      (attributes['ingredients'] as List)
+          .map((item) => item as String)
+          .toList(),
+      (attributes['recipe'] as List).map((item) => item as String).toList());
 
   return meal;
 }
