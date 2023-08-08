@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
+import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
@@ -38,6 +39,24 @@ Future<List<Article>> getAllArticles() async {
   }
 
   return articles;
+}
+
+Future<List<Meal>> getAllMeals() async {
+  DataSnapshot dataSnapshot = await databaseReference.child('meals/').get();
+  List<Meal> meals = [];
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    values.forEach((key, value) {
+      Meal meal = createMeal(value);
+      meal.setId(databaseReference.child('meals/$key'));
+
+      meals.add(meal);
+    });
+  }
+
+  return meals;
 }
 
 Future<UserData> getUser(String uid) async {
