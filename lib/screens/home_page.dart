@@ -7,6 +7,7 @@ import 'package:victu/screens/consumer/reading_goals.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
 import 'package:victu/utils/auth.dart';
+import 'package:victu/utils/database.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required User user, required UserData userData})
@@ -23,6 +24,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late User _user;
+  late var _userData;
 
   Route _routeToSignInScreen() {
     return PageRouteBuilder(
@@ -47,7 +49,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     _user = widget._user;
 
+    getUser();
+
     super.initState();
+  }
+
+  void getUser() async {
+    if (widget._userData.userType == UserType.vendor) {
+      _userData = await getVendor(_user.uid);
+    }
   }
 
   @override

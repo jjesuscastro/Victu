@@ -9,10 +9,18 @@ class VendorData extends FarmerData {
   String canteenName;
   String contactNumber;
   String school;
+  Map<String, Map<String, int>> menus;
 
-  VendorData(super.displayName, super.userType, super.location,
-      this.canteenName, this.contactNumber, this.school,
-      {super.isRegistered = false});
+  VendorData(
+    super.displayName,
+    super.userType,
+    super.location,
+    this.canteenName,
+    this.contactNumber,
+    this.school,
+    this.menus, {
+    super.isRegistered = false,
+  });
 
   @override
   void setId(DatabaseReference id) {
@@ -28,6 +36,7 @@ class VendorData extends FarmerData {
       'canteenName': canteenName,
       'contactNumber': contactNumber,
       'school': school,
+      'menus': menus,
       'isRegistered': isRegistered,
     };
   }
@@ -41,10 +50,13 @@ VendorData createVendorData(value) {
     'canteenName': '',
     'contactNumber': '',
     'school': '',
+    'menus': [],
     'isRegistered': false,
   };
 
   value.forEach((key, value) => {attributes[key] = value});
+
+  print(attributes['menus']);
 
   VendorData userData = VendorData(
     attributes['displayName'],
@@ -53,6 +65,14 @@ VendorData createVendorData(value) {
     attributes['canteenName'],
     attributes['contactNumber'],
     attributes['school'],
+    {
+      'Monday': attributes['menus']['Monday'].cast<String, int>(),
+      'Tuesday': attributes['menus']['Tuesday'].cast<String, int>(),
+      'Wednesday': attributes['menus']['Wednesday'].cast<String, int>(),
+      'Thursday': attributes['menus']['Thursday'].cast<String, int>(),
+      'Friday': attributes['menus']['Friday'].cast<String, int>(),
+      'Saturday': attributes['menus']['Saturday'].cast<String, int>(),
+    },
     isRegistered: attributes['isRegistered'],
   );
 

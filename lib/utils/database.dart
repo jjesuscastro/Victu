@@ -133,11 +133,11 @@ Future<VendorData> getVendor(String uid) async {
     vendorData.setId(databaseReference.child('users/$uid'));
 
     if (!vendorData.isRegistered) {
-      throw Exception("Farmer found but not registered");
+      throw Exception("Vendor found but not registered");
     }
 
     return vendorData;
   }
 
-  throw Exception("Farmer not found");
+  throw Exception("Vendor not found");
 }

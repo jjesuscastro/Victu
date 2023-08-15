@@ -327,6 +327,14 @@ class _RegistrationState extends State<Registration> {
         canteenNameController.text,
         contactNumberController.text,
         schoolValue,
+        {
+          'Monday': {'a': 2},
+          'Tuesday': {'a': 2},
+          'Wednesday': {'a': 2},
+          'Thursday': {'a': 2},
+          'Friday': {'a': 2},
+          'Saturday': {'a': 2},
+        },
         isRegistered: true);
 
     vendorData.setId(saveUser(user.uid, vendorData));
