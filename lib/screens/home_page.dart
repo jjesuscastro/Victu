@@ -55,8 +55,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getUser() async {
-    if (widget._userData.userType == UserType.vendor) {
-      _userData = await getVendor(_user.uid);
+    switch (widget._userData.userType) {
+      case UserType.consumer:
+        _userData = await getConsumer(_user.uid);
+        break;
+      case UserType.vendor:
+        _userData = await getVendor(_user.uid);
+        break;
+      case UserType.farmer:
+        _userData = await getFarmer(_user.uid);
+        break;
+      case UserType.none:
+        break;
     }
   }
 
