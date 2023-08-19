@@ -1,15 +1,16 @@
-///File download from FlutterViz- Drag and drop a tools. For more details visit https://flutterviz.io/
-
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
 
 class EditMenu extends StatefulWidget {
-  const EditMenu({super.key});
+  final VendorData vendorData;
+
+  const EditMenu({super.key, required this.vendorData});
 
   @override
   State<EditMenu> createState() => _EditMenuState();
@@ -17,6 +18,8 @@ class EditMenu extends StatefulWidget {
 
 class _EditMenuState extends State<EditMenu> {
   List<Meal> meals = [];
+  bool mealsLoaded = false;
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +31,7 @@ class _EditMenuState extends State<EditMenu> {
     getAllMeals().then((meals) => {
           setState(() {
             this.meals = meals;
+            mealsLoaded = true;
           })
         });
   }
@@ -85,46 +89,56 @@ class _EditMenuState extends State<EditMenu> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              ListView(
-                scrollDirection: Axis.vertical,
-                padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
-                shrinkWrap: true,
-                physics: const ScrollPhysics(),
-                children: [
-                  dayCard(context, "Mon",
-                      DateFormat.yMMMMd().format(getMonday()), meals),
-                  dayCard(
-                      context,
-                      "Tue",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 1))),
-                      meals),
-                  dayCard(
-                      context,
-                      "Wed",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 2))),
-                      meals),
-                  dayCard(
-                      context,
-                      "Thu",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 3))),
-                      meals),
-                  dayCard(
-                      context,
-                      "Fri",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 4))),
-                      meals),
-                  dayCard(
-                      context,
-                      "Sat",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 5))),
-                      meals),
-                ],
-              ),
+              if (mealsLoaded)
+                ListView(
+                  scrollDirection: Axis.vertical,
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
+                  shrinkWrap: true,
+                  physics: const ScrollPhysics(),
+                  children: [
+                    dayCard(
+                        context,
+                        "Monday",
+                        DateFormat.yMMMMd().format(getMonday()),
+                        meals,
+                        widget.vendorData),
+                    dayCard(
+                        context,
+                        "Tuesday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 1))),
+                        meals,
+                        widget.vendorData),
+                    dayCard(
+                        context,
+                        "Wednesday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 2))),
+                        meals,
+                        widget.vendorData),
+                    dayCard(
+                        context,
+                        "Thursday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 3))),
+                        meals,
+                        widget.vendorData),
+                    dayCard(
+                        context,
+                        "Friday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 4))),
+                        meals,
+                        widget.vendorData),
+                    dayCard(
+                        context,
+                        "Saturday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 5))),
+                        meals,
+                        widget.vendorData),
+                  ],
+                ),
             ],
           ),
         ),
@@ -133,8 +147,8 @@ class _EditMenuState extends State<EditMenu> {
   }
 }
 
-Widget dayCard(
-    BuildContext context, String day, String date, List<Meal> meals) {
+Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
+    VendorData vendorData) {
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -160,8 +174,8 @@ Widget dayCard(
                   margin: const EdgeInsets.all(5),
                   padding: const EdgeInsets.all(16),
                   child: Image(
-                      image:
-                          AssetImage("assets/icons/${day.toLowerCase()}.png")),
+                      image: AssetImage(
+                          "assets/icons/${day.characters.take(3).toLowerCase()}.png")),
                 ),
               ),
               Expanded(
@@ -199,9 +213,12 @@ Widget dayCard(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MealTime(time: "Breakfast", meals: meals),
-                MealTime(time: "Lunch", meals: meals),
-                MealTime(time: "Dinner", meals: meals)
+                MealTime(
+                    time: "B", day: day, vendorData: vendorData, meals: meals),
+                MealTime(
+                    time: "L", day: day, vendorData: vendorData, meals: meals),
+                MealTime(
+                    time: "D", day: day, vendorData: vendorData, meals: meals)
               ],
             ),
           ),
@@ -212,9 +229,16 @@ Widget dayCard(
 }
 
 class MealTime extends StatefulWidget {
-  const MealTime({super.key, required this.time, required this.meals});
+  const MealTime(
+      {super.key,
+      required this.time,
+      required this.day,
+      required this.vendorData,
+      required this.meals});
   final String time;
+  final String day;
   final List<Meal> meals;
+  final VendorData vendorData;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
@@ -228,6 +252,29 @@ class _MealTimeState extends State<MealTime> {
     showDropdown = value;
   }
 
+  Meal findMeal(String key) {
+    Meal meal = widget.meals
+        .firstWhere((element) => element.id.key == key.split(';')[1]);
+
+    return meal;
+  }
+
+  void saveMeal() {
+    widget.vendorData
+            .menus[widget.day]!["${widget.time};${currentMeal.id.key}"] =
+        int.parse(quantityController.text);
+
+    widget.vendorData.update();
+  }
+
+  deleteMeal(String menuKey) {
+    setState(() {
+      widget.vendorData.menus[widget.day]!.remove(menuKey);
+
+      widget.vendorData.update();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -236,11 +283,38 @@ class _MealTimeState extends State<MealTime> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.time,
+          Text(
+              widget.time == "B"
+                  ? "Breakfast"
+                  : widget.time == "L"
+                      ? "Lunch"
+                      : "Dinner",
               style:
                   const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
           const Divider(),
-          // const MenuEntry("Longganisa w/ Rice", 20),
+          ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: widget.vendorData.menus[widget.day]!.length,
+              itemBuilder: (BuildContext context, int index) {
+                String mealTime = widget.vendorData.menus[widget.day]!.keys
+                    .elementAt(index)
+                    .split(';')[0];
+                if (mealTime == widget.time) {
+                  Meal? meal;
+                  meal = findMeal(widget.vendorData.menus[widget.day]!.keys
+                      .elementAt(index));
+                  return MenuEntry(
+                      meal.title,
+                      widget.vendorData.menus[widget.day]!.values
+                          .elementAt(index),
+                      deleteMeal,
+                      widget.vendorData.menus[widget.day]!.keys
+                          .elementAt(index));
+                }
+                return const SizedBox(); //If meal isn't correct time or doesnt exist
+              }),
           showDropdown
               ? Row(children: [
                   Expanded(
@@ -397,6 +471,7 @@ class _MealTimeState extends State<MealTime> {
               child: MaterialButton(
                 onPressed: () {
                   setState(() {
+                    saveMeal();
                     showMealDropDown(false);
                   });
                 },
@@ -425,10 +500,14 @@ class _MealTimeState extends State<MealTime> {
 }
 
 class MenuEntry extends StatefulWidget {
-  const MenuEntry(this.entryName, this.servings, {super.key});
+  const MenuEntry(this.entryName, this.servings, this.deleteCallback,
+      this.deleteCallbackParameter,
+      {super.key});
 
   final String entryName;
   final int servings;
+  final Function deleteCallback;
+  final String deleteCallbackParameter;
 
   @override
   State<MenuEntry> createState() => _MenuEntryState();
@@ -490,7 +569,7 @@ class _MenuEntryState extends State<MenuEntry> {
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
           child: MaterialButton(
             onPressed: () {
-              FocusManager.instance.primaryFocus?.unfocus();
+              widget.deleteCallback(widget.deleteCallbackParameter);
             },
             color: Colors.red,
             elevation: 0,

@@ -3,6 +3,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/farmer_data.dart';
+import 'package:victu/utils/database.dart';
 
 class VendorData extends FarmerData {
   late DatabaseReference _id;
@@ -25,6 +26,34 @@ class VendorData extends FarmerData {
   @override
   void setId(DatabaseReference id) {
     _id = id;
+  }
+
+  void update() {
+    if (!menus.containsKey("Monday")) {
+      menus["Monday"] = {};
+    }
+
+    if (!menus.containsKey("Tuesday")) {
+      menus["Tuesday"] = {};
+    }
+
+    if (!menus.containsKey("Wednesday")) {
+      menus["Wednesday"] = {};
+    }
+
+    if (!menus.containsKey("Thursday")) {
+      menus["Thursday"] = {};
+    }
+
+    if (!menus.containsKey("Friday")) {
+      menus["Friday"] = {};
+    }
+
+    if (!menus.containsKey("Saturday")) {
+      menus["Saturday"] = {};
+    }
+
+    updateDatabase(this, _id);
   }
 
   @override
@@ -55,8 +84,6 @@ VendorData createVendorData(value) {
   };
 
   value.forEach((key, value) => {attributes[key] = value});
-
-  print(attributes['menus']);
 
   VendorData userData = VendorData(
     attributes['displayName'],

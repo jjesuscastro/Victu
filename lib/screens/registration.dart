@@ -328,12 +328,12 @@ class _RegistrationState extends State<Registration> {
         contactNumberController.text,
         schoolValue,
         {
-          'Monday': {'a': 2},
-          'Tuesday': {'a': 2},
-          'Wednesday': {'a': 2},
-          'Thursday': {'a': 2},
-          'Friday': {'a': 2},
-          'Saturday': {'a': 2},
+          'Monday': {'Empty': 0},
+          'Tuesday': {'Empty': 0},
+          'Wednesday': {'Empty': 0},
+          'Thursday': {'Empty': 0},
+          'Friday': {'Empty': 0},
+          'Saturday': {'Empty': 0},
         },
         isRegistered: true);
 

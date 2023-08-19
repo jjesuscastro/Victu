@@ -4,12 +4,20 @@ import 'package:firebase_database/firebase_database.dart';
 
 class Meal {
   late DatabaseReference _id;
+  DatabaseReference get id {
+    return _id;
+  }
+
   String title = "";
   String description;
   List<String> ingredients;
   List<String> recipe;
 
   Meal(this.title, this.description, this.ingredients, this.recipe);
+
+  printDBRef() {
+    print(_id.key);
+  }
 
   void setId(DatabaseReference id) {
     _id = id;

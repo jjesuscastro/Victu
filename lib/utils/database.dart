@@ -30,6 +30,10 @@ DatabaseReference saveMeal(Meal meal) {
   return id;
 }
 
+void updateDatabase(var data, DatabaseReference id) {
+  id.update(data.toJson());
+}
+
 Future<List<Article>> getAllArticles() async {
   DataSnapshot dataSnapshot = await databaseReference.child('articles/').get();
   List<Article> articles = [];
