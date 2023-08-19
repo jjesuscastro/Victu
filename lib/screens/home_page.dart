@@ -2,20 +2,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/consumer/menu_page.dart';
 import 'package:victu/screens/consumer/reading_goals.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
 import 'package:victu/utils/auth.dart';
+import 'package:victu/utils/database.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required User user, required UserData userData})
-      : _user = user,
-        _userData = userData,
-        super(key: key);
+  const HomePage({super.key, required this.user, required this.userData});
 
-  final User _user;
-  final UserData _userData;
+  final User user;
+  final UserData userData;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -23,6 +22,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late User _user;
+  bool userLoaded = false;
+  var userData;
 
   Route _routeToSignInScreen() {
     return PageRouteBuilder(
@@ -45,9 +46,37 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _user = widget._user;
+    _user = widget.user;
+
+    getUserData().then((value) {
+      setState(() {
+        userData = value;
+        userLoaded = true;
+      });
+    });
 
     super.initState();
+  }
+
+  Future<dynamic> getUserData() async {
+    // ignore: prefer_typing_uninitialized_variables
+    var userData;
+    switch (widget.userData.userType) {
+      case UserType.consumer:
+        userData = await getConsumer(_user.uid);
+        break;
+      case UserType.vendor:
+        userData = await getVendor(_user.uid);
+        break;
+      case UserType.farmer:
+        userData = await getFarmer(_user.uid);
+        break;
+      case UserType.none:
+        userData = await getUser(_user.uid);
+        break;
+    }
+
+    return userData;
   }
 
   @override
@@ -145,12 +174,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  if (widget._userData.userType == UserType.consumer)
-                    ...consumerActionCards(context),
-                  if (widget._userData.userType == UserType.farmer)
-                    ...farmerActionCards(context),
-                  if (widget._userData.userType == UserType.vendor)
-                    ...vendorActionCards(context)
+                  if (userLoaded &&
+                      widget.userData.userType == UserType.consumer)
+                    ...consumerActionCards(context, userData),
+                  if (userLoaded && widget.userData.userType == UserType.farmer)
+                    ...farmerActionCards(context, userData),
+                  if (userLoaded && widget.userData.userType == UserType.vendor)
+                    ...vendorActionCards(context, userData)
                 ],
               ),
             ],
@@ -161,7 +191,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-List<Widget> consumerActionCards(BuildContext context) {
+List<Widget> consumerActionCards(BuildContext context, var userData) {
   return [
     actionCard(
       "Reading goals",
@@ -199,7 +229,7 @@ List<Widget> consumerActionCards(BuildContext context) {
   ];
 }
 
-List<Widget> vendorActionCards(BuildContext context) {
+List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
   return [
     actionCard(
       "Schedule Recipes",
@@ -210,7 +240,8 @@ List<Widget> vendorActionCards(BuildContext context) {
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const EditMenu()),
+        MaterialPageRoute(
+            builder: (context) => EditMenu(vendorData: vendorData)),
       ),
     ),
     actionCard(
@@ -228,7 +259,7 @@ List<Widget> vendorActionCards(BuildContext context) {
   ];
 }
 
-List<Widget> farmerActionCards(BuildContext context) {
+List<Widget> farmerActionCards(BuildContext context, var userData) {
   return [
     actionCard(
       "Update Available Products",

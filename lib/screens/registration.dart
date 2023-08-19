@@ -327,6 +327,14 @@ class _RegistrationState extends State<Registration> {
         canteenNameController.text,
         contactNumberController.text,
         schoolValue,
+        {
+          'Monday': {'Empty': 0},
+          'Tuesday': {'Empty': 0},
+          'Wednesday': {'Empty': 0},
+          'Thursday': {'Empty': 0},
+          'Friday': {'Empty': 0},
+          'Saturday': {'Empty': 0},
+        },
         isRegistered: true);
 
     vendorData.setId(saveUser(user.uid, vendorData));

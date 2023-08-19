@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
+import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
@@ -22,6 +23,17 @@ DatabaseReference saveUser(String uid, UserData userData) {
   return id.child(uid);
 }
 
+DatabaseReference saveMeal(Meal meal) {
+  var id = databaseReference.child('meals/').push();
+  id.set(meal.toJson());
+
+  return id;
+}
+
+void updateDatabase(var data, DatabaseReference id) {
+  id.update(data.toJson());
+}
+
 Future<List<Article>> getAllArticles() async {
   DataSnapshot dataSnapshot = await databaseReference.child('articles/').get();
   List<Article> articles = [];
@@ -38,6 +50,24 @@ Future<List<Article>> getAllArticles() async {
   }
 
   return articles;
+}
+
+Future<List<Meal>> getAllMeals() async {
+  DataSnapshot dataSnapshot = await databaseReference.child('meals/').get();
+  List<Meal> meals = [];
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    values.forEach((key, value) {
+      Meal meal = createMeal(value);
+      meal.setId(databaseReference.child('meals/$key'));
+
+      meals.add(meal);
+    });
+  }
+
+  return meals;
 }
 
 Future<UserData> getUser(String uid) async {
@@ -107,11 +137,11 @@ Future<VendorData> getVendor(String uid) async {
     vendorData.setId(databaseReference.child('users/$uid'));
 
     if (!vendorData.isRegistered) {
-      throw Exception("Farmer found but not registered");
+      throw Exception("Vendor found but not registered");
     }
 
     return vendorData;
   }
 
-  throw Exception("Farmer not found");
+  throw Exception("Vendor not found");
 }
