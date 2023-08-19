@@ -306,7 +306,7 @@ class _MealTimeState extends State<MealTime> {
                   meal = findMeal(widget.vendorData.menus[widget.day]!.keys
                       .elementAt(index));
                   return MenuEntry(
-                      meal.title,
+                      meal,
                       widget.vendorData.menus[widget.day]!.values
                           .elementAt(index),
                       deleteMeal,
@@ -500,11 +500,11 @@ class _MealTimeState extends State<MealTime> {
 }
 
 class MenuEntry extends StatefulWidget {
-  const MenuEntry(this.entryName, this.servings, this.deleteCallback,
+  const MenuEntry(this.meal, this.servings, this.deleteCallback,
       this.deleteCallbackParameter,
       {super.key});
 
-  final String entryName;
+  final Meal meal;
   final int servings;
   final Function deleteCallback;
   final String deleteCallbackParameter;
@@ -524,7 +524,7 @@ class _MenuEntryState extends State<MenuEntry> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.entryName,
+            widget.meal.title,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -541,7 +541,8 @@ class _MenuEntryState extends State<MenuEntry> {
           child: MaterialButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AboutMeal()),
+              MaterialPageRoute(
+                  builder: (context) => AboutMeal(meal: widget.meal)),
             ),
             color: const Color(0xff2d9871),
             elevation: 0,
