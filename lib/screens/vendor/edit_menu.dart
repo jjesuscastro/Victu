@@ -252,17 +252,31 @@ class _MealTimeState extends State<MealTime> {
     showDropdown = value;
   }
 
-  Meal findMeal(String key) {
-    Meal meal = widget.meals
-        .firstWhere((element) => element.id.key == key.split(';')[1]);
+  Meal findMeal(List<String> mealValues) {
+    Meal meal =
+        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
   }
 
   void saveMeal() {
-    widget.vendorData
-            .menus[widget.day]!["${widget.time};${currentMeal.id.key}"] =
-        int.parse(quantityController.text);
+    int currentOrders = 0;
+    String removeKey = '';
+
+    widget.vendorData.menus[widget.day]!.forEach((key, value) {
+      if (key.contains("${widget.time};${currentMeal.id.key}")) {
+        currentOrders = value;
+        removeKey = key;
+      }
+    });
+
+    if (removeKey.isNotEmpty) {
+      widget.vendorData.menus[widget.day]!.remove(removeKey);
+    }
+
+    widget.vendorData.menus[widget.day]![
+            "${widget.time};${currentMeal.id.key};${int.parse(quantityController.text)}"] =
+        currentOrders;
 
     widget.vendorData.update();
   }
@@ -298,21 +312,23 @@ class _MealTimeState extends State<MealTime> {
               shrinkWrap: true,
               itemCount: widget.vendorData.menus[widget.day]!.length,
               itemBuilder: (BuildContext context, int index) {
-                String mealTime = widget.vendorData.menus[widget.day]!.keys
+                List<String> mealValues = widget
+                    .vendorData.menus[widget.day]!.keys
                     .elementAt(index)
-                    .split(';')[0];
-                if (mealTime == widget.time) {
+                    .split(';');
+
+                if (mealValues[0] == widget.time) {
                   Meal? meal;
-                  meal = findMeal(widget.vendorData.menus[widget.day]!.keys
-                      .elementAt(index));
+                  meal = findMeal(mealValues);
+
                   return MenuEntry(
                       meal,
-                      widget.vendorData.menus[widget.day]!.values
-                          .elementAt(index),
+                      int.parse(mealValues[2]),
                       deleteMeal,
                       widget.vendorData.menus[widget.day]!.keys
                           .elementAt(index));
                 }
+
                 return const SizedBox(); //If meal isn't correct time or doesnt exist
               }),
           showDropdown
