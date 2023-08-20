@@ -160,7 +160,7 @@ class AboutMeal extends StatelessWidget {
                             return Padding(
                               padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                               child: Text(
-                                "${index + 1}. ${meal.ingredients[index]}",
+                                "${index + 1}. ${meal.ingredients[index].amount}${meal.ingredients[index].measurement.toJson()} ${meal.ingredients[index].name}",
                                 textAlign: TextAlign.start,
                                 overflow: TextOverflow.clip,
                                 style: const TextStyle(
