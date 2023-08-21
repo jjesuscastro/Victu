@@ -23,7 +23,6 @@ class _IngredientSummaryState extends State<IngredientSummary> {
   @override
   void initState() {
     super.initState();
-    getMonday();
     updateMeals();
   }
 

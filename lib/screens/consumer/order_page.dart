@@ -7,16 +7,16 @@ import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
 
-class MenuPage extends StatefulWidget {
-  const MenuPage({super.key, required this.consumerData});
+class OrderPage extends StatefulWidget {
+  const OrderPage({super.key, required this.consumerData});
 
   final ConsumerData consumerData;
 
   @override
-  State<MenuPage> createState() => _MenuPageState();
+  State<OrderPage> createState() => _OrderPageState();
 }
 
-class _MenuPageState extends State<MenuPage> {
+class _OrderPageState extends State<OrderPage> {
   List<Meal> meals = [];
   late VendorData vendor;
   bool mealsLoaded = false;
@@ -48,12 +48,38 @@ class _MenuPageState extends State<MenuPage> {
         });
   }
 
-  DateTime getMonday() {
+  Map<String, DateTime> getTomorrow() {
+    Map<String, DateTime> tomorrow = {};
     DateTime now = DateTime.now();
-    if (now.weekday == 7) now = now.add(const Duration(days: 1));
-    DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
 
-    return weekStart;
+    DateTime tmrw = now.add(const Duration(days: 1));
+    if (tmrw.weekday == 7) tmrw = now.add(const Duration(days: 1));
+
+    String weekday = getWeekdayString(tmrw.weekday);
+
+    tomorrow[weekday] = tmrw;
+    return tomorrow;
+  }
+
+  String getWeekdayString(int weekday) {
+    switch (weekday) {
+      case 1:
+        return "Monday";
+      case 2:
+        return "Tuesday";
+      case 3:
+        return "Wednesday";
+      case 4:
+        return "Thursday";
+      case 5:
+        return "Friday";
+      case 6:
+        return "Saturday";
+      case 7:
+        return "Sunday";
+      default:
+        return "";
+    }
   }
 
   @override
@@ -69,7 +95,7 @@ class _MenuPageState extends State<MenuPage> {
           borderRadius: BorderRadius.zero,
         ),
         title: const Text(
-          "Menu for The Week",
+          "Reserve an Order",
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontStyle: FontStyle.normal,
@@ -97,41 +123,29 @@ class _MenuPageState extends State<MenuPage> {
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
                   children: [
-                    dayCard(context, "Monday",
-                        DateFormat.yMMMMd().format(getMonday()), meals, vendor),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Here's the menu for tomorrow",
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                            fontSize: 14,
+                            color: Color(0xff000000),
+                          ),
+                        ),
+                      ),
+                    ),
                     dayCard(
                         context,
-                        "Tuesday",
+                        getTomorrow().keys.elementAt(0),
                         DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 1))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Wednesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 2))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Thursday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 3))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Friday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 4))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Saturday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 5))),
+                            .format(getTomorrow().values.elementAt(0)),
                         meals,
                         vendor),
                   ],
@@ -147,6 +161,7 @@ class _MenuPageState extends State<MenuPage> {
 Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
     VendorData vendorData) {
   return ExpandableNotifier(
+    initialExpanded: true,
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
       color: const Color(0xffffffff),
@@ -315,6 +330,7 @@ class _MenuEntryState extends State<MenuEntry> {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
+          const Text("Qty: ${0}"),
         ],
       )),
       TextButton(

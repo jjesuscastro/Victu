@@ -24,7 +24,6 @@ class _EditMenuState extends State<EditMenu> {
   @override
   void initState() {
     super.initState();
-    getMonday();
     updateMeals();
   }
 

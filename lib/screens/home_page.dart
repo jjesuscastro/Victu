@@ -5,6 +5,7 @@ import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/consumer/menu_page.dart';
+import 'package:victu/screens/consumer/order_page.dart';
 import 'package:victu/screens/consumer/reading_goals.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/check_orders.dart';
@@ -228,7 +229,11 @@ List<Widget> consumerActionCards(
         color: Color(0xff212435),
         size: 24,
       ),
-      () => {},
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => OrderPage(consumerData: consumerData)),
+      ),
     ),
   ];
 }

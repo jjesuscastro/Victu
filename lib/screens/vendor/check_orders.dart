@@ -21,7 +21,6 @@ class _CheckOrdersState extends State<CheckOrders> {
   @override
   void initState() {
     super.initState();
-    getMonday();
     updateMeals();
   }
 
