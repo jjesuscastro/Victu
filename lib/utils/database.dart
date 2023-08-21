@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
@@ -144,4 +145,25 @@ Future<VendorData> getVendor(String uid) async {
   }
 
   throw Exception("Vendor not found");
+}
+
+Future<List<VendorData>> getAllVendors() async {
+  DataSnapshot dataSnapshot = await databaseReference.child('users/').get();
+  List<VendorData> vendors = [];
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    values.forEach((key, value) {
+      UserData userData = createUserData(value);
+      if (userData.userType == UserType.vendor) {
+        VendorData vendor = createVendorData(value);
+        vendor.setId(databaseReference.child('users/$key'));
+
+        vendors.add(vendor);
+      }
+    });
+  }
+
+  return vendors;
 }

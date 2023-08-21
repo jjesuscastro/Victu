@@ -286,6 +286,7 @@ class _RegistrationState extends State<Registration> {
         int.parse(ageController.text),
         int.parse(heightController.text),
         int.parse(weightController.text),
+        schoolValue,
         isRegistered: true);
 
     consumerData.setId(saveUser(user.uid, consumerData));

@@ -1,22 +1,20 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:victu/objects/ingredient.dart';
 import 'package:victu/objects/meal.dart';
-import 'package:victu/objects/measurement_type.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/utils/database.dart';
 
-class IngredientSummary extends StatefulWidget {
+class CheckOrders extends StatefulWidget {
   final VendorData vendorData;
 
-  const IngredientSummary({super.key, required this.vendorData});
+  const CheckOrders({super.key, required this.vendorData});
 
   @override
-  State<IngredientSummary> createState() => _IngredientSummaryState();
+  State<CheckOrders> createState() => _CheckOrdersState();
 }
 
-class _IngredientSummaryState extends State<IngredientSummary> {
+class _CheckOrdersState extends State<CheckOrders> {
   List<Meal> meals = [];
   bool mealsLoaded = false;
 
@@ -57,7 +55,7 @@ class _IngredientSummaryState extends State<IngredientSummary> {
           borderRadius: BorderRadius.zero,
         ),
         title: const Text(
-          "Summary of Ingredients",
+          "Check Orders",
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontStyle: FontStyle.normal,
@@ -126,29 +124,6 @@ class _IngredientSummaryState extends State<IngredientSummary> {
                             .format(getMonday().add(const Duration(days: 5))),
                         meals,
                         widget.vendorData),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                      child: MaterialButton(
-                        onPressed: () => {},
-                        color: const Color(0xff2d9871),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        textColor: const Color(0xffffffff),
-                        height: 45,
-                        minWidth: MediaQuery.of(context).size.width,
-                        child: const Text(
-                          "See Available Local Businesses",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.normal,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
             ],
@@ -161,45 +136,6 @@ class _IngredientSummaryState extends State<IngredientSummary> {
 
 Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
     VendorData vendorData) {
-  List<Ingredient> getIngredients(Map<String, int> menuEntries) {
-    List<Ingredient> ingredientsList = [];
-    menuEntries.forEach((key, value) {
-      //0 = Time
-      //1 = Meal ID
-      //2 = Servings
-      List<String> keyValues = key.split(';');
-
-      if (keyValues.length == 3) {
-        Meal meal =
-            meals.firstWhere((element) => element.id.key == keyValues[1]);
-
-        for (var ingredient in meal.ingredients) {
-          Ingredient ing = ingredientsList.firstWhere(
-              (i) => i.name == ingredient.name,
-              orElse: () => Ingredient("None", 0, MeasurementType.g));
-
-          if (ing.name != "None") {
-            ing.amount += (ingredient.amount * int.parse(keyValues[2]));
-            ingredientsList[ingredientsList
-                .indexWhere((i) => i.name == ingredient.name)] = ing;
-          } else {
-            Ingredient i = ingredient;
-            i.amount *= int.parse(keyValues[2]);
-            ingredientsList.add(i);
-          }
-        }
-      }
-    });
-
-    return ingredientsList;
-  }
-
-  List<Ingredient> ingredientsList = getIngredients(vendorData.menus[day]!);
-  print("Ingredients for $day");
-  for (var element in ingredientsList) {
-    print("${element.name} ${element.amount}");
-  }
-
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -264,17 +200,12 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: ingredientsList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return IngredientEntry(
-                          ingredientsList[index].name,
-                          ingredientsList[index].amount,
-                          ingredientsList[index].measurement);
-                    })
+                MealTime(
+                    time: "B", day: day, vendorData: vendorData, meals: meals),
+                MealTime(
+                    time: "L", day: day, vendorData: vendorData, meals: meals),
+                MealTime(
+                    time: "D", day: day, vendorData: vendorData, meals: meals)
               ],
             ),
           ),
@@ -284,37 +215,149 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
   );
 }
 
-class IngredientEntry extends StatelessWidget {
-  const IngredientEntry(this.name, this.amount, this.measurement, {super.key});
+class MealTime extends StatefulWidget {
+  const MealTime(
+      {super.key,
+      required this.time,
+      required this.day,
+      required this.vendorData,
+      required this.meals});
+  final String time;
+  final String day;
+  final List<Meal> meals;
+  final VendorData vendorData;
+  @override
+  State<MealTime> createState() => _MealTimeState();
+}
 
-  final String name;
-  final int amount;
-  final MeasurementType measurement;
+class _MealTimeState extends State<MealTime> {
+  bool showDropdown = false;
+  TextEditingController quantityController = TextEditingController();
+  var currentMeal;
+
+  showMealDropDown(bool value) {
+    showDropdown = value;
+  }
+
+  Meal findMeal(List<String> mealValues) {
+    Meal meal =
+        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
+
+    return meal;
+  }
+
+  void saveMeal() {
+    int currentOrders = 0;
+    String removeKey = '';
+
+    widget.vendorData.menus[widget.day]!.forEach((key, value) {
+      if (key.contains("${widget.time};${currentMeal.id.key}")) {
+        currentOrders = value;
+        removeKey = key;
+      }
+    });
+
+    if (removeKey.isNotEmpty) {
+      widget.vendorData.menus[widget.day]!.remove(removeKey);
+    }
+
+    widget.vendorData.menus[widget.day]![
+            "${widget.time};${currentMeal.id.key};${int.parse(quantityController.text)}"] =
+        currentOrders;
+
+    widget.vendorData.update();
+  }
+
+  deleteMeal(String menuKey) {
+    setState(() {
+      widget.vendorData.menus[widget.day]!.remove(menuKey);
+
+      widget.vendorData.update();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  name,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                if (measurement == MeasurementType.g && amount >= 1000)
-                  Text("Amount: ${amount / 1000}${MeasurementType.kg.toJson()}")
-                else
-                  Text("Amount: $amount${measurement.toJson()}"),
-              ],
-            ),
+          Text(
+              widget.time == "B"
+                  ? "Breakfast"
+                  : widget.time == "L"
+                      ? "Lunch"
+                      : "Dinner",
+              style:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+          const Divider(),
+          ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: widget.vendorData.menus[widget.day]!.length,
+            itemBuilder: (BuildContext context, int index) {
+              List<String> mealValues = widget
+                  .vendorData.menus[widget.day]!.keys
+                  .elementAt(index)
+                  .split(';');
+
+              if (mealValues[0] == widget.time) {
+                Meal? meal;
+                meal = findMeal(mealValues);
+
+                int servings = int.parse(mealValues[2]);
+
+                int orders = widget.vendorData.menus[widget.day]!.values
+                    .elementAt(index);
+
+                return MenuEntry(meal, servings, orders);
+              }
+
+              return const SizedBox(); //If meal isn't correct time or doesnt exist
+            },
           ),
         ],
       ),
     );
+  }
+}
+
+class MenuEntry extends StatefulWidget {
+  const MenuEntry(this.meal, this.servings, this.orders, {super.key});
+
+  final Meal meal;
+  final int servings;
+  final int orders;
+
+  @override
+  State<MenuEntry> createState() => _MenuEntryState();
+}
+
+class _MenuEntryState extends State<MenuEntry> {
+  bool value = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.meal.title,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text("Orders: ${widget.orders}"),
+            if (widget.orders > widget.servings)
+              Text("Not enough servings! (${widget.servings})",
+                  style: const TextStyle(color: Colors.red))
+          ],
+        ),
+      ),
+    ]);
   }
 }

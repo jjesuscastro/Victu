@@ -1,21 +1,52 @@
-///File download from FlutterViz- Drag and drop a tools. For more details visit https://flutterviz.io/
-
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/users/consumer_data.dart';
+import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/screens/about_meal.dart';
+import 'package:victu/utils/database.dart';
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({super.key});
+  const MenuPage({super.key, required this.consumerData});
+
+  final ConsumerData consumerData;
 
   @override
   State<MenuPage> createState() => _MenuPageState();
 }
 
 class _MenuPageState extends State<MenuPage> {
+  List<Meal> meals = [];
+  late VendorData vendor;
+  bool mealsLoaded = false;
+  bool vendorLoaded = false;
+
   @override
   void initState() {
     super.initState();
     getMonday();
+    updateMeals();
+    updateVendor();
+  }
+
+  void updateMeals() {
+    getAllMeals().then((meals) => {
+          setState(() {
+            this.meals = meals;
+            mealsLoaded = true;
+          })
+        });
+  }
+
+  void updateVendor() {
+    getAllVendors().then((vendors) => {
+          setState(() {
+            vendor = vendors
+                .firstWhere((v) => v.school == widget.consumerData.school);
+            vendorLoaded = true;
+          })
+        });
   }
 
   DateTime getMonday() {
@@ -39,7 +70,7 @@ class _MenuPageState extends State<MenuPage> {
           borderRadius: BorderRadius.zero,
         ),
         title: const Text(
-          "Menu For The Week",
+          "Menu for The Week",
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontStyle: FontStyle.normal,
@@ -60,35 +91,52 @@ class _MenuPageState extends State<MenuPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              ListView(
-                scrollDirection: Axis.vertical,
-                padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                shrinkWrap: true,
-                physics: const ScrollPhysics(),
-                children: [
-                  dayCard("Mon", DateFormat.yMMMMd().format(getMonday())),
-                  dayCard(
-                      "Tue",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 1)))),
-                  dayCard(
-                      "Wed",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 2)))),
-                  dayCard(
-                      "Thu",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 3)))),
-                  dayCard(
-                      "Fri",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 4)))),
-                  dayCard(
-                      "Sat",
-                      DateFormat.yMMMMd()
-                          .format(getMonday().add(const Duration(days: 5)))),
-                ],
-              ),
+              if (mealsLoaded && vendorLoaded)
+                ListView(
+                  scrollDirection: Axis.vertical,
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
+                  shrinkWrap: true,
+                  physics: const ScrollPhysics(),
+                  children: [
+                    dayCard(context, "Monday",
+                        DateFormat.yMMMMd().format(getMonday()), meals, vendor),
+                    dayCard(
+                        context,
+                        "Tuesday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 1))),
+                        meals,
+                        vendor),
+                    dayCard(
+                        context,
+                        "Wednesday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 2))),
+                        meals,
+                        vendor),
+                    dayCard(
+                        context,
+                        "Thursday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 3))),
+                        meals,
+                        vendor),
+                    dayCard(
+                        context,
+                        "Friday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 4))),
+                        meals,
+                        vendor),
+                    dayCard(
+                        context,
+                        "Saturday",
+                        DateFormat.yMMMMd()
+                            .format(getMonday().add(const Duration(days: 5))),
+                        meals,
+                        vendor),
+                  ],
+                ),
             ],
           ),
         ),
@@ -97,7 +145,8 @@ class _MenuPageState extends State<MenuPage> {
   }
 }
 
-Widget dayCard(String day, String date) {
+Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
+    VendorData vendorData) {
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -116,16 +165,17 @@ Widget dayCard(String day, String date) {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-                  child: Container(
-                    width: 80,
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.all(5),
-                    padding: const EdgeInsets.all(16),
-                    child: Image(
-                        image: AssetImage(
-                            "assets/icons/${day.toLowerCase()}.png")),
-                  )),
+                padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                child: Container(
+                  width: 80,
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(16),
+                  child: Image(
+                      image: AssetImage(
+                          "assets/icons/${day.characters.take(3).toLowerCase()}.png")),
+                ),
+              ),
               Expanded(
                 flex: 1,
                 child: Padding(
@@ -155,51 +205,18 @@ Widget dayCard(String day, String date) {
             ],
           ),
           collapsed: Container(),
-          expanded: const Padding(
-            padding: EdgeInsets.all(10),
+          expanded: Padding(
+            padding: const EdgeInsets.all(10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Breakfast",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 20)),
-                          Divider(),
-                          Text("Longganisa"),
-                          Text("Bacon"),
-                        ])),
-                Padding(
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Lunch",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 20)),
-                          Divider(),
-                          Text("Longganisa"),
-                          Text("Bacon"),
-                        ])),
-                Padding(
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Dinner",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 20)),
-                          Divider(),
-                          Text("Longganisa"),
-                          Text("Bacon"),
-                        ])),
+                MealTime(
+                    time: "B", day: day, vendorData: vendorData, meals: meals),
+                MealTime(
+                    time: "L", day: day, vendorData: vendorData, meals: meals),
+                MealTime(
+                    time: "D", day: day, vendorData: vendorData, meals: meals)
               ],
             ),
           ),
@@ -207,4 +224,133 @@ Widget dayCard(String day, String date) {
       ),
     ),
   );
+}
+
+class MealTime extends StatefulWidget {
+  const MealTime(
+      {super.key,
+      required this.time,
+      required this.day,
+      required this.vendorData,
+      required this.meals});
+  final String time;
+  final String day;
+  final List<Meal> meals;
+  final VendorData vendorData;
+  @override
+  State<MealTime> createState() => _MealTimeState();
+}
+
+class _MealTimeState extends State<MealTime> {
+  Meal findMeal(List<String> mealValues) {
+    Meal meal =
+        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
+
+    return meal;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+              widget.time == "B"
+                  ? "Breakfast"
+                  : widget.time == "L"
+                      ? "Lunch"
+                      : "Dinner",
+              style:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+          const Divider(),
+          ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: widget.vendorData.menus[widget.day]!.length,
+              itemBuilder: (BuildContext context, int index) {
+                List<String> mealValues = widget
+                    .vendorData.menus[widget.day]!.keys
+                    .elementAt(index)
+                    .split(';');
+
+                if (mealValues[0] == widget.time) {
+                  Meal? meal;
+                  meal = findMeal(mealValues);
+
+                  return MenuEntry(meal);
+                }
+
+                return const SizedBox(); //If meal isn't correct time or doesnt exist
+              }),
+        ],
+      ),
+    );
+  }
+}
+
+class MenuEntry extends StatefulWidget {
+  const MenuEntry(this.meal, {super.key});
+
+  final Meal meal;
+
+  @override
+  State<MenuEntry> createState() => _MenuEntryState();
+}
+
+class _MenuEntryState extends State<MenuEntry> {
+  bool value = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Expanded(
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.meal.title,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      )),
+      TextButton(
+        style: ButtonStyle(
+          foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+        ),
+        onPressed: () {},
+        child: Padding(
+          padding: EdgeInsets.zero,
+          child: MaterialButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AboutMeal(meal: widget.meal)),
+            ),
+            color: const Color(0xff2d9871),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: const EdgeInsets.all(14),
+            textColor: const Color(0xffffffff),
+            height: 30,
+            minWidth: 60,
+            child: const Text(
+              "About",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.normal,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ]);
+  }
 }

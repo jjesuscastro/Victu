@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/objects/user_type.dart';
+import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/consumer/menu_page.dart';
 import 'package:victu/screens/consumer/reading_goals.dart';
 import 'package:victu/screens/login.dart';
+import 'package:victu/screens/vendor/check_orders.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
@@ -191,7 +193,8 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-List<Widget> consumerActionCards(BuildContext context, var userData) {
+List<Widget> consumerActionCards(
+    BuildContext context, ConsumerData consumerData) {
   return [
     actionCard(
       "Reading goals",
@@ -214,7 +217,8 @@ List<Widget> consumerActionCards(BuildContext context, var userData) {
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const MenuPage()),
+        MaterialPageRoute(
+            builder: (context) => MenuPage(consumerData: consumerData)),
       ),
     ),
     actionCard(
@@ -253,7 +257,8 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const MenuPage()),
+        MaterialPageRoute(
+            builder: (context) => CheckOrders(vendorData: vendorData)),
       ),
     ),
   ];
@@ -280,10 +285,7 @@ List<Widget> farmerActionCards(BuildContext context, var userData) {
         color: Color(0xff212435),
         size: 24,
       ),
-      () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const MenuPage()),
-      ),
+      () => {},
     ),
   ];
 }
