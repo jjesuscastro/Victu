@@ -179,11 +179,13 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               orElse: () => Ingredient("None", 0, MeasurementType.g));
 
           if (ing.name != "None") {
-            ing.amount += (ingredient.amount * int.parse(keyValues[2]));
+            Ingredient newIngredient = cloneIngredient(ing);
+            newIngredient.amount +=
+                (ingredient.amount * int.parse(keyValues[2]));
             ingredientsList[ingredientsList
-                .indexWhere((i) => i.name == ingredient.name)] = ing;
+                .indexWhere((i) => i.name == ingredient.name)] = newIngredient;
           } else {
-            Ingredient i = ingredient;
+            Ingredient i = cloneIngredient(ingredient);
             i.amount *= int.parse(keyValues[2]);
             ingredientsList.add(i);
           }
@@ -195,10 +197,6 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
   }
 
   List<Ingredient> ingredientsList = getIngredients(vendorData.menus[day]!);
-  print("Ingredients for $day");
-  for (var element in ingredientsList) {
-    print("${element.name} ${element.amount}");
-  }
 
   return ExpandableNotifier(
     child: Card(

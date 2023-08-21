@@ -33,3 +33,8 @@ Ingredient createIngredient(value) {
 
   return ingredient;
 }
+
+Ingredient cloneIngredient(Ingredient oldIngredient) {
+  return Ingredient(
+      oldIngredient.name, oldIngredient.amount, oldIngredient.measurement);
+}
