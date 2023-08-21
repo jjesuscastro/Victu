@@ -5,9 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/about_meal.dart';
+import 'package:victu/screens/vendor/ingredient_summary.dart';
 import 'package:victu/utils/database.dart';
-
-import 'create_meal.dart';
 
 class EditMenu extends StatefulWidget {
   final VendorData vendorData;
@@ -73,16 +72,16 @@ class _EditMenuState extends State<EditMenu> {
         ),
       ),
       //? Floating Action Button: Uncomment to add ability to create meals
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CreateMeal()),
-        ),
-        shape: const CircleBorder(),
-        backgroundColor: const Color(0xff2d9871),
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => const CreateMeal()),
+      //   ),
+      //   shape: const CircleBorder(),
+      //   backgroundColor: const Color(0xff2d9871),
+      //   foregroundColor: Colors.white,
+      //   child: const Icon(Icons.add),
+      // ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
         child: SingleChildScrollView(
@@ -142,7 +141,12 @@ class _EditMenuState extends State<EditMenu> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                       child: MaterialButton(
-                        onPressed: () {},
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => IngredientSummary(
+                                  vendorData: widget.vendorData)),
+                        ),
                         color: const Color(0xff2d9871),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
