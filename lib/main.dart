@@ -24,6 +24,8 @@ class Victu extends StatelessWidget {
   }
 }
 
+//ToDo: Add names to orders
 //ToDo: 1. Process orders from consumers to vendors
 //ToDo: 2. Add farmer list to vendors' view
 //ToDo: 3. Add weekly ingredient summary
+//ToDo: Add time devisions to B L and D
