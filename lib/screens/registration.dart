@@ -312,7 +312,7 @@ class _RegistrationState extends State<Registration> {
         locationValue, contactNumberController.text,
         isRegistered: true);
 
-    farmerData.setId(saveUser('${user.uid}f', farmerData));
+    farmerData.setId(saveUser(user.uid, farmerData));
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
