@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/about_meal.dart';
+import 'package:victu/screens/vendor/ingredient_summary.dart';
 import 'package:victu/utils/database.dart';
 
 class EditMenu extends StatefulWidget {
@@ -23,7 +24,6 @@ class _EditMenuState extends State<EditMenu> {
   @override
   void initState() {
     super.initState();
-    getMonday();
     updateMeals();
   }
 
@@ -137,6 +137,34 @@ class _EditMenuState extends State<EditMenu> {
                             .format(getMonday().add(const Duration(days: 5))),
                         meals,
                         widget.vendorData),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                      child: MaterialButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => IngredientSummary(
+                                  vendorData: widget.vendorData)),
+                        ),
+                        color: const Color(0xff2d9871),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        textColor: const Color(0xffffffff),
+                        height: 45,
+                        minWidth: MediaQuery.of(context).size.width,
+                        child: const Text(
+                          "Summary of Ingredients",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
             ],
@@ -252,17 +280,31 @@ class _MealTimeState extends State<MealTime> {
     showDropdown = value;
   }
 
-  Meal findMeal(String key) {
-    Meal meal = widget.meals
-        .firstWhere((element) => element.id.key == key.split(';')[1]);
+  Meal findMeal(List<String> mealValues) {
+    Meal meal =
+        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
   }
 
   void saveMeal() {
-    widget.vendorData
-            .menus[widget.day]!["${widget.time};${currentMeal.id.key}"] =
-        int.parse(quantityController.text);
+    int currentOrders = 0;
+    String removeKey = '';
+
+    widget.vendorData.menus[widget.day]!.forEach((key, value) {
+      if (key.contains("${widget.time};${currentMeal.id.key}")) {
+        currentOrders = value;
+        removeKey = key;
+      }
+    });
+
+    if (removeKey.isNotEmpty) {
+      widget.vendorData.menus[widget.day]!.remove(removeKey);
+    }
+
+    widget.vendorData.menus[widget.day]![
+            "${widget.time};${currentMeal.id.key};${int.parse(quantityController.text)}"] =
+        currentOrders;
 
     widget.vendorData.update();
   }
@@ -298,21 +340,23 @@ class _MealTimeState extends State<MealTime> {
               shrinkWrap: true,
               itemCount: widget.vendorData.menus[widget.day]!.length,
               itemBuilder: (BuildContext context, int index) {
-                String mealTime = widget.vendorData.menus[widget.day]!.keys
+                List<String> mealValues = widget
+                    .vendorData.menus[widget.day]!.keys
                     .elementAt(index)
-                    .split(';')[0];
-                if (mealTime == widget.time) {
+                    .split(';');
+
+                if (mealValues[0] == widget.time) {
                   Meal? meal;
-                  meal = findMeal(widget.vendorData.menus[widget.day]!.keys
-                      .elementAt(index));
+                  meal = findMeal(mealValues);
+
                   return MenuEntry(
-                      meal.title,
-                      widget.vendorData.menus[widget.day]!.values
-                          .elementAt(index),
+                      meal,
+                      int.parse(mealValues[2]),
                       deleteMeal,
                       widget.vendorData.menus[widget.day]!.keys
                           .elementAt(index));
                 }
+
                 return const SizedBox(); //If meal isn't correct time or doesnt exist
               }),
           showDropdown
@@ -500,11 +544,11 @@ class _MealTimeState extends State<MealTime> {
 }
 
 class MenuEntry extends StatefulWidget {
-  const MenuEntry(this.entryName, this.servings, this.deleteCallback,
+  const MenuEntry(this.meal, this.servings, this.deleteCallback,
       this.deleteCallbackParameter,
       {super.key});
 
-  final String entryName;
+  final Meal meal;
   final int servings;
   final Function deleteCallback;
   final String deleteCallbackParameter;
@@ -524,7 +568,7 @@ class _MenuEntryState extends State<MenuEntry> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.entryName,
+            widget.meal.title,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -541,7 +585,8 @@ class _MenuEntryState extends State<MenuEntry> {
           child: MaterialButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AboutMeal()),
+              MaterialPageRoute(
+                  builder: (context) => AboutMeal(meal: widget.meal)),
             ),
             color: const Color(0xff2d9871),
             elevation: 0,

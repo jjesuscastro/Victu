@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:victu/objects/meal.dart';
 
 class AboutMeal extends StatelessWidget {
-  const AboutMeal({super.key});
+  final Meal meal;
+  const AboutMeal({super.key, required this.meal});
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +46,9 @@ class AboutMeal extends StatelessWidget {
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
                   alignment: Alignment.center,
-                  child: const Text(
-                    "Spam and Eggs and Eggs and Eggs and Eggs",
-                    style: TextStyle(
+                  child: Text(
+                    meal.title,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontStyle: FontStyle.normal,
                       fontSize: 24,
@@ -119,13 +121,13 @@ class AboutMeal extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(16),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
                         child: Text(
-                          "It's literally JUST spam and eggs. You get maybe 2 slices, 3 if you're lucky. A mediocre sunny-side egg and- oh rice.",
+                          meal.description,
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.clip,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontStyle: FontStyle.normal,
                             fontSize: 14,
@@ -153,12 +155,12 @@ class AboutMeal extends StatelessWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
-                          itemCount: 5,
+                          itemCount: meal.ingredients.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Padding(
                               padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                               child: Text(
-                                "${index + 1}. Ayo",
+                                "${index + 1}. ${meal.ingredients[index].amount}${meal.ingredients[index].measurement.toJson()} ${meal.ingredients[index].name}",
                                 textAlign: TextAlign.start,
                                 overflow: TextOverflow.clip,
                                 style: const TextStyle(
@@ -192,12 +194,12 @@ class AboutMeal extends StatelessWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
-                          itemCount: 5,
+                          itemCount: meal.recipe.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Padding(
                               padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                               child: Text(
-                                "${index + 1}. Ayo",
+                                "${index + 1}. ${meal.recipe[index]}",
                                 textAlign: TextAlign.start,
                                 overflow: TextOverflow.clip,
                                 style: const TextStyle(

@@ -1,32 +1,29 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:victu/objects/ingredient.dart';
 import 'package:victu/objects/meal.dart';
-import 'package:victu/objects/users/consumer_data.dart';
+import 'package:victu/objects/measurement_type.dart';
 import 'package:victu/objects/users/vendor_data.dart';
-import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
 
-class MenuPage extends StatefulWidget {
-  const MenuPage({super.key, required this.consumerData});
+class IngredientSummary extends StatefulWidget {
+  final VendorData vendorData;
 
-  final ConsumerData consumerData;
+  const IngredientSummary({super.key, required this.vendorData});
 
   @override
-  State<MenuPage> createState() => _MenuPageState();
+  State<IngredientSummary> createState() => _IngredientSummaryState();
 }
 
-class _MenuPageState extends State<MenuPage> {
+class _IngredientSummaryState extends State<IngredientSummary> {
   List<Meal> meals = [];
-  late VendorData vendor;
   bool mealsLoaded = false;
-  bool vendorLoaded = false;
 
   @override
   void initState() {
     super.initState();
     updateMeals();
-    updateVendor();
   }
 
   void updateMeals() {
@@ -34,16 +31,6 @@ class _MenuPageState extends State<MenuPage> {
           setState(() {
             this.meals = meals;
             mealsLoaded = true;
-          })
-        });
-  }
-
-  void updateVendor() {
-    getAllVendors().then((vendors) => {
-          setState(() {
-            vendor = vendors
-                .firstWhere((v) => v.school == widget.consumerData.school);
-            vendorLoaded = true;
           })
         });
   }
@@ -69,7 +56,7 @@ class _MenuPageState extends State<MenuPage> {
           borderRadius: BorderRadius.zero,
         ),
         title: const Text(
-          "Menu for The Week",
+          "Summary of Ingredients",
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontStyle: FontStyle.normal,
@@ -90,50 +77,77 @@ class _MenuPageState extends State<MenuPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              if (mealsLoaded && vendorLoaded)
+              if (mealsLoaded)
                 ListView(
                   scrollDirection: Axis.vertical,
                   padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
                   children: [
-                    dayCard(context, "Monday",
-                        DateFormat.yMMMMd().format(getMonday()), meals, vendor),
+                    dayCard(
+                        context,
+                        "Monday",
+                        DateFormat.yMMMMd().format(getMonday()),
+                        meals,
+                        widget.vendorData),
                     dayCard(
                         context,
                         "Tuesday",
                         DateFormat.yMMMMd()
                             .format(getMonday().add(const Duration(days: 1))),
                         meals,
-                        vendor),
+                        widget.vendorData),
                     dayCard(
                         context,
                         "Wednesday",
                         DateFormat.yMMMMd()
                             .format(getMonday().add(const Duration(days: 2))),
                         meals,
-                        vendor),
+                        widget.vendorData),
                     dayCard(
                         context,
                         "Thursday",
                         DateFormat.yMMMMd()
                             .format(getMonday().add(const Duration(days: 3))),
                         meals,
-                        vendor),
+                        widget.vendorData),
                     dayCard(
                         context,
                         "Friday",
                         DateFormat.yMMMMd()
                             .format(getMonday().add(const Duration(days: 4))),
                         meals,
-                        vendor),
+                        widget.vendorData),
                     dayCard(
                         context,
                         "Saturday",
                         DateFormat.yMMMMd()
                             .format(getMonday().add(const Duration(days: 5))),
                         meals,
-                        vendor),
+                        widget.vendorData),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                      child: MaterialButton(
+                        onPressed: () => {},
+                        color: const Color(0xff2d9871),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        textColor: const Color(0xffffffff),
+                        height: 45,
+                        minWidth: MediaQuery.of(context).size.width,
+                        child: const Text(
+                          "See Available Local Businesses",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
             ],
@@ -146,6 +160,43 @@ class _MenuPageState extends State<MenuPage> {
 
 Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
     VendorData vendorData) {
+  List<Ingredient> getIngredients(Map<String, int> menuEntries) {
+    List<Ingredient> ingredientsList = [];
+    menuEntries.forEach((key, value) {
+      //0 = Time
+      //1 = Meal ID
+      //2 = Servings
+      List<String> keyValues = key.split(';');
+
+      if (keyValues.length == 3) {
+        Meal meal =
+            meals.firstWhere((element) => element.id.key == keyValues[1]);
+
+        for (var ingredient in meal.ingredients) {
+          Ingredient ing = ingredientsList.firstWhere(
+              (i) => i.name == ingredient.name,
+              orElse: () => Ingredient("None", 0, MeasurementType.g));
+
+          if (ing.name != "None") {
+            Ingredient newIngredient = cloneIngredient(ing);
+            newIngredient.amount +=
+                (ingredient.amount * int.parse(keyValues[2]));
+            ingredientsList[ingredientsList
+                .indexWhere((i) => i.name == ingredient.name)] = newIngredient;
+          } else {
+            Ingredient i = cloneIngredient(ingredient);
+            i.amount *= int.parse(keyValues[2]);
+            ingredientsList.add(i);
+          }
+        }
+      }
+    });
+
+    return ingredientsList;
+  }
+
+  List<Ingredient> ingredientsList = getIngredients(vendorData.menus[day]!);
+
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -210,12 +261,17 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MealTime(
-                    time: "B", day: day, vendorData: vendorData, meals: meals),
-                MealTime(
-                    time: "L", day: day, vendorData: vendorData, meals: meals),
-                MealTime(
-                    time: "D", day: day, vendorData: vendorData, meals: meals)
+                ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: ingredientsList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return IngredientEntry(
+                          ingredientsList[index].name,
+                          ingredientsList[index].amount,
+                          ingredientsList[index].measurement);
+                    })
               ],
             ),
           ),
@@ -225,131 +281,37 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
   );
 }
 
-class MealTime extends StatefulWidget {
-  const MealTime(
-      {super.key,
-      required this.time,
-      required this.day,
-      required this.vendorData,
-      required this.meals});
-  final String time;
-  final String day;
-  final List<Meal> meals;
-  final VendorData vendorData;
-  @override
-  State<MealTime> createState() => _MealTimeState();
-}
+class IngredientEntry extends StatelessWidget {
+  const IngredientEntry(this.name, this.amount, this.measurement, {super.key});
 
-class _MealTimeState extends State<MealTime> {
-  Meal findMeal(List<String> mealValues) {
-    Meal meal =
-        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
-
-    return meal;
-  }
+  final String name;
+  final int amount;
+  final MeasurementType measurement;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(15),
+      child: Row(
         children: [
-          Text(
-              widget.time == "B"
-                  ? "Breakfast"
-                  : widget.time == "L"
-                      ? "Lunch"
-                      : "Dinner",
-              style:
-                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
-          const Divider(),
-          ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: widget.vendorData.menus[widget.day]!.length,
-              itemBuilder: (BuildContext context, int index) {
-                List<String> mealValues = widget
-                    .vendorData.menus[widget.day]!.keys
-                    .elementAt(index)
-                    .split(';');
-
-                if (mealValues[0] == widget.time) {
-                  Meal? meal;
-                  meal = findMeal(mealValues);
-
-                  return MenuEntry(meal);
-                }
-
-                return const SizedBox(); //If meal isn't correct time or doesnt exist
-              }),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                if (measurement == MeasurementType.g && amount >= 1000)
+                  Text("Amount: ${amount / 1000}${MeasurementType.kg.toJson()}")
+                else
+                  Text("Amount: $amount${measurement.toJson()}"),
+              ],
+            ),
+          ),
         ],
       ),
     );
-  }
-}
-
-class MenuEntry extends StatefulWidget {
-  const MenuEntry(this.meal, {super.key});
-
-  final Meal meal;
-
-  @override
-  State<MenuEntry> createState() => _MenuEntryState();
-}
-
-class _MenuEntryState extends State<MenuEntry> {
-  bool value = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      Expanded(
-          child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            widget.meal.title,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      )),
-      TextButton(
-        style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-        ),
-        onPressed: () {},
-        child: Padding(
-          padding: EdgeInsets.zero,
-          child: MaterialButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AboutMeal(meal: widget.meal)),
-            ),
-            color: const Color(0xff2d9871),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            padding: const EdgeInsets.all(14),
-            textColor: const Color(0xffffffff),
-            height: 30,
-            minWidth: 60,
-            child: const Text(
-              "About",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.normal,
-              ),
-            ),
-          ),
-        ),
-      ),
-    ]);
   }
 }

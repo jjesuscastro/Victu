@@ -1,7 +1,9 @@
-///File download from FlutterViz- Drag and drop a tools. For more details visit https://flutterviz.io/
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:victu/objects/ingredient.dart';
+import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/measurement_type.dart';
+import 'package:victu/utils/database.dart';
 
 class CreateMeal extends StatefulWidget {
   const CreateMeal({super.key});
@@ -54,6 +56,37 @@ class _CreateMealState extends State<CreateMeal> {
       ingredientControllers.remove(ingredientController);
       quantityControllers.remove(quantityController);
     });
+  }
+
+  // void newUser(User user) {
+  //   var userData =
+  //       UserData(user.displayName!, UserType.none, isRegistered: true);
+
+  //   userData.setId(saveUser(user.uid, userData));
+
+  //   Navigator.of(context).pushReplacement(
+  //     MaterialPageRoute(
+  //       builder: (context) => HomePage(user: user, userData: userData),
+  //     ),
+  //   );
+  // }
+
+  newMeal() {
+    List<Ingredient> ingredients = [];
+    ingredients.add(Ingredient("Sample Ingredient 1", 10, MeasurementType.pcs));
+    ingredients.add(Ingredient("Sample Ingredient 2", 200, MeasurementType.g));
+    ingredients.add(Ingredient("Sample Ingredient 1", 1, MeasurementType.kg));
+
+    List<String> recipe = [
+      "Sample Recipe step 1",
+      "Sample Recipe step 2",
+      "Sample Recipe step 3"
+    ];
+
+    Meal meal = Meal(dishNameController.text, descriptionController.text,
+        ingredients, recipe);
+
+    meal.setId(saveMeal(meal));
   }
 
   @override
@@ -294,7 +327,9 @@ class _CreateMealState extends State<CreateMeal> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                 child: MaterialButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    newMeal();
+                  },
                   color: const Color(0xff2d9871),
                   elevation: 0,
                   shape: RoundedRectangleBorder(

@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:victu/objects/ingredient.dart';
 
 class Meal {
   late DatabaseReference _id;
@@ -10,14 +11,10 @@ class Meal {
 
   String title = "";
   String description;
-  List<String> ingredients;
+  List<Ingredient> ingredients;
   List<String> recipe;
 
   Meal(this.title, this.description, this.ingredients, this.recipe);
-
-  printDBRef() {
-    print(_id.key);
-  }
 
   void setId(DatabaseReference id) {
     _id = id;
@@ -27,7 +24,7 @@ class Meal {
     return {
       'title': title,
       'description': description,
-      'ingredients': ingredients,
+      'ingredients': ingredients.map((e) => e.toJson()).toList(),
       'recipe': recipe,
     };
   }
@@ -37,19 +34,20 @@ Meal createMeal(value) {
   Map<String, dynamic> attributes = {
     'title': '',
     'description': '',
-    'ingredients': [],
-    'recipe': [],
+    'ingredients': <Ingredient>[],
+    'recipe': <String>[],
   };
 
   value.forEach((key, value) => {attributes[key] = value});
 
   Meal meal = Meal(
-      attributes['title'],
-      attributes['description'],
-      (attributes['ingredients'] as List)
-          .map((item) => item as String)
-          .toList(),
-      (attributes['recipe'] as List).map((item) => item as String).toList());
+    attributes['title'],
+    attributes['description'],
+    (attributes['ingredients'] as List)
+        .map((item) => createIngredient(item))
+        .toList(),
+    (attributes['recipe'] as List).map((item) => item as String).toList(),
+  );
 
   return meal;
 }
