@@ -8,10 +8,11 @@ class FarmerData extends UserData {
   late DatabaseReference _id;
   String contactNumber;
   String location;
+  Map<String, String> products;
 
   FarmerData(
       super.displayName, super.userType, this.location, this.contactNumber,
-      {super.isRegistered = false});
+      {this.products = const {}, super.isRegistered = false});
 
   @override
   void setId(DatabaseReference id) {
@@ -25,6 +26,7 @@ class FarmerData extends UserData {
       'userType': userType.toJson(),
       'location': location,
       'contactNumber': contactNumber,
+      'products': products,
       'isRegistered': isRegistered,
     };
   }
@@ -36,6 +38,7 @@ FarmerData createFarmerData(value) {
     'userType': UserType.farmer,
     'location': '',
     'contactNumber': '',
+    'products': {},
     'isRegistered': false,
   };
 
@@ -46,6 +49,7 @@ FarmerData createFarmerData(value) {
     UserType.fromJson(attributes['userType']),
     attributes['location'],
     attributes['contactNumber'],
+    products: attributes['products'],
     isRegistered: attributes['isRegistered'],
   );
 
