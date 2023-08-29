@@ -49,7 +49,7 @@ FarmerData createFarmerData(value) {
     UserType.fromJson(attributes['userType']),
     attributes['location'],
     attributes['contactNumber'],
-    products: attributes['products'],
+    products: attributes['products'].cast<String, String>(),
     isRegistered: attributes['isRegistered'],
   );
 
