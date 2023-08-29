@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:philippines_rpcmb/philippines_rpcmb.dart';
 
 class FarmerRegistration extends StatefulWidget {
@@ -8,10 +9,12 @@ class FarmerRegistration extends StatefulWidget {
       {super.key,
       required this.nameController,
       required this.emailController,
+      required this.contactNumberController,
       required this.locationCallback});
 
   final TextEditingController nameController;
   final TextEditingController emailController;
+  final TextEditingController contactNumberController;
   final Function locationCallback;
 
   @override
@@ -159,6 +162,56 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   prefixIcon: const Icon(Icons.mail,
+                      color: Color(0xff212435), size: 24),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: TextField(
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                controller: widget.contactNumberController,
+                obscureText: false,
+                textAlign: TextAlign.start,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 14,
+                  color: Color(0xff000000),
+                ),
+                decoration: InputDecoration(
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  hintText: "Contact number (09xxxxxxxxx)",
+                  hintStyle: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xffffffff),
+                  isDense: false,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  prefixIcon: const Icon(Icons.phone,
                       color: Color(0xff212435), size: 24),
                 ),
               ),

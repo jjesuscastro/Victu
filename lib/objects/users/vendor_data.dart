@@ -8,7 +8,6 @@ import 'package:victu/utils/database.dart';
 class VendorData extends FarmerData {
   late DatabaseReference _id;
   String canteenName;
-  String contactNumber;
   String school;
   Map<String, Map<String, int>> menus;
 
@@ -17,7 +16,7 @@ class VendorData extends FarmerData {
     super.userType,
     super.location,
     this.canteenName,
-    this.contactNumber,
+    super.contactNumber,
     this.school,
     this.menus, {
     super.isRegistered = false,

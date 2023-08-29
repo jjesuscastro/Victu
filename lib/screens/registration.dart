@@ -260,6 +260,7 @@ class _RegistrationState extends State<Registration> {
                   : FarmerRegistration(
                       nameController: nameController,
                       emailController: emailController,
+                      contactNumberController: contactNumberController,
                       locationCallback: locationCallback,
                     ),
         )
@@ -307,11 +308,11 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newFarmer(User user) {
-    var farmerData = FarmerData(
-        user.displayName!, UserType.farmer, locationValue,
+    var farmerData = FarmerData(user.displayName!, UserType.farmer,
+        locationValue, contactNumberController.text,
         isRegistered: true);
 
-    farmerData.setId(saveUser(user.uid, farmerData));
+    farmerData.setId(saveUser('${user.uid}f', farmerData));
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(

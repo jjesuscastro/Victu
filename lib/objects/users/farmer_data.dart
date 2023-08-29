@@ -6,9 +6,11 @@ import 'package:victu/objects/users/user_data.dart';
 
 class FarmerData extends UserData {
   late DatabaseReference _id;
+  String contactNumber;
   String location;
 
-  FarmerData(super.displayName, super.userType, this.location,
+  FarmerData(
+      super.displayName, super.userType, this.location, this.contactNumber,
       {super.isRegistered = false});
 
   @override
@@ -22,6 +24,7 @@ class FarmerData extends UserData {
       'displayName': displayName,
       'userType': userType.toJson(),
       'location': location,
+      'contactNumber': contactNumber,
       'isRegistered': isRegistered,
     };
   }
@@ -32,6 +35,7 @@ FarmerData createFarmerData(value) {
     'displayName': '',
     'userType': UserType.farmer,
     'location': '',
+    'contactNumber': '',
     'isRegistered': false,
   };
 
@@ -41,6 +45,7 @@ FarmerData createFarmerData(value) {
     attributes['displayName'],
     UserType.fromJson(attributes['userType']),
     attributes['location'],
+    attributes['contactNumber'],
     isRegistered: attributes['isRegistered'],
   );
 
