@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:victu/objects/product.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/farmer_data.dart';
@@ -308,9 +309,14 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newFarmer(User user) {
+    List<Product> products = [
+      Product("test product", 25),
+      Product("test product 2", 30)
+    ];
+
     var farmerData = FarmerData(user.displayName!, UserType.farmer,
         locationValue, contactNumberController.text,
-        isRegistered: true);
+        products: products, isRegistered: true);
 
     farmerData.setId(saveUser(user.uid, farmerData));
 

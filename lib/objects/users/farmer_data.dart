@@ -1,18 +1,20 @@
 // ignore_for_file: unused_field
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:victu/objects/product.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/user_data.dart';
+import 'dart:convert';
 
 class FarmerData extends UserData {
   late DatabaseReference _id;
   String contactNumber;
   String location;
-  Map<String, String> products;
+  List<Product> products;
 
   FarmerData(
       super.displayName, super.userType, this.location, this.contactNumber,
-      {this.products = const {}, super.isRegistered = false});
+      {this.products = const [], super.isRegistered = false});
 
   @override
   void setId(DatabaseReference id) {
@@ -26,7 +28,7 @@ class FarmerData extends UserData {
       'userType': userType.toJson(),
       'location': location,
       'contactNumber': contactNumber,
-      'products': products,
+      'products': jsonEncode(products),
       'isRegistered': isRegistered,
     };
   }
@@ -38,7 +40,7 @@ FarmerData createFarmerData(value) {
     'userType': UserType.farmer,
     'location': '',
     'contactNumber': '',
-    'products': {},
+    'products': [],
     'isRegistered': false,
   };
 
@@ -49,7 +51,8 @@ FarmerData createFarmerData(value) {
     UserType.fromJson(attributes['userType']),
     attributes['location'],
     attributes['contactNumber'],
-    products: attributes['products'].cast<String, String>(),
+    products: List<Product>.from(
+        jsonDecode(attributes['products']).map((i) => createProduct(i))),
     isRegistered: attributes['isRegistered'],
   );
 
