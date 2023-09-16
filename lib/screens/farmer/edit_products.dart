@@ -21,9 +21,18 @@ class _EditProductsState extends State<EditProducts> {
 
   @override
   void initState() {
+    initializeProducts();
     productNameControllers.add(TextEditingController());
     productPriceControllers.add(TextEditingController());
     super.initState();
+  }
+
+  void initializeProducts() {
+    widget.farmerData.products.forEach((element) {
+      productNameControllers.add(TextEditingController(text: element.title));
+      productPriceControllers
+          .add(TextEditingController(text: element.price.toString()));
+    });
   }
 
   @override
