@@ -2,11 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/consumer_data.dart';
+import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/consumer/menu_page.dart';
 import 'package:victu/screens/consumer/order_page.dart';
 import 'package:victu/screens/consumer/reading_goals.dart';
+import 'package:victu/screens/farmer/edit_products.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/check_orders.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
@@ -269,7 +271,7 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
   ];
 }
 
-List<Widget> farmerActionCards(BuildContext context, var userData) {
+List<Widget> farmerActionCards(BuildContext context, FarmerData farmerData) {
   return [
     actionCard(
       "Update Available Products",
@@ -280,7 +282,8 @@ List<Widget> farmerActionCards(BuildContext context, var userData) {
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const ReadingGoals()),
+        MaterialPageRoute(
+            builder: (context) => EditProducts(farmerData: farmerData)),
       ),
     ),
     actionCard(
@@ -297,42 +300,44 @@ List<Widget> farmerActionCards(BuildContext context, var userData) {
 
 Widget actionCard(String text, Icon icon, Function action) {
   return InkWell(
-      onTap: () => {action()},
-      child: Container(
-          height: 100,
-          margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-          child: Card(
-            color: const Color(0xffffffff),
-            shadowColor: const Color(0x4d939393),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-              side: const BorderSide(color: Color(0xff2c9692), width: 2),
-            ),
-            child: Align(
-              alignment: Alignment.center,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    icon,
-                    Text(
-                      "\t\t\t\t$text",
-                      textAlign: TextAlign.start,
-                      overflow: TextOverflow.clip,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 14,
-                        color: Color(0xff000000),
-                      ),
-                    ),
-                  ],
+    onTap: () => {action()},
+    child: Container(
+      height: 100,
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+      child: Card(
+        color: const Color(0xffffffff),
+        shadowColor: const Color(0x4d939393),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          side: const BorderSide(color: Color(0xff2c9692), width: 2),
+        ),
+        child: Align(
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                icon,
+                Text(
+                  "\t\t\t\t$text",
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.clip,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
                 ),
-              ),
+              ],
             ),
-          )));
+          ),
+        ),
+      ),
+    ),
+  );
 }
