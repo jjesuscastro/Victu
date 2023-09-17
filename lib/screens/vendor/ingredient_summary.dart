@@ -5,6 +5,7 @@ import 'package:victu/objects/ingredient.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/measurement_type.dart';
 import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/screens/vendor/nearby_farmers.dart';
 import 'package:victu/utils/database.dart';
 
 class IngredientSummary extends StatefulWidget {
@@ -128,7 +129,12 @@ class _IngredientSummaryState extends State<IngredientSummary> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                       child: MaterialButton(
-                        onPressed: () => {},
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NearbyFarmers(
+                                  location: widget.vendorData.location)),
+                        ),
                         color: const Color(0xff2d9871),
                         elevation: 0,
                         shape: RoundedRectangleBorder(

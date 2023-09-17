@@ -7,15 +7,14 @@ import 'package:victu/utils/database.dart';
 
 class VendorData extends FarmerData {
   late DatabaseReference _id;
-  String canteenName;
   String school;
   Map<String, Map<String, int>> menus;
 
   VendorData(
+    super.businessName,
     super.displayName,
     super.userType,
     super.location,
-    this.canteenName,
     super.contactNumber,
     this.school,
     this.menus, {
@@ -58,10 +57,10 @@ class VendorData extends FarmerData {
   @override
   Map<String, dynamic> toJson() {
     return {
+      'businessName': businessName,
       'displayName': displayName,
       'userType': userType.toJson(),
       'location': location,
-      'canteenName': canteenName,
       'contactNumber': contactNumber,
       'school': school,
       'menus': menus,
@@ -72,10 +71,10 @@ class VendorData extends FarmerData {
 
 VendorData createVendorData(value) {
   Map<String, dynamic> attributes = {
+    'businessName': '',
     'displayName': '',
     'userType': UserType.vendor,
     'location': '',
-    'canteenName': '',
     'contactNumber': '',
     'school': '',
     'menus': [],
@@ -85,10 +84,10 @@ VendorData createVendorData(value) {
   value.forEach((key, value) => {attributes[key] = value});
 
   VendorData userData = VendorData(
+    attributes['businessName'],
     attributes['displayName'],
     UserType.fromJson(attributes['userType']),
     attributes['location'],
-    attributes['canteenName'],
     attributes['contactNumber'],
     attributes['school'],
     {

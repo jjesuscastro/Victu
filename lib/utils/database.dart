@@ -167,3 +167,24 @@ Future<List<VendorData>> getAllVendors() async {
 
   return vendors;
 }
+
+Future<List<FarmerData>> getAllFarmers(String location) async {
+  DataSnapshot dataSnapshot = await databaseReference.child('users/').get();
+  List<FarmerData> farmers = [];
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    values.forEach((key, value) {
+      UserData userData = createUserData(value);
+      if (userData.userType == UserType.farmer) {
+        FarmerData farmer = createFarmerData(value);
+        farmer.setId(databaseReference.child('users/$key'));
+
+        if (location == farmer.location) farmers.add(farmer);
+      }
+    });
+  }
+
+  return farmers;
+}
