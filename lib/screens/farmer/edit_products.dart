@@ -61,21 +61,19 @@ class _EditProductsState extends State<EditProducts> {
     });
   }
 
-  // void newUser(User user) {
-  //   var userData =
-  //       UserData(user.displayName!, UserType.none, isRegistered: true);
-
-  //   userData.setId(saveUser(user.uid, userData));
-
-  //   Navigator.of(context).pushReplacement(
-  //     MaterialPageRoute(
-  //       builder: (context) => HomePage(user: user, userData: userData),
-  //     ),
-  //   );
-  // }
-
   saveProducts() {
-    // Product product = new Product(productNameControllers)
+    List<Product> newProducts = <Product>[];
+
+    for (int i = 0; i < productNameControllers.length; i++) {
+      if (productNameControllers[i].text.isNotEmpty &&
+          productPriceControllers[i].text.isNotEmpty) {
+        newProducts.add(Product(productNameControllers[i].text,
+            double.parse(productPriceControllers[i].text)));
+      }
+    }
+
+    widget.farmerData.products = newProducts;
+    widget.farmerData.update();
   }
 
   @override

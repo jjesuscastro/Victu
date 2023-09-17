@@ -6,6 +6,8 @@ import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'dart:convert';
 
+import 'package:victu/utils/database.dart';
+
 class FarmerData extends UserData {
   late DatabaseReference _id;
   String contactNumber;
@@ -19,6 +21,10 @@ class FarmerData extends UserData {
   @override
   void setId(DatabaseReference id) {
     _id = id;
+  }
+
+  void update() {
+    updateDatabase(this, _id);
   }
 
   @override
