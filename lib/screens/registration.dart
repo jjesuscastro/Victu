@@ -36,7 +36,7 @@ class _RegistrationState extends State<Registration> {
 
   //Canteen Values
   TextEditingController contactNumberController = TextEditingController();
-  TextEditingController canteenNameController = TextEditingController();
+  TextEditingController businessNameController = TextEditingController();
 
   UserType? userType = UserType.consumer;
   var genderValue;
@@ -59,7 +59,7 @@ class _RegistrationState extends State<Registration> {
     heightController.dispose();
     weightController.dispose();
     contactNumberController.dispose();
-    canteenNameController.dispose();
+    businessNameController.dispose();
 
     super.dispose();
   }
@@ -96,7 +96,6 @@ class _RegistrationState extends State<Registration> {
         onStepContinue: () {
           final isLastStep = currentStep == getSteps().length - 1;
           if (isLastStep) {
-            //TODO: Save user to DB
             switch (userType) {
               case UserType.consumer:
                 newConsumer(widget._user);
@@ -254,11 +253,12 @@ class _RegistrationState extends State<Registration> {
                       nameController: nameController,
                       emailController: emailController,
                       contactNumberController: contactNumberController,
-                      canteenNameController: canteenNameController,
+                      canteenNameController: businessNameController,
                       locationCallback: locationCallback,
                       schoolCallback: schoolCallback,
                     )
                   : FarmerRegistration(
+                      businessNameController: businessNameController,
                       nameController: nameController,
                       emailController: emailController,
                       contactNumberController: contactNumberController,
@@ -314,8 +314,8 @@ class _RegistrationState extends State<Registration> {
       Product("test product 2", 30)
     ];
 
-    var farmerData = FarmerData(user.displayName!, UserType.farmer,
-        locationValue, contactNumberController.text,
+    var farmerData = FarmerData(businessNameController.text, user.displayName!,
+        UserType.farmer, locationValue, contactNumberController.text,
         products: products, isRegistered: true);
 
     farmerData.setId(saveUser(user.uid, farmerData));
@@ -329,10 +329,10 @@ class _RegistrationState extends State<Registration> {
 
   void newVendor(User user) {
     var vendorData = VendorData(
+        businessNameController.text,
         user.displayName!,
         UserType.vendor,
         locationValue,
-        canteenNameController.text,
         contactNumberController.text,
         schoolValue,
         {

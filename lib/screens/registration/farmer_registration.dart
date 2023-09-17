@@ -7,11 +7,13 @@ import 'package:philippines_rpcmb/philippines_rpcmb.dart';
 class FarmerRegistration extends StatefulWidget {
   const FarmerRegistration(
       {super.key,
+      required this.businessNameController,
       required this.nameController,
       required this.emailController,
       required this.contactNumberController,
       required this.locationCallback});
 
+  final TextEditingController businessNameController;
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController contactNumberController;
@@ -162,6 +164,52 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   prefixIcon: const Icon(Icons.mail,
+                      color: Color(0xff212435), size: 24),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: TextField(
+                controller: widget.businessNameController,
+                obscureText: false,
+                textAlign: TextAlign.start,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 14,
+                  color: Color(0xff000000),
+                ),
+                decoration: InputDecoration(
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  hintText: "Business Name",
+                  hintStyle: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xffffffff),
+                  isDense: false,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  prefixIcon: const Icon(Icons.shopping_cart,
                       color: Color(0xff212435), size: 24),
                 ),
               ),
