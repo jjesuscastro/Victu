@@ -147,7 +147,7 @@ Future<VendorData> getVendor(String uid) async {
   throw Exception("Vendor not found");
 }
 
-Future<List<VendorData>> getAllVendors() async {
+Future<List<VendorData>> getAllVendors({String location = ""}) async {
   DataSnapshot dataSnapshot = await databaseReference.child('users/').get();
   List<VendorData> vendors = [];
 
@@ -160,7 +160,9 @@ Future<List<VendorData>> getAllVendors() async {
         VendorData vendor = createVendorData(value);
         vendor.setId(databaseReference.child('users/$key'));
 
-        vendors.add(vendor);
+        if (location == "" || (location == vendor.location)) {
+          vendors.add(vendor);
+        }
       }
     });
   }

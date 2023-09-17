@@ -309,10 +309,7 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newFarmer(User user) {
-    List<Product> products = [
-      Product("test product", 25),
-      Product("test product 2", 30)
-    ];
+    List<Product> products = [];
 
     var farmerData = FarmerData(businessNameController.text, user.displayName!,
         UserType.farmer, locationValue, contactNumberController.text,

@@ -9,6 +9,7 @@ import 'package:victu/screens/consumer/menu_page.dart';
 import 'package:victu/screens/consumer/order_page.dart';
 import 'package:victu/screens/consumer/reading_goals.dart';
 import 'package:victu/screens/farmer/edit_products.dart';
+import 'package:victu/screens/farmer/nearby_vendors.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/check_orders.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
@@ -293,7 +294,11 @@ List<Widget> farmerActionCards(BuildContext context, FarmerData farmerData) {
         color: Color(0xff212435),
         size: 24,
       ),
-      () => {},
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => NearbyVendors(location: farmerData.location)),
+      ),
     ),
   ];
 }
