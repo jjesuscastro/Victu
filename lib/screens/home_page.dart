@@ -209,7 +209,8 @@ List<Widget> consumerActionCards(
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const ReadingGoals()),
+        MaterialPageRoute(
+            builder: (context) => ReadingGoals(consumerData: consumerData)),
       ),
     ),
     actionCard(

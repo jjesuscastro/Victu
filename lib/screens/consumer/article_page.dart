@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
+import 'package:victu/objects/users/consumer_data.dart';
 
 class ArticlePage extends StatefulWidget {
   final Article article;
-  const ArticlePage({super.key, required this.article});
+  const ArticlePage(
+      {super.key, required this.article, required this.consumerData});
+
+  final ConsumerData consumerData;
 
   @override
   State<ArticlePage> createState() => _ArticlePageState();
@@ -19,9 +23,12 @@ class _ArticlePageState extends State<ArticlePage>
       /// [AnimationController]s can be created with `vsync: this` because of
       /// [TickerProviderStateMixin].
       vsync: this,
-      duration: const Duration(seconds: 300),
-    )..addListener(() {
-        setState(() {});
+      duration: const Duration(minutes: 5),
+    )..addStatusListener((AnimationStatus status) {
+        if (status == AnimationStatus.completed) {
+          widget.consumerData.points += 10;
+          widget.consumerData.update();
+        }
       });
     controller.repeat(reverse: true);
     super.initState();

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
+import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/screens/consumer/article_page.dart';
 import 'package:victu/utils/database.dart';
 
 class ReadingGoals extends StatefulWidget {
-  const ReadingGoals({super.key});
+  const ReadingGoals({super.key, required this.consumerData});
+
+  final ConsumerData consumerData;
 
   @override
   State<ReadingGoals> createState() => _ReadingGoalsState();
@@ -29,8 +32,13 @@ class _ReadingGoalsState extends State<ReadingGoals> {
   }
 
   void openArticle(Article article) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ArticlePage(article: article)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ArticlePage(
+                  article: article,
+                  consumerData: widget.consumerData,
+                )));
   }
 
   @override

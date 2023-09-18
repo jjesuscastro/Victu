@@ -3,6 +3,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/utils/database.dart';
 
 class ConsumerData extends UserData {
   late DatabaseReference _id;
@@ -20,6 +21,10 @@ class ConsumerData extends UserData {
   @override
   void setId(DatabaseReference id) {
     _id = id;
+  }
+
+  void update() {
+    updateDatabase(this, _id);
   }
 
   @override
