@@ -23,15 +23,27 @@ class _ArticlePageState extends State<ArticlePage>
       /// [AnimationController]s can be created with `vsync: this` because of
       /// [TickerProviderStateMixin].
       vsync: this,
-      duration: const Duration(minutes: 5),
-    )..addStatusListener((AnimationStatus status) {
+      duration: const Duration(seconds: 300),
+    )
+      ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           widget.consumerData.points += 10;
           widget.consumerData.update();
         }
+      })
+      ..addListener(() {
+        setState(() {});
       });
-    controller.repeat(reverse: true);
+
+    controller.forward();
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -118,7 +130,7 @@ class _ArticlePageState extends State<ArticlePage>
                                   padding:
                                       const EdgeInsets.fromLTRB(80, 0, 0, 0),
                                   child: Text(
-                                    "${(controller.lastElapsedDuration!.inSeconds / 60).floor()} : ${(controller.lastElapsedDuration!.inSeconds % 60).toString().padLeft(2, '0')}",
+                                    "${(controller.lastElapsedDuration == null ? 0 : controller.lastElapsedDuration!.inSeconds / 60).floor()} : ${(controller.lastElapsedDuration == null ? 0 : controller.lastElapsedDuration!.inSeconds % 60).toString().padLeft(2, '0')}",
                                     textAlign: TextAlign.start,
                                     overflow: TextOverflow.clip,
                                     style: const TextStyle(
