@@ -10,10 +10,11 @@ class ConsumerData extends UserData {
   int age = 0;
   int height = 0;
   int weight = 0;
+  int points = 0;
   String school;
 
   ConsumerData(super.displayName, super.userType, this.isMale, this.age,
-      this.height, this.weight, this.school,
+      this.height, this.weight, this.points, this.school,
       {super.isRegistered = false});
 
   @override
@@ -30,6 +31,7 @@ class ConsumerData extends UserData {
       'age': age,
       'height': height,
       'weight': weight,
+      'points': points,
       'school': school,
       'isRegistered': isRegistered,
     };
@@ -44,6 +46,7 @@ ConsumerData createConsumerData(value) {
     'age': 0,
     'height': 0,
     'weight': 0,
+    'points': 0,
     'school': '',
     'isRegistered': false,
   };
@@ -57,6 +60,7 @@ ConsumerData createConsumerData(value) {
     attributes['age'],
     attributes['height'],
     attributes['weight'],
+    attributes['points'],
     attributes['school'],
     isRegistered: attributes['isRegistered'],
   );
