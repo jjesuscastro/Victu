@@ -23,6 +23,10 @@ class ConsumerData extends UserData {
     _id = id;
   }
 
+  String getID() {
+    return _id.key!;
+  }
+
   void update() {
     updateDatabase(this, _id);
   }

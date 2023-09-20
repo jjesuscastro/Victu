@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/order.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
@@ -34,6 +35,13 @@ DatabaseReference saveSchool(String schoolName) {
 DatabaseReference saveMeal(Meal meal) {
   var id = databaseReference.child('meals/').push();
   id.set(meal.toJson());
+
+  return id;
+}
+
+DatabaseReference saveOrder(Order order) {
+  var id = databaseReference.child('orders/').push();
+  id.set(order.toJson());
 
   return id;
 }
