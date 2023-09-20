@@ -288,6 +288,7 @@ class _RegistrationState extends State<Registration> {
         int.parse(ageController.text),
         int.parse(heightController.text),
         int.parse(weightController.text),
+        0,
         schoolValue,
         isRegistered: true);
 
