@@ -37,6 +37,7 @@ class _RegistrationState extends State<Registration> {
   //Canteen Values
   TextEditingController contactNumberController = TextEditingController();
   TextEditingController businessNameController = TextEditingController();
+  TextEditingController schoolNameController = TextEditingController();
 
   UserType? userType = UserType.consumer;
   var genderValue;
@@ -254,8 +255,8 @@ class _RegistrationState extends State<Registration> {
                       emailController: emailController,
                       contactNumberController: contactNumberController,
                       canteenNameController: businessNameController,
+                      schoolNameController: schoolNameController,
                       locationCallback: locationCallback,
-                      schoolCallback: schoolCallback,
                     )
                   : FarmerRegistration(
                       businessNameController: businessNameController,
@@ -326,13 +327,15 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newVendor(User user) {
+    saveSchool(schoolNameController.text);
+
     var vendorData = VendorData(
         businessNameController.text,
         user.displayName!,
         UserType.vendor,
         locationValue,
         contactNumberController.text,
-        schoolValue,
+        schoolNameController.text,
         {
           'Monday': {'Empty': 0},
           'Tuesday': {'Empty': 0},

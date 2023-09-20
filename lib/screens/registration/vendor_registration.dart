@@ -11,15 +11,15 @@ class VendorRegistration extends StatefulWidget {
       required this.emailController,
       required this.contactNumberController,
       required this.canteenNameController,
-      required this.locationCallback,
-      required this.schoolCallback});
+      required this.schoolNameController,
+      required this.locationCallback});
 
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController contactNumberController;
   final TextEditingController canteenNameController;
+  final TextEditingController schoolNameController;
   final Function locationCallback;
-  final Function schoolCallback;
 
   @override
   State<VendorRegistration> createState() => _VendorRegistrationState();
@@ -29,7 +29,6 @@ class _VendorRegistrationState extends State<VendorRegistration> {
   Region? region;
   Province? province;
   Municipality? municipality;
-  var currentSelectedValue;
 
   @override
   Widget build(BuildContext context) {
@@ -410,54 +409,52 @@ class _VendorRegistrationState extends State<VendorRegistration> {
                 ),
               ],
             ),
-            Row(children: [
-              Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                    child: Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 13),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffffffff),
-                          border: Border.all(
-                              color: const Color(0xff2d9871), width: 1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                            hint: const Text("School"),
-                            value: currentSelectedValue,
-                            items: ["Sample School 1", "Sample School 2"]
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            style: const TextStyle(
-                              color: Color(0xff000000),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.normal,
-                            ),
-                            onChanged: (newValue) {
-                              setState(() {
-                                widget.schoolCallback(newValue);
-                                currentSelectedValue = newValue;
-                              });
-                            },
-                            icon: const Icon(Icons.account_balance),
-                            iconSize: 24,
-                            iconEnabledColor: const Color(0xff212435),
-                            elevation: 8,
-                            isExpanded: true,
-                          ),
-                        )),
-                  )),
-            ]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: TextField(
+                controller: widget.schoolNameController,
+                obscureText: false,
+                textAlign: TextAlign.start,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 14,
+                  color: Color(0xff000000),
+                ),
+                decoration: InputDecoration(
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  hintText: "School Name",
+                  hintStyle: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xffffffff),
+                  isDense: false,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  prefixIcon: const Icon(Icons.account_balance,
+                      color: Color(0xff212435), size: 24),
+                ),
+              ),
+            ),
           ],
         ),
       ),

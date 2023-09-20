@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:philippines_rpcmb/philippines_rpcmb.dart';
+import 'package:victu/utils/database.dart';
 
 class UserRegistration extends StatefulWidget {
   const UserRegistration(
@@ -28,12 +29,29 @@ class UserRegistration extends StatefulWidget {
 }
 
 class _UserRegistrationState extends State<UserRegistration> {
+  List<String> schools = [];
   Region? region;
   Province? province;
   Municipality? municipality;
   String? barangay;
   var selectedGender;
   var selectedSchool;
+  bool schoolsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    updateSchools();
+  }
+
+  void updateSchools() {
+    getAllSchools().then((schools) => {
+          setState(() {
+            this.schools = schools;
+            schoolsLoaded = true;
+          })
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -402,54 +420,55 @@ class _UserRegistrationState extends State<UserRegistration> {
                 ],
               ),
             ),
-            Row(children: [
-              Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                    child: Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 13),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffffffff),
-                          border: Border.all(
-                              color: const Color(0xff2d9871), width: 1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                            hint: const Text("School"),
-                            value: selectedSchool,
-                            items: ["Sample School 1", "Sample School 2"]
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            style: const TextStyle(
-                              color: Color(0xff000000),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              fontStyle: FontStyle.normal,
-                            ),
-                            onChanged: (newValue) {
-                              setState(() {
-                                widget.schoolCallback(newValue);
-                                selectedSchool = newValue;
-                              });
-                            },
-                            icon: const Icon(Icons.account_balance),
-                            iconSize: 24,
-                            iconEnabledColor: const Color(0xff212435),
-                            elevation: 8,
-                            isExpanded: true,
+            if (schoolsLoaded)
+              Row(children: [
+                Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      child: Container(
+                          width: 130,
+                          height: 50,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 13),
+                          decoration: BoxDecoration(
+                            color: const Color(0xffffffff),
+                            border: Border.all(
+                                color: const Color(0xff2d9871), width: 1),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        )),
-                  )),
-            ]),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                              hint: const Text("School"),
+                              value: selectedSchool,
+                              items: schools.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              style: const TextStyle(
+                                color: Color(0xff000000),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                fontStyle: FontStyle.normal,
+                              ),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  widget.schoolCallback(newValue);
+                                  selectedSchool = newValue;
+                                });
+                              },
+                              icon: const Icon(Icons.account_balance),
+                              iconSize: 24,
+                              iconEnabledColor: const Color(0xff212435),
+                              elevation: 8,
+                              isExpanded: true,
+                            ),
+                          )),
+                    )),
+              ]),
           ],
         ),
       ),
