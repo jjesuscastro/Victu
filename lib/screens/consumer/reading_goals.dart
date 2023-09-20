@@ -44,34 +44,59 @@ class _ReadingGoalsState extends State<ReadingGoals> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffebebeb),
-      appBar: AppBar(
-        elevation: 4,
-        centerTitle: false,
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xff2b9685),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-        ),
-        title: const Text(
-          "Reading Goals",
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontStyle: FontStyle.normal,
-            fontSize: 18,
-            color: Color(0xffffffff),
+        backgroundColor: const Color(0xffebebeb),
+        appBar: AppBar(
+          elevation: 4,
+          centerTitle: false,
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color(0xff2b9685),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          title: const Text(
+            "Reading Goals",
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontStyle: FontStyle.normal,
+              fontSize: 18,
+              color: Color(0xffffffff),
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: ArticleList(
-        articles: articles,
-        openArticle: openArticle,
-      ),
-    );
+        body: ListView(
+          scrollDirection: Axis.vertical,
+          padding: const EdgeInsets.all(0),
+          shrinkWrap: true,
+          physics: const ScrollPhysics(),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 30, 0, 20),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  "Earned Points ${widget.consumerData.points}",
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.clip,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
+                ),
+              ),
+            ),
+            ArticleList(
+              articles: articles,
+              openArticle: openArticle,
+            )
+          ],
+        ));
   }
 
   void newArticle(String title, String body) {
@@ -99,6 +124,8 @@ class _ArticleListState extends State<ArticleList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
         itemCount: widget.articles.length,
         itemBuilder: (context, index) {
           var article = widget.articles[index];
