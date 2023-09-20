@@ -15,6 +15,7 @@ class ReadingGoals extends StatefulWidget {
 
 class _ReadingGoalsState extends State<ReadingGoals> {
   List<Article> articles = [];
+  bool articlesLoaded = false;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _ReadingGoalsState extends State<ReadingGoals> {
     getAllArticles().then((articles) => {
           setState(() {
             this.articles = articles;
+            articlesLoaded = true;
           })
         });
   }
@@ -67,9 +69,42 @@ class _ReadingGoalsState extends State<ReadingGoals> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ArticleList(
-        articles: articles,
-        openArticle: openArticle,
+      body: ListView(
+        scrollDirection: Axis.vertical,
+        padding: const EdgeInsets.all(0),
+        shrinkWrap: true,
+        physics: const ScrollPhysics(),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 20),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                "Earned Points: ${widget.consumerData.points}",
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.clip,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 14,
+                  color: Color(0xff000000),
+                ),
+              ),
+            ),
+          ),
+          articlesLoaded
+              ? ArticleList(
+                  articles: articles,
+                  openArticle: openArticle,
+                )
+              : const Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xff2b9685)),
+                  ),
+                )
+        ],
       ),
     );
   }
@@ -99,6 +134,8 @@ class _ArticleListState extends State<ArticleList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
         itemCount: widget.articles.length,
         itemBuilder: (context, index) {
           var article = widget.articles[index];

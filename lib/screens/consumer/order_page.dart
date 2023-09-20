@@ -1,4 +1,5 @@
 import 'package:expandable/expandable.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
@@ -17,6 +18,7 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
+  Map<String, int> orders = {};
   List<Meal> meals = [];
   late VendorData vendor;
   bool mealsLoaded = false;
@@ -46,6 +48,21 @@ class _OrderPageState extends State<OrderPage> {
             vendorLoaded = true;
           })
         });
+  }
+
+  void placeOrder() {
+    String day = getTomorrow().keys.elementAt(0);
+    int currentOrders = 0;
+    orders.forEach((key, value) {
+      currentOrders = vendor.menus[day]![key]!;
+      currentOrders += value;
+      vendor.menus[day]![key] = currentOrders;
+    });
+
+    vendor.update();
+    //create an orders database
+    //generate order number
+    //restrict user from placing another order
   }
 
   Map<String, DateTime> getTomorrow() {
@@ -147,7 +164,31 @@ class _OrderPageState extends State<OrderPage> {
                         DateFormat.yMMMMd()
                             .format(getTomorrow().values.elementAt(0)),
                         meals,
-                        vendor),
+                        vendor,
+                        orders),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                      child: MaterialButton(
+                        onPressed: () => placeOrder(),
+                        color: const Color(0xff2d9871),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        textColor: const Color(0xffffffff),
+                        height: 45,
+                        minWidth: MediaQuery.of(context).size.width,
+                        child: const Text(
+                          "Place Order",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
             ],
@@ -159,7 +200,7 @@ class _OrderPageState extends State<OrderPage> {
 }
 
 Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData) {
+    VendorData vendorData, Map<String, int> orders) {
   return ExpandableNotifier(
     initialExpanded: true,
     child: Card(
@@ -226,11 +267,23 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MealTime(
-                    time: "B", day: day, vendorData: vendorData, meals: meals),
+                    time: "B",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders),
                 MealTime(
-                    time: "L", day: day, vendorData: vendorData, meals: meals),
+                    time: "L",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders),
                 MealTime(
-                    time: "D", day: day, vendorData: vendorData, meals: meals)
+                    time: "D",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders)
               ],
             ),
           ),
@@ -246,11 +299,13 @@ class MealTime extends StatefulWidget {
       required this.time,
       required this.day,
       required this.vendorData,
-      required this.meals});
+      required this.meals,
+      required this.orders});
   final String time;
   final String day;
   final List<Meal> meals;
   final VendorData vendorData;
+  final Map<String, int> orders;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
@@ -286,16 +341,20 @@ class _MealTimeState extends State<MealTime> {
               shrinkWrap: true,
               itemCount: widget.vendorData.menus[widget.day]!.length,
               itemBuilder: (BuildContext context, int index) {
-                List<String> mealValues = widget
-                    .vendorData.menus[widget.day]!.keys
-                    .elementAt(index)
-                    .split(';');
+                //mealValues is a List of String
+                //0 = B/L/D time of day the meal is prepared
+                //1 = ID of the meal in meals db
+                //2 = Quantity of meals prepared
+                String mealID =
+                    widget.vendorData.menus[widget.day]!.keys.elementAt(index);
+
+                List<String> mealValues = mealID.split(';');
 
                 if (mealValues[0] == widget.time) {
                   Meal? meal;
                   meal = findMeal(mealValues);
 
-                  return MenuEntry(meal);
+                  return MenuEntry(mealID, meal, widget.orders);
                 }
 
                 return const SizedBox(); //If meal isn't correct time or doesnt exist
@@ -307,9 +366,11 @@ class _MealTimeState extends State<MealTime> {
 }
 
 class MenuEntry extends StatefulWidget {
-  const MenuEntry(this.meal, {super.key});
+  const MenuEntry(this.mealID, this.meal, this.orders, {super.key});
 
+  final String mealID;
   final Meal meal;
+  final Map<String, int> orders;
 
   @override
   State<MenuEntry> createState() => _MenuEntryState();
@@ -317,55 +378,95 @@ class MenuEntry extends StatefulWidget {
 
 class _MenuEntryState extends State<MenuEntry> {
   bool value = false;
+  int quantity = 0;
 
   @override
   Widget build(BuildContext context) {
     return Row(children: [
       Expanded(
-          child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Row(
         children: [
-          Text(
-            widget.meal.title,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const Text("Qty: ${0}"),
-        ],
-      )),
-      TextButton(
-        style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-        ),
-        onPressed: () {},
-        child: Padding(
-          padding: EdgeInsets.zero,
-          child: MaterialButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AboutMeal(meal: widget.meal)),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth:
+                  170.0, //170 if About is disable, 105 if About is enabled
+              maxWidth: 170.0,
             ),
-            color: const Color(0xff2d9871),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            padding: const EdgeInsets.all(14),
-            textColor: const Color(0xffffffff),
-            height: 30,
-            minWidth: 60,
-            child: const Text(
-              "About",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.normal,
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: widget.meal.title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AboutMeal(meal: widget.meal)),
+                          ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-      ),
+          IconButton(
+            iconSize: 35,
+            icon: const Icon(Icons.arrow_left),
+            tooltip: 'Decrease order quantity',
+            color: const Color(0xff2b9685),
+            onPressed: () {
+              setState(() {
+                quantity = (quantity - 1).clamp(0, 3);
+                if (quantity == 0) {
+                  widget.orders.remove(widget.mealID);
+                } else {
+                  widget.orders[widget.mealID] = quantity;
+                }
+              });
+            },
+          ),
+          Text("Qty: $quantity"),
+          IconButton(
+            iconSize: 35,
+            icon: const Icon(Icons.arrow_right),
+            tooltip: 'Increase order quantity',
+            color: const Color(0xff2b9685),
+            onPressed: () {
+              setState(() {
+                quantity = (quantity + 1).clamp(0, 3);
+
+                widget.orders[widget.mealID] = quantity;
+              });
+            },
+          ),
+          // MaterialButton(
+          //   onPressed: () => Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) => AboutMeal(meal: widget.meal)),
+          //   ),
+          //   color: const Color(0xff2d9871),
+          //   elevation: 0,
+          //   shape: RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.circular(8.0),
+          //   ),
+          //   padding: const EdgeInsets.all(14),
+          //   textColor: const Color(0xffffffff),
+          //   height: 30,
+          //   minWidth: 60,
+          //   child: const Text(
+          //     "About",
+          //     style: TextStyle(
+          //       fontSize: 12,
+          //       fontWeight: FontWeight.w700,
+          //       fontStyle: FontStyle.normal,
+          //     ),
+          //   ),
+          // ),
+        ],
+      )),
     ]);
   }
 }

@@ -81,96 +81,102 @@ class _EditMenuState extends State<EditMenu> {
       //   foregroundColor: Colors.white,
       //   child: const Icon(Icons.add),
       // ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              if (mealsLoaded)
-                ListView(
-                  scrollDirection: Axis.vertical,
-                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
-                  shrinkWrap: true,
-                  physics: const ScrollPhysics(),
+      body: !mealsLoaded
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xff2b9685)),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    dayCard(
-                        context,
-                        "Monday",
-                        DateFormat.yMMMMd().format(getMonday()),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Tuesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 1))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Wednesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 2))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Thursday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 3))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Friday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 4))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Saturday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 5))),
-                        meals,
-                        widget.vendorData),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                      child: MaterialButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => IngredientSummary(
-                                  vendorData: widget.vendorData)),
-                        ),
-                        color: const Color(0xff2d9871),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        textColor: const Color(0xffffffff),
-                        height: 45,
-                        minWidth: MediaQuery.of(context).size.width,
-                        child: const Text(
-                          "Summary of Ingredients",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.normal,
+                    if (mealsLoaded)
+                      ListView(
+                        scrollDirection: Axis.vertical,
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
+                        shrinkWrap: true,
+                        physics: const ScrollPhysics(),
+                        children: [
+                          dayCard(
+                              context,
+                              "Monday",
+                              DateFormat.yMMMMd().format(getMonday()),
+                              meals,
+                              widget.vendorData),
+                          dayCard(
+                              context,
+                              "Tuesday",
+                              DateFormat.yMMMMd().format(
+                                  getMonday().add(const Duration(days: 1))),
+                              meals,
+                              widget.vendorData),
+                          dayCard(
+                              context,
+                              "Wednesday",
+                              DateFormat.yMMMMd().format(
+                                  getMonday().add(const Duration(days: 2))),
+                              meals,
+                              widget.vendorData),
+                          dayCard(
+                              context,
+                              "Thursday",
+                              DateFormat.yMMMMd().format(
+                                  getMonday().add(const Duration(days: 3))),
+                              meals,
+                              widget.vendorData),
+                          dayCard(
+                              context,
+                              "Friday",
+                              DateFormat.yMMMMd().format(
+                                  getMonday().add(const Duration(days: 4))),
+                              meals,
+                              widget.vendorData),
+                          dayCard(
+                              context,
+                              "Saturday",
+                              DateFormat.yMMMMd().format(
+                                  getMonday().add(const Duration(days: 5))),
+                              meals,
+                              widget.vendorData),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                            child: MaterialButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => IngredientSummary(
+                                        vendorData: widget.vendorData)),
+                              ),
+                              color: const Color(0xff2d9871),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              textColor: const Color(0xffffffff),
+                              height: 45,
+                              minWidth: MediaQuery.of(context).size.width,
+                              child: const Text(
+                                "Summary of Ingredients",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  fontStyle: FontStyle.normal,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
                   ],
                 ),
-            ],
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }

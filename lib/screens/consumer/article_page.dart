@@ -103,7 +103,9 @@ class _ArticlePageState extends State<ArticlePage>
                             color: Color(0xff000000),
                             size: 24,
                           ),
-                          onPressed: () => Navigator.of(context).pop(),
+                          onPressed: () => setState(() {
+                            Navigator.of(context).pop();
+                          }),
                         ),
                       ),
                       Expanded(

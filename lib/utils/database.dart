@@ -24,6 +24,13 @@ DatabaseReference saveUser(String uid, UserData userData) {
   return id.child(uid);
 }
 
+DatabaseReference saveSchool(String schoolName) {
+  var id = databaseReference.child('schools/').push();
+  id.set(schoolName);
+
+  return id;
+}
+
 DatabaseReference saveMeal(Meal meal) {
   var id = databaseReference.child('meals/').push();
   id.set(meal.toJson());
@@ -69,6 +76,23 @@ Future<List<Meal>> getAllMeals() async {
   }
 
   return meals;
+}
+
+Future<List<String>> getAllSchools() async {
+  DataSnapshot dataSnapshot = await databaseReference.child('schools/').get();
+  List<String> schools = [];
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    values.forEach((key, value) {
+      String school = value;
+
+      schools.add(school);
+    });
+  }
+
+  return schools;
 }
 
 Future<UserData> getUser(String uid) async {

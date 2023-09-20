@@ -9,9 +9,11 @@ import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/home_page.dart';
+import 'package:victu/screens/login.dart';
 import 'package:victu/screens/registration/farmer_registration.dart';
 import 'package:victu/screens/registration/user_registration.dart';
 import 'package:victu/screens/registration/vendor_registration.dart';
+import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
 
 class Registration extends StatefulWidget {
@@ -37,6 +39,7 @@ class _RegistrationState extends State<Registration> {
   //Canteen Values
   TextEditingController contactNumberController = TextEditingController();
   TextEditingController businessNameController = TextEditingController();
+  TextEditingController schoolNameController = TextEditingController();
 
   UserType? userType = UserType.consumer;
   var genderValue;
@@ -64,25 +67,24 @@ class _RegistrationState extends State<Registration> {
     super.dispose();
   }
 
-  //! Unused function, keeping in case a logout button will be added
-  // Route _routeToSignInScreen() {
-  //   return PageRouteBuilder(
-  //     pageBuilder: (context, animation, secondaryAnimation) => const Login(),
-  //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-  //       var begin = const Offset(-1.0, 0.0);
-  //       var end = Offset.zero;
-  //       var curve = Curves.ease;
+  Route _routeToSignInScreen() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const Login(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = const Offset(-1.0, 0.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
 
-  //       var tween =
-  //           Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
-  //       return SlideTransition(
-  //         position: animation.drive(tween),
-  //         child: child,
-  //       );
-  //     },
-  //   );
-  // }
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,10 +156,17 @@ class _RegistrationState extends State<Registration> {
                   foregroundColor: const Color.fromARGB(255, 90, 90, 90)),
               onPressed: currentStep == getSteps().length - 1
                   ? details.onStepCancel
-                  : null,
+                  : () async {
+                      setState(() {});
+                      await Authentication.signOut(context: context);
+                      setState(() {});
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context)
+                          .pushReplacement(_routeToSignInScreen());
+                    },
               child: currentStep == getSteps().length - 1
                   ? const Text('Back')
-                  : const Text(""),
+                  : const Text("Cancel"),
             ),
           ]);
         },
@@ -254,8 +263,8 @@ class _RegistrationState extends State<Registration> {
                       emailController: emailController,
                       contactNumberController: contactNumberController,
                       canteenNameController: businessNameController,
+                      schoolNameController: schoolNameController,
                       locationCallback: locationCallback,
-                      schoolCallback: schoolCallback,
                     )
                   : FarmerRegistration(
                       businessNameController: businessNameController,
@@ -326,13 +335,15 @@ class _RegistrationState extends State<Registration> {
   }
 
   void newVendor(User user) {
+    saveSchool(schoolNameController.text);
+
     var vendorData = VendorData(
         businessNameController.text,
         user.displayName!,
         UserType.vendor,
         locationValue,
         contactNumberController.text,
-        schoolValue,
+        schoolNameController.text,
         {
           'Monday': {'Empty': 0},
           'Tuesday': {'Empty': 0},
