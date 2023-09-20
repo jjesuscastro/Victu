@@ -80,7 +80,7 @@ class _ReadingGoalsState extends State<ReadingGoals> {
             child: Align(
               alignment: Alignment.center,
               child: Text(
-                "Earned Points ${widget.consumerData.points}",
+                "Earned Points: ${widget.consumerData.points}",
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.clip,
