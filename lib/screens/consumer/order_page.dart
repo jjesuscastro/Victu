@@ -1,4 +1,5 @@
 import 'package:expandable/expandable.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
@@ -148,6 +149,29 @@ class _OrderPageState extends State<OrderPage> {
                             .format(getTomorrow().values.elementAt(0)),
                         meals,
                         vendor),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                      child: MaterialButton(
+                        onPressed: () => {},
+                        color: const Color(0xff2d9871),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        textColor: const Color(0xffffffff),
+                        height: 45,
+                        minWidth: MediaQuery.of(context).size.width,
+                        child: const Text(
+                          "Place Order",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
             ],
@@ -322,50 +346,78 @@ class _MenuEntryState extends State<MenuEntry> {
   Widget build(BuildContext context) {
     return Row(children: [
       Expanded(
-          child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Row(
         children: [
-          Text(
-            widget.meal.title,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const Text("Qty: ${0}"),
-        ],
-      )),
-      TextButton(
-        style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-        ),
-        onPressed: () {},
-        child: Padding(
-          padding: EdgeInsets.zero,
-          child: MaterialButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AboutMeal(meal: widget.meal)),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth:
+                  170.0, //170 if About is disable, 105 if About is enabled
+              maxWidth: 170.0,
             ),
-            color: const Color(0xff2d9871),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            padding: const EdgeInsets.all(14),
-            textColor: const Color(0xffffffff),
-            height: 30,
-            minWidth: 60,
-            child: const Text(
-              "About",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.normal,
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: widget.meal.title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AboutMeal(meal: widget.meal)),
+                          ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-      ),
+          IconButton(
+            iconSize: 35,
+            icon: const Icon(Icons.arrow_left),
+            tooltip: 'Decrease order quantity',
+            color: const Color(0xff2b9685),
+            onPressed: () {
+              setState(() {});
+            },
+          ),
+          const Text("Qty: ${0}"),
+          IconButton(
+            iconSize: 35,
+            icon: const Icon(Icons.arrow_right),
+            tooltip: 'Increase order quantity',
+            color: const Color(0xff2b9685),
+            onPressed: () {
+              setState(() {});
+            },
+          ),
+          // MaterialButton(
+          //   onPressed: () => Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) => AboutMeal(meal: widget.meal)),
+          //   ),
+          //   color: const Color(0xff2d9871),
+          //   elevation: 0,
+          //   shape: RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.circular(8.0),
+          //   ),
+          //   padding: const EdgeInsets.all(14),
+          //   textColor: const Color(0xffffffff),
+          //   height: 30,
+          //   minWidth: 60,
+          //   child: const Text(
+          //     "About",
+          //     style: TextStyle(
+          //       fontSize: 12,
+          //       fontWeight: FontWeight.w700,
+          //       fontStyle: FontStyle.normal,
+          //     ),
+          //   ),
+          // ),
+        ],
+      )),
     ]);
   }
 }
