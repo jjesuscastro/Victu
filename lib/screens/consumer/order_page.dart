@@ -1,7 +1,14 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:expandable/expandable.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/consumer_data.dart';
@@ -73,7 +80,8 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   void createOrder() {
-    Order order = Order(vendor.getID(), widget.consumerData.getID(), orders);
+    Order order = Order(vendor.getID(), widget.consumerData.getID(),
+        DateFormat.yMMMMd().format(getTomorrow().values.elementAt(0)), orders);
 
     order.setId(saveOrder(order));
 
@@ -88,7 +96,7 @@ class _OrderPageState extends State<OrderPage> {
       builder: (context) => AlertDialog(
         content: SizedBox(
           width: 250,
-          height: 300,
+          height: 325,
           child: Column(children: [
             const Text(
               "Take a screenshot before closing",
@@ -100,10 +108,16 @@ class _OrderPageState extends State<OrderPage> {
               ),
             ),
             const Text(""),
-            generateQR(order.getID())
+            generateQR(qrKey, order.getID(), order)
           ]),
         ),
         actions: [
+          TextButton(
+              onPressed: () {
+                // Navigator.pop(context);
+                takeScreenShot();
+              },
+              child: const Text("Save Screenshot")),
           TextButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -112,6 +126,32 @@ class _OrderPageState extends State<OrderPage> {
         ],
       ),
     );
+  }
+
+  void takeScreenShot() async {
+    PermissionStatus res;
+    res = await Permission.storage.request();
+    if (res.isGranted) {
+      final boundary =
+          qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      // We can increse the size of QR using pixel ratio
+      final image = await boundary.toImage(pixelRatio: 5.0);
+      final byteData = await (image.toByteData(format: ui.ImageByteFormat.png));
+      if (byteData != null) {
+        final pngBytes = byteData.buffer.asUint8List();
+        // getting directory of our phone
+        final directory = (await getApplicationDocumentsDirectory()).path;
+        final imgFile = File(
+          '$directory/${DateTime.now()}Victu_Order.png',
+        );
+        imgFile.writeAsBytes(pngBytes);
+        GallerySaver.saveImage(imgFile.path).then((success) async {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Screenshot saved"),
+          ));
+        });
+      }
+    }
   }
 
   Map<String, DateTime> getTomorrow() {
