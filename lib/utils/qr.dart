@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:victu/objects/order.dart';
 
-RepaintBoundary generateQR(var qrKey, String qrData, Order order) {
+RepaintBoundary generateQR(var qrKey, String qrData, String time, Order order) {
+  String timeText = time == "B"
+      ? "Breakfast"
+      : time == "L"
+          ? "Lunch"
+          : "Dinner";
   return RepaintBoundary(
     key: qrKey,
     child: Stack(alignment: AlignmentDirectional.topCenter, children: [
@@ -22,7 +27,7 @@ RepaintBoundary generateQR(var qrKey, String qrData, Order order) {
           version: QrVersions.auto, //You can also give other versions
         ),
       ),
-      Text(order.date),
+      Text("${order.date} - $timeText"),
     ]),
   );
 }

@@ -27,14 +27,11 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  final qrKey = GlobalKey();
-  Map<String, int> orders = {};
+  Map<String, int> allOrders = {};
   List<Meal> meals = [];
   late VendorData vendor;
   bool mealsLoaded = false;
   bool vendorLoaded = false;
-  String orderID = "";
-  bool orderPlaced = false;
 
   @override
   void initState() {
@@ -64,13 +61,13 @@ class _OrderPageState extends State<OrderPage> {
 
   void placeOrder() {
     updateVendorMenu();
-    createOrder();
+    createOrder("B");
   }
 
   void updateVendorMenu() {
     String day = getTomorrow().keys.elementAt(0);
     int currentOrders = 0;
-    orders.forEach((key, value) {
+    allOrders.forEach((key, value) {
       currentOrders = vendor.menus[day]![key]!;
       currentOrders += value;
       vendor.menus[day]![key] = currentOrders;
@@ -79,56 +76,74 @@ class _OrderPageState extends State<OrderPage> {
     vendor.update();
   }
 
-  void createOrder() {
-    Order order = Order(vendor.getID(), widget.consumerData.getID(),
-        DateFormat.yMMMMd().format(getTomorrow().values.elementAt(0)), orders);
-
-    order.setId(saveOrder(order));
-
-    setState(() {
-      orderID = order.getID();
-      orderPlaced = true;
-    });
-
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) => AlertDialog(
-        content: SizedBox(
-          width: 250,
-          height: 325,
-          child: Column(children: [
-            const Text(
-              "Take a screenshot before closing",
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.normal,
-                fontSize: 15,
-                color: Color(0xff000000),
-              ),
-            ),
-            const Text(""),
-            generateQR(qrKey, order.getID(), order)
-          ]),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () {
-                // Navigator.pop(context);
-                takeScreenShot();
-              },
-              child: const Text("Save Screenshot")),
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Close")),
-        ],
-      ),
+  void createOrder(String time) {
+    var qrKey = GlobalKey();
+    Map<String, int> orders = Map.fromEntries(
+      allOrders.entries.where((entry) => entry.key.split(';')[0] == time),
     );
+
+    if (orders.isNotEmpty) {
+      Order order = Order(
+          vendor.getID(),
+          widget.consumerData.getID(),
+          DateFormat.yMMMMd().format(getTomorrow().values.elementAt(0)),
+          time,
+          orders);
+
+      order.setId(saveOrder(order));
+
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          content: SizedBox(
+            width: 250,
+            height: 325,
+            child: Column(children: [
+              const Text(
+                "Take a screenshot before closing",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 15,
+                  color: Color(0xff000000),
+                ),
+              ),
+              const Text(""),
+              generateQR(qrKey, order.getID(), time, order)
+            ]),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  // Navigator.pop(context);
+                  takeScreenShot(qrKey);
+                },
+                child: const Text("Save Screenshot")),
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+
+                  if (time == "B") {
+                    createOrder("L");
+                  } else if (time == "L") {
+                    createOrder("D");
+                  }
+                },
+                child: const Text("Close")),
+          ],
+        ),
+      );
+    } else {
+      if (time == "B") {
+        createOrder("L");
+      } else if (time == "L") {
+        createOrder("D");
+      }
+    }
   }
 
-  void takeScreenShot() async {
+  void takeScreenShot(var qrKey) async {
     PermissionStatus res;
     res = await Permission.storage.request();
     if (res.isGranted) {
@@ -254,7 +269,7 @@ class _OrderPageState extends State<OrderPage> {
                             .format(getTomorrow().values.elementAt(0)),
                         meals,
                         vendor,
-                        orders),
+                        allOrders),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                       child: MaterialButton(

@@ -11,9 +11,10 @@ class Order {
   String vendorID;
   String studentID;
   String date;
+  String time;
   Map<String, int> orders;
 
-  Order(this.vendorID, this.studentID, this.date, this.orders);
+  Order(this.vendorID, this.studentID, this.date, this.time, this.orders);
 
   void setId(DatabaseReference id) {
     _id = id;
@@ -28,6 +29,7 @@ class Order {
       'vendorID': vendorID,
       'studentID': studentID,
       'date': date,
+      'time': time,
       'orders': orders,
     };
   }
@@ -38,6 +40,7 @@ Order createOrder(value) {
     'vendorID': '',
     'studentID': '',
     'date': '',
+    'time': '',
     'orders': {},
   };
 
@@ -47,6 +50,7 @@ Order createOrder(value) {
     attributes['vendorID'],
     attributes['studentID'],
     attributes['date'],
+    attributes['time'],
     attributes['orders'].cast<String, int>(),
   );
 
