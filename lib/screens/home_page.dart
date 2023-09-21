@@ -13,6 +13,7 @@ import 'package:victu/screens/farmer/nearby_vendors.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/check_orders.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
+import 'package:victu/screens/vendor/receive_orders.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
 
@@ -268,6 +269,19 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
         context,
         MaterialPageRoute(
             builder: (context) => CheckOrders(vendorData: vendorData)),
+      ),
+    ),
+    actionCard(
+      "Receive Orders",
+      const Icon(
+        Icons.bar_chart,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReceiveOrders(vendorData: vendorData)),
       ),
     ),
   ];

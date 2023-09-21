@@ -26,6 +26,11 @@ class VendorData extends FarmerData {
     _id = id;
   }
 
+  String getID() {
+    return _id.key!;
+  }
+
+  @override
   void update() {
     if (!menus.containsKey("Monday")) {
       menus["Monday"] = {};
@@ -77,7 +82,7 @@ VendorData createVendorData(value) {
     'location': '',
     'contactNumber': '',
     'school': '',
-    'menus': [],
+    'menus': {},
     'isRegistered': false,
   };
 

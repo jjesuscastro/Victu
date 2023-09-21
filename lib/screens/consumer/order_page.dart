@@ -3,10 +3,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/qr.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key, required this.consumerData});
@@ -18,11 +20,14 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
+  final qrKey = GlobalKey();
   Map<String, int> orders = {};
   List<Meal> meals = [];
   late VendorData vendor;
   bool mealsLoaded = false;
   bool vendorLoaded = false;
+  String orderID = "";
+  bool orderPlaced = false;
 
   @override
   void initState() {
@@ -51,6 +56,11 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   void placeOrder() {
+    updateVendorMenu();
+    createOrder();
+  }
+
+  void updateVendorMenu() {
     String day = getTomorrow().keys.elementAt(0);
     int currentOrders = 0;
     orders.forEach((key, value) {
@@ -60,9 +70,48 @@ class _OrderPageState extends State<OrderPage> {
     });
 
     vendor.update();
-    //create an orders database
-    //generate order number
-    //restrict user from placing another order
+  }
+
+  void createOrder() {
+    Order order = Order(vendor.getID(), widget.consumerData.getID(), orders);
+
+    order.setId(saveOrder(order));
+
+    setState(() {
+      orderID = order.getID();
+      orderPlaced = true;
+    });
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+        content: SizedBox(
+          width: 250,
+          height: 300,
+          child: Column(children: [
+            const Text(
+              "Take a screenshot before closing",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.normal,
+                fontSize: 15,
+                color: Color(0xff000000),
+              ),
+            ),
+            const Text(""),
+            generateQR(order.getID())
+          ]),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Close")),
+        ],
+      ),
+    );
   }
 
   Map<String, DateTime> getTomorrow() {
@@ -389,7 +438,7 @@ class _MenuEntryState extends State<MenuEntry> {
           ConstrainedBox(
             constraints: const BoxConstraints(
               minWidth:
-                  170.0, //170 if About is disable, 105 if About is enabled
+                  150.0, //160 if About is disable, 105 if About is enabled
               maxWidth: 170.0,
             ),
             child: RichText(

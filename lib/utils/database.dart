@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/order.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
@@ -34,6 +35,13 @@ DatabaseReference saveSchool(String schoolName) {
 DatabaseReference saveMeal(Meal meal) {
   var id = databaseReference.child('meals/').push();
   id.set(meal.toJson());
+
+  return id;
+}
+
+DatabaseReference saveOrder(Order order) {
+  var id = databaseReference.child('orders/').push();
+  id.set(order.toJson());
 
   return id;
 }
@@ -78,6 +86,20 @@ Future<List<Meal>> getAllMeals() async {
   return meals;
 }
 
+Future<Meal> getMeal(String uid) async {
+  DataSnapshot dataSnapshot = await databaseReference.child('meals/$uid').get();
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> value = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    Meal meal = createMeal(value);
+    meal.setId(databaseReference.child("meals/$uid"));
+    return meal;
+  }
+
+  throw Exception("Meal not found");
+}
+
 Future<List<String>> getAllSchools() async {
   DataSnapshot dataSnapshot = await databaseReference.child('schools/').get();
   List<String> schools = [];
@@ -93,6 +115,30 @@ Future<List<String>> getAllSchools() async {
   }
 
   return schools;
+}
+
+Future<Order> getOrder(String uid) async {
+  DataSnapshot dataSnapshot =
+      await databaseReference.child('orders/$uid').get();
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> value = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    Order order = createOrder(value);
+    order.setId(databaseReference.child("orders/$uid"));
+    return order;
+  }
+
+  throw Exception("Order not found");
+}
+
+void deleteOrder(String uid) async {
+  DataSnapshot dataSnapshot =
+      await databaseReference.child('orders/$uid').get();
+
+  if (dataSnapshot.exists) {
+    databaseReference.child('orders/$uid').remove();
+  }
 }
 
 Future<UserData> getUser(String uid) async {

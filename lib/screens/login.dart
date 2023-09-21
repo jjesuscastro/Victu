@@ -61,7 +61,8 @@ class _LoginState extends State<Login> {
                     return const GoogleSignInButton();
                   }
                   return const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orange));
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Color(0xff2b9685)));
                 },
               ),
             ],
