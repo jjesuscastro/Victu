@@ -128,6 +128,8 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
                 Text(studentName)
               ],
             ),
+            Text(
+                "${order.date} - ${order.time == "B" ? "Breakfast" : order.time == "L" ? "Lunch" : "Dinner"}"),
             const Text(""),
             const Text(
               "Orders:",
@@ -150,13 +152,13 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
                 controller!.resumeCamera();
                 deleteOrder(order.getID());
               },
-              child: const Text("All Order(s) Claimed")),
+              child: const Text("Order(s) Claimed")),
           TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 controller!.resumeCamera();
               },
-              child: const Text("Has Remaining Order(s) For Later")),
+              child: const Text("Close")),
         ],
       ),
     );
