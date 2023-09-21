@@ -20,6 +20,7 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
+  final qrKey = GlobalKey();
   Map<String, int> orders = {};
   List<Meal> meals = [];
   late VendorData vendor;
@@ -82,19 +83,27 @@ class _OrderPageState extends State<OrderPage> {
     });
 
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
         content: SizedBox(
           width: 250,
-          height: 250,
-          child: generateQR(order.getID()),
+          height: 300,
+          child: Column(children: [
+            const Text(
+              "Take a screenshot before closing",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.normal,
+                fontSize: 15,
+                color: Color(0xff000000),
+              ),
+            ),
+            const Text(""),
+            generateQR(order.getID())
+          ]),
         ),
         actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Save QR")),
           TextButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -429,7 +438,7 @@ class _MenuEntryState extends State<MenuEntry> {
           ConstrainedBox(
             constraints: const BoxConstraints(
               minWidth:
-                  170.0, //170 if About is disable, 105 if About is enabled
+                  150.0, //160 if About is disable, 105 if About is enabled
               maxWidth: 170.0,
             ),
             child: RichText(
