@@ -32,6 +32,7 @@ class _OrderPageState extends State<OrderPage> {
   late VendorData vendor;
   bool mealsLoaded = false;
   bool vendorLoaded = false;
+  List<String> timeFrames = List<String>.filled(3, "");
 
   @override
   void initState() {
@@ -47,6 +48,20 @@ class _OrderPageState extends State<OrderPage> {
             mealsLoaded = true;
           })
         });
+  }
+
+  void changeTimeFrame(String time, String timeFrame) {
+    switch (time) {
+      case "B":
+        timeFrames[0] = timeFrame;
+        break;
+      case "L":
+        timeFrames[1] = timeFrame;
+        break;
+      case "D":
+        timeFrames[2] = timeFrame;
+        break;
+    }
   }
 
   void updateVendor() {
@@ -88,6 +103,11 @@ class _OrderPageState extends State<OrderPage> {
           widget.consumerData.getID(),
           DateFormat.yMMMMd().format(getTomorrow().values.elementAt(0)),
           time,
+          time == "B"
+              ? timeFrames[0]
+              : time == "L"
+                  ? timeFrames[1]
+                  : timeFrames[2],
           orders);
 
       order.setId(saveOrder(order));
@@ -269,7 +289,8 @@ class _OrderPageState extends State<OrderPage> {
                             .format(getTomorrow().values.elementAt(0)),
                         meals,
                         vendor,
-                        allOrders),
+                        allOrders,
+                        changeTimeFrame),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                       child: MaterialButton(
@@ -303,8 +324,14 @@ class _OrderPageState extends State<OrderPage> {
   }
 }
 
-Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData, Map<String, int> orders) {
+Widget dayCard(
+    BuildContext context,
+    String day,
+    String date,
+    List<Meal> meals,
+    VendorData vendorData,
+    Map<String, int> orders,
+    Function(String, String) changeTimeFrame) {
   return ExpandableNotifier(
     initialExpanded: true,
     child: Card(
@@ -375,19 +402,38 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
                     day: day,
                     vendorData: vendorData,
                     meals: meals,
-                    orders: orders),
+                    timeRanges: const [
+                      "6:00 a.m.-7:00 a.m.",
+                      "7:00 a.m.-8:00 a.m.",
+                      "8:00 a.m.-9:00 a.m.",
+                      "9:00 a.m.-10:00 a.m."
+                    ],
+                    orders: orders,
+                    changeTimeFrame: changeTimeFrame),
                 MealTime(
                     time: "L",
                     day: day,
                     vendorData: vendorData,
                     meals: meals,
-                    orders: orders),
+                    timeRanges: const [
+                      "10:00 a.m.-11:00 a.m.",
+                      "11:00 a.m.-12:00 p.m.",
+                      "12:00 p.m.-1:00 p.m.",
+                      "1:00 p.m.-2:00 p.m."
+                    ],
+                    orders: orders,
+                    changeTimeFrame: changeTimeFrame),
                 MealTime(
                     time: "D",
                     day: day,
                     vendorData: vendorData,
                     meals: meals,
-                    orders: orders)
+                    timeRanges: const [
+                      "2:00 p.m.-3:00 p.m.",
+                      "3:00 p.m.-4:00 p.m.",
+                    ],
+                    orders: orders,
+                    changeTimeFrame: changeTimeFrame),
               ],
             ),
           ),
@@ -398,23 +444,36 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
 }
 
 class MealTime extends StatefulWidget {
-  const MealTime(
+  MealTime(
       {super.key,
       required this.time,
       required this.day,
       required this.vendorData,
       required this.meals,
-      required this.orders});
+      required this.timeRanges,
+      required this.orders,
+      required this.changeTimeFrame});
   final String time;
   final String day;
   final List<Meal> meals;
+  final List<String> timeRanges;
   final VendorData vendorData;
   final Map<String, int> orders;
+  Function(String, String) changeTimeFrame;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
 
 class _MealTimeState extends State<MealTime> {
+  var selectedTime;
+
+  @override
+  void initState() {
+    selectedTime = widget.timeRanges[0];
+    widget.changeTimeFrame(widget.time, selectedTime);
+    super.initState();
+  }
+
   Meal findMeal(List<String> mealValues) {
     Meal meal =
         widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
@@ -430,14 +489,66 @@ class _MealTimeState extends State<MealTime> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-              widget.time == "B"
-                  ? "Breakfast"
-                  : widget.time == "L"
-                      ? "Lunch"
-                      : "Dinner",
-              style:
-                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                  widget.time == "B"
+                      ? "Breakfast"
+                      : widget.time == "L"
+                          ? "Lunch"
+                          : "Dinner",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 20)),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Container(
+                  width: 190,
+                  height: 40,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 13),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffffffff),
+                    border:
+                        Border.all(color: const Color(0xff2d9871), width: 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                      hint: const Text("Time"),
+                      value: selectedTime,
+                      items: widget.timeRanges
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      style: const TextStyle(
+                        color: Color(0xff000000),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        fontStyle: FontStyle.normal,
+                      ),
+                      onChanged: (newValue) {
+                        setState(
+                          () {
+                            selectedTime = newValue;
+                            widget.changeTimeFrame(widget.time, selectedTime);
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.timer),
+                      iconSize: 24,
+                      iconEnabledColor: const Color(0xff212435),
+                      elevation: 8,
+                      isExpanded: true,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           const Divider(),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
