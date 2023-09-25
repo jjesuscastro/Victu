@@ -5,6 +5,7 @@ import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/time_frames.dart';
 
 class CheckOrders extends StatefulWidget {
   final VendorData vendorData;
@@ -261,7 +262,25 @@ class MealTime extends StatefulWidget {
 class _MealTimeState extends State<MealTime> {
   bool showDropdown = false;
   TextEditingController quantityController = TextEditingController();
+
+  String time = "";
+  List<String> timeFrames = [];
   var currentMeal;
+
+  @override
+  void initState() {
+    time = widget.time == "B"
+        ? "Breakfast"
+        : widget.time == "L"
+            ? "Lunch"
+            : "Dinner";
+    timeFrames = widget.time == "B"
+        ? TimeFrames.breakfastTimes
+        : widget.time == "L"
+            ? TimeFrames.lunchTimes
+            : TimeFrames.dinnerTimes;
+    super.initState();
+  }
 
   showMealDropDown(bool value) {
     showDropdown = value;
@@ -282,14 +301,14 @@ class _MealTimeState extends State<MealTime> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-              widget.time == "B"
-                  ? "Breakfast"
-                  : widget.time == "L"
-                      ? "Lunch"
-                      : "Dinner",
+          Text(time,
               style:
                   const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+          const Divider(),
+          timeFrameCards(timeFrames, widget.meals, widget.orders),
+          Container(height: 25),
+          Text("Total Orders for $time:",
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           const Divider(),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -321,6 +340,125 @@ class _MealTimeState extends State<MealTime> {
       ),
     );
   }
+}
+
+Map<String, int> getTimeframeOrders(List<Order> orders) {
+  Map<String, int> timeFrameOrders = {};
+  for (var element in orders) {
+    element.orders.forEach((key, add) {
+      timeFrameOrders.update(key, (value) => value + add, ifAbsent: () => add);
+    });
+  }
+
+  timeFrameOrders.forEach((key, value) {
+    print("$key : $value");
+  });
+
+  return timeFrameOrders;
+}
+
+Meal findMeal(List<Meal> meals, List<String> mealValues) {
+  Meal meal = meals.firstWhere((element) => element.id.key == mealValues[1]);
+
+  return meal;
+}
+
+Widget timeFrameCards(
+    List<String> timeFrames, List<Meal> meals, List<Order> orders) {
+  List<Order> timeFrameOrders = [];
+
+  return ListView.builder(
+    physics: const NeverScrollableScrollPhysics(),
+    scrollDirection: Axis.vertical,
+    shrinkWrap: true,
+    itemCount: timeFrames.length,
+    itemBuilder: (BuildContext context, int index) {
+      timeFrameOrders = orders
+          .where((order) => order.timeFrame == timeFrames[index])
+          .toList();
+
+      Map<String, int> finalOrders = getTimeframeOrders(timeFrameOrders);
+
+      return ExpandableNotifier(
+        child: Card(
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+          color: const Color.fromARGB(255, 186, 238, 229),
+          shadowColor: const Color(0x4d939393),
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+            side: const BorderSide(color: Color(0xff2b9685), width: 1),
+          ),
+          child: ScrollOnExpand(
+            child: ExpandablePanel(
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Text(
+                            timeFrames[index],
+                            textAlign: TextAlign.start,
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontStyle: FontStyle.normal,
+                              fontSize: 16,
+                              color: Color(0xff000000),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              collapsed: Container(),
+              expanded: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: finalOrders.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        List<String> mealValues =
+                            finalOrders.keys.elementAt(index).split(';');
+
+                        Meal? meal;
+                        meal = findMeal(meals, mealValues);
+
+                        int servings = int.parse(mealValues[2]);
+
+                        int orders = finalOrders.values.elementAt(index);
+
+                        return MenuEntry(meal, servings, orders);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class MenuEntry extends StatefulWidget {
