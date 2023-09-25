@@ -16,6 +16,7 @@ import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
 import 'package:victu/utils/qr.dart';
+import 'package:victu/utils/time_frames.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key, required this.consumerData});
@@ -402,12 +403,7 @@ Widget dayCard(
                     day: day,
                     vendorData: vendorData,
                     meals: meals,
-                    timeRanges: const [
-                      "6:00 a.m.-7:00 a.m.",
-                      "7:00 a.m.-8:00 a.m.",
-                      "8:00 a.m.-9:00 a.m.",
-                      "9:00 a.m.-10:00 a.m."
-                    ],
+                    timeRanges: TimeFrames.breakfastTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
                 MealTime(
@@ -415,12 +411,7 @@ Widget dayCard(
                     day: day,
                     vendorData: vendorData,
                     meals: meals,
-                    timeRanges: const [
-                      "10:00 a.m.-11:00 a.m.",
-                      "11:00 a.m.-12:00 p.m.",
-                      "12:00 p.m.-1:00 p.m.",
-                      "1:00 p.m.-2:00 p.m."
-                    ],
+                    timeRanges: TimeFrames.lunchTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
                 MealTime(
@@ -428,10 +419,7 @@ Widget dayCard(
                     day: day,
                     vendorData: vendorData,
                     meals: meals,
-                    timeRanges: const [
-                      "2:00 p.m.-3:00 p.m.",
-                      "3:00 p.m.-4:00 p.m.",
-                    ],
+                    timeRanges: TimeFrames.dinnerTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
               ],
