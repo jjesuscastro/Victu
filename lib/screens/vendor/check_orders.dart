@@ -2,6 +2,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/utils/database.dart';
 
@@ -16,12 +17,14 @@ class CheckOrders extends StatefulWidget {
 
 class _CheckOrdersState extends State<CheckOrders> {
   List<Meal> meals = [];
+  List<Order> orders = [];
   bool mealsLoaded = false;
 
   @override
   void initState() {
     super.initState();
     updateMeals();
+    updateOrders();
   }
 
   void updateMeals() {
@@ -33,12 +36,56 @@ class _CheckOrdersState extends State<CheckOrders> {
         });
   }
 
+  void updateOrders() {
+    getAllOrders().then((orders) => {
+          setState(() {
+            this.orders = orders
+                .where((order) => order.vendorID == widget.vendorData.getID())
+                .toList();
+          })
+        });
+  }
+
   DateTime getMonday() {
     DateTime now = DateTime.now();
     if (now.weekday == 7) now = now.add(const Duration(days: 1));
     DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
 
     return weekStart;
+  }
+
+  Map<String, DateTime> getTomorrow() {
+    Map<String, DateTime> tomorrow = {};
+    DateTime now = DateTime.now();
+
+    DateTime tmrw = now.add(const Duration(days: 1));
+    if (tmrw.weekday == 7) tmrw = now.add(const Duration(days: 1));
+
+    String weekday = getWeekdayString(tmrw.weekday);
+
+    tomorrow[weekday] = tmrw;
+    return tomorrow;
+  }
+
+  String getWeekdayString(int weekday) {
+    switch (weekday) {
+      case 1:
+        return "Monday";
+      case 2:
+        return "Tuesday";
+      case 3:
+        return "Wednesday";
+      case 4:
+        return "Thursday";
+      case 5:
+        return "Friday";
+      case 6:
+        return "Saturday";
+      case 7:
+        return "Sunday";
+      default:
+        return "";
+    }
   }
 
   @override
@@ -84,45 +131,12 @@ class _CheckOrdersState extends State<CheckOrders> {
                   children: [
                     dayCard(
                         context,
-                        "Monday",
-                        DateFormat.yMMMMd().format(getMonday()),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Tuesday",
+                        getTomorrow().keys.elementAt(0),
                         DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 1))),
+                            .format(getTomorrow().values.elementAt(0)),
                         meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Wednesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 2))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Thursday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 3))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Friday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 4))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Saturday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 5))),
-                        meals,
-                        widget.vendorData),
+                        widget.vendorData,
+                        orders),
                   ],
                 ),
             ],
@@ -134,8 +148,9 @@ class _CheckOrdersState extends State<CheckOrders> {
 }
 
 Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData) {
+    VendorData vendorData, List<Order> orders) {
   return ExpandableNotifier(
+    initialExpanded: true,
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
       color: const Color(0xffffffff),
@@ -200,11 +215,23 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MealTime(
-                    time: "B", day: day, vendorData: vendorData, meals: meals),
+                    time: "B",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders),
                 MealTime(
-                    time: "L", day: day, vendorData: vendorData, meals: meals),
+                    time: "L",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders),
                 MealTime(
-                    time: "D", day: day, vendorData: vendorData, meals: meals)
+                    time: "D",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders)
               ],
             ),
           ),
@@ -220,10 +247,12 @@ class MealTime extends StatefulWidget {
       required this.time,
       required this.day,
       required this.vendorData,
-      required this.meals});
+      required this.meals,
+      required this.orders});
   final String time;
   final String day;
   final List<Meal> meals;
+  final List<Order> orders;
   final VendorData vendorData;
   @override
   State<MealTime> createState() => _MealTimeState();
@@ -243,36 +272,6 @@ class _MealTimeState extends State<MealTime> {
         widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
-  }
-
-  void saveMeal() {
-    int currentOrders = 0;
-    String removeKey = '';
-
-    widget.vendorData.menus[widget.day]!.forEach((key, value) {
-      if (key.contains("${widget.time};${currentMeal.id.key}")) {
-        currentOrders = value;
-        removeKey = key;
-      }
-    });
-
-    if (removeKey.isNotEmpty) {
-      widget.vendorData.menus[widget.day]!.remove(removeKey);
-    }
-
-    widget.vendorData.menus[widget.day]![
-            "${widget.time};${currentMeal.id.key};${int.parse(quantityController.text)}"] =
-        currentOrders;
-
-    widget.vendorData.update();
-  }
-
-  deleteMeal(String menuKey) {
-    setState(() {
-      widget.vendorData.menus[widget.day]!.remove(menuKey);
-
-      widget.vendorData.update();
-    });
   }
 
   @override
