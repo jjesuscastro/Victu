@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:victu/objects/meal.dart';
@@ -8,9 +8,9 @@ import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/utils/database.dart';
 
 class ReceiveOrders extends StatefulWidget {
-  final VendorData vendorData;
+  VendorData vendorData;
 
-  const ReceiveOrders({super.key, required this.vendorData});
+  ReceiveOrders({super.key, required this.vendorData});
 
   @override
   State<ReceiveOrders> createState() => _ReceiveOrdersState();
@@ -29,7 +29,13 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
   @override
   void initState() {
     super.initState();
+    updateVendorData();
     updateMeals();
+  }
+
+  void updateVendorData() {
+    getVendor(widget.vendorData.getID())
+        .then((value) => {widget.vendorData = value});
   }
 
   void updateMeals() {
@@ -128,8 +134,9 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
                 Text(studentName)
               ],
             ),
+            Text(order.date),
             Text(
-                "${order.date} - ${order.time == "B" ? "Breakfast" : order.time == "L" ? "Lunch" : "Dinner"}"),
+                "${order.time == "B" ? "Breakfast" : order.time == "L" ? "Lunch" : "Dinner"} - ${order.timeFrame}"),
             const Text(""),
             const Text(
               "Orders:",
@@ -151,6 +158,7 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
                 Navigator.pop(context);
                 controller!.resumeCamera();
                 deleteOrder(order.getID());
+                updateVendorMenu(order.orders, order.date);
               },
               child: const Text("Order(s) Claimed")),
           TextButton(
@@ -162,6 +170,26 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
         ],
       ),
     );
+  }
+
+  void updateVendorMenu(Map<String, int> orders, String date) {
+    //key: B/L/D;<ID>;Qty
+    //int: is # of orders
+    //Get weekday from date
+
+    String weekday =
+        DateFormat('EEEE').format(DateFormat("MMMM DD, yyyy").parse(date));
+    print(weekday);
+
+    orders.forEach((key, qty) {
+      print("Updating $weekday with $key - $qty");
+
+      print("Updating ${widget.vendorData.menus[weekday]![key]}");
+      widget.vendorData.menus[weekday]!.update(key, (value) => value - qty);
+      print("Updating ${widget.vendorData.menus[weekday]![key]}");
+    });
+
+    widget.vendorData.update();
   }
 
   @override

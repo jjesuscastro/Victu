@@ -2,13 +2,15 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
+import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/time_frames.dart';
 
 class CheckOrders extends StatefulWidget {
-  final VendorData vendorData;
+  VendorData vendorData;
 
-  const CheckOrders({super.key, required this.vendorData});
+  CheckOrders({super.key, required this.vendorData});
 
   @override
   State<CheckOrders> createState() => _CheckOrdersState();
@@ -16,12 +18,20 @@ class CheckOrders extends StatefulWidget {
 
 class _CheckOrdersState extends State<CheckOrders> {
   List<Meal> meals = [];
+  List<Order> orders = [];
   bool mealsLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    updateVendorData();
     updateMeals();
+    updateOrders();
+  }
+
+  void updateVendorData() {
+    getVendor(widget.vendorData.getID())
+        .then((value) => {widget.vendorData = value});
   }
 
   void updateMeals() {
@@ -33,12 +43,56 @@ class _CheckOrdersState extends State<CheckOrders> {
         });
   }
 
+  void updateOrders() {
+    getAllOrders().then((orders) => {
+          setState(() {
+            this.orders = orders
+                .where((order) => order.vendorID == widget.vendorData.getID())
+                .toList();
+          })
+        });
+  }
+
   DateTime getMonday() {
     DateTime now = DateTime.now();
     if (now.weekday == 7) now = now.add(const Duration(days: 1));
     DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
 
     return weekStart;
+  }
+
+  Map<String, DateTime> getTomorrow() {
+    Map<String, DateTime> tomorrow = {};
+    DateTime now = DateTime.now();
+
+    DateTime tmrw = now.add(const Duration(days: 1));
+    if (tmrw.weekday == 7) tmrw = now.add(const Duration(days: 1));
+
+    String weekday = getWeekdayString(tmrw.weekday);
+
+    tomorrow[weekday] = tmrw;
+    return tomorrow;
+  }
+
+  String getWeekdayString(int weekday) {
+    switch (weekday) {
+      case 1:
+        return "Monday";
+      case 2:
+        return "Tuesday";
+      case 3:
+        return "Wednesday";
+      case 4:
+        return "Thursday";
+      case 5:
+        return "Friday";
+      case 6:
+        return "Saturday";
+      case 7:
+        return "Sunday";
+      default:
+        return "";
+    }
   }
 
   @override
@@ -84,45 +138,12 @@ class _CheckOrdersState extends State<CheckOrders> {
                   children: [
                     dayCard(
                         context,
-                        "Monday",
-                        DateFormat.yMMMMd().format(getMonday()),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Tuesday",
+                        getTomorrow().keys.elementAt(0),
                         DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 1))),
+                            .format(getTomorrow().values.elementAt(0)),
                         meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Wednesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 2))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Thursday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 3))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Friday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 4))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Saturday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 5))),
-                        meals,
-                        widget.vendorData),
+                        widget.vendorData,
+                        orders),
                   ],
                 ),
             ],
@@ -134,8 +155,9 @@ class _CheckOrdersState extends State<CheckOrders> {
 }
 
 Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData) {
+    VendorData vendorData, List<Order> orders) {
   return ExpandableNotifier(
+    initialExpanded: true,
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
       color: const Color(0xffffffff),
@@ -200,11 +222,23 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MealTime(
-                    time: "B", day: day, vendorData: vendorData, meals: meals),
+                    time: "B",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders),
                 MealTime(
-                    time: "L", day: day, vendorData: vendorData, meals: meals),
+                    time: "L",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders),
                 MealTime(
-                    time: "D", day: day, vendorData: vendorData, meals: meals)
+                    time: "D",
+                    day: day,
+                    vendorData: vendorData,
+                    meals: meals,
+                    orders: orders)
               ],
             ),
           ),
@@ -220,10 +254,12 @@ class MealTime extends StatefulWidget {
       required this.time,
       required this.day,
       required this.vendorData,
-      required this.meals});
+      required this.meals,
+      required this.orders});
   final String time;
   final String day;
   final List<Meal> meals;
+  final List<Order> orders;
   final VendorData vendorData;
   @override
   State<MealTime> createState() => _MealTimeState();
@@ -232,7 +268,25 @@ class MealTime extends StatefulWidget {
 class _MealTimeState extends State<MealTime> {
   bool showDropdown = false;
   TextEditingController quantityController = TextEditingController();
+
+  String time = "";
+  List<String> timeFrames = [];
   var currentMeal;
+
+  @override
+  void initState() {
+    time = widget.time == "B"
+        ? "Breakfast"
+        : widget.time == "L"
+            ? "Lunch"
+            : "Dinner";
+    timeFrames = widget.time == "B"
+        ? TimeFrames.breakfastTimes
+        : widget.time == "L"
+            ? TimeFrames.lunchTimes
+            : TimeFrames.dinnerTimes;
+    super.initState();
+  }
 
   showMealDropDown(bool value) {
     showDropdown = value;
@@ -245,36 +299,6 @@ class _MealTimeState extends State<MealTime> {
     return meal;
   }
 
-  void saveMeal() {
-    int currentOrders = 0;
-    String removeKey = '';
-
-    widget.vendorData.menus[widget.day]!.forEach((key, value) {
-      if (key.contains("${widget.time};${currentMeal.id.key}")) {
-        currentOrders = value;
-        removeKey = key;
-      }
-    });
-
-    if (removeKey.isNotEmpty) {
-      widget.vendorData.menus[widget.day]!.remove(removeKey);
-    }
-
-    widget.vendorData.menus[widget.day]![
-            "${widget.time};${currentMeal.id.key};${int.parse(quantityController.text)}"] =
-        currentOrders;
-
-    widget.vendorData.update();
-  }
-
-  deleteMeal(String menuKey) {
-    setState(() {
-      widget.vendorData.menus[widget.day]!.remove(menuKey);
-
-      widget.vendorData.update();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -283,14 +307,14 @@ class _MealTimeState extends State<MealTime> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-              widget.time == "B"
-                  ? "Breakfast"
-                  : widget.time == "L"
-                      ? "Lunch"
-                      : "Dinner",
+          Text(time,
               style:
                   const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+          const Divider(),
+          timeFrameCards(timeFrames, widget.meals, widget.orders),
+          Container(height: 25),
+          Text("Total Orders for $time:",
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           const Divider(),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -322,6 +346,125 @@ class _MealTimeState extends State<MealTime> {
       ),
     );
   }
+}
+
+Map<String, int> getTimeframeOrders(List<Order> orders) {
+  Map<String, int> timeFrameOrders = {};
+  for (var element in orders) {
+    element.orders.forEach((key, add) {
+      timeFrameOrders.update(key, (value) => value + add, ifAbsent: () => add);
+    });
+  }
+
+  timeFrameOrders.forEach((key, value) {
+    print("$key : $value");
+  });
+
+  return timeFrameOrders;
+}
+
+Meal findMeal(List<Meal> meals, List<String> mealValues) {
+  Meal meal = meals.firstWhere((element) => element.id.key == mealValues[1]);
+
+  return meal;
+}
+
+Widget timeFrameCards(
+    List<String> timeFrames, List<Meal> meals, List<Order> orders) {
+  List<Order> timeFrameOrders = [];
+
+  return ListView.builder(
+    physics: const NeverScrollableScrollPhysics(),
+    scrollDirection: Axis.vertical,
+    shrinkWrap: true,
+    itemCount: timeFrames.length,
+    itemBuilder: (BuildContext context, int index) {
+      timeFrameOrders = orders
+          .where((order) => order.timeFrame == timeFrames[index])
+          .toList();
+
+      Map<String, int> finalOrders = getTimeframeOrders(timeFrameOrders);
+
+      return ExpandableNotifier(
+        child: Card(
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+          color: const Color.fromARGB(255, 186, 238, 229),
+          shadowColor: const Color(0x4d939393),
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+            side: const BorderSide(color: Color(0xff2b9685), width: 1),
+          ),
+          child: ScrollOnExpand(
+            child: ExpandablePanel(
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Text(
+                            timeFrames[index],
+                            textAlign: TextAlign.start,
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontStyle: FontStyle.normal,
+                              fontSize: 16,
+                              color: Color(0xff000000),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              collapsed: Container(),
+              expanded: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: finalOrders.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        List<String> mealValues =
+                            finalOrders.keys.elementAt(index).split(';');
+
+                        Meal? meal;
+                        meal = findMeal(meals, mealValues);
+
+                        int servings = int.parse(mealValues[2]);
+
+                        int orders = finalOrders.values.elementAt(index);
+
+                        return MenuEntry(meal, servings, orders);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class MenuEntry extends StatefulWidget {
