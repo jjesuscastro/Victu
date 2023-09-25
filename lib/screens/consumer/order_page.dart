@@ -65,8 +65,8 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  void updateVendor() {
-    getAllVendors().then((vendors) => {
+  Future<void> updateVendor() async {
+    await getAllVendors().then((vendors) => {
           setState(() {
             vendor = vendors
                 .firstWhere((v) => v.school == widget.consumerData.school);
@@ -75,7 +75,8 @@ class _OrderPageState extends State<OrderPage> {
         });
   }
 
-  void placeOrder() {
+  void placeOrder() async {
+    await updateVendor();
     updateVendorMenu();
     createOrder("B");
   }

@@ -8,9 +8,9 @@ import 'package:victu/utils/database.dart';
 import 'package:victu/utils/time_frames.dart';
 
 class CheckOrders extends StatefulWidget {
-  final VendorData vendorData;
+  VendorData vendorData;
 
-  const CheckOrders({super.key, required this.vendorData});
+  CheckOrders({super.key, required this.vendorData});
 
   @override
   State<CheckOrders> createState() => _CheckOrdersState();
@@ -24,8 +24,14 @@ class _CheckOrdersState extends State<CheckOrders> {
   @override
   void initState() {
     super.initState();
+    updateVendorData();
     updateMeals();
     updateOrders();
+  }
+
+  void updateVendorData() {
+    getVendor(widget.vendorData.getID())
+        .then((value) => {widget.vendorData = value});
   }
 
   void updateMeals() {
