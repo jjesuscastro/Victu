@@ -34,22 +34,6 @@ class _CheckOrdersState extends State<CheckOrders> {
         .then((value) => {widget.vendorData = value});
   }
 
-  void checkValidDate() {
-    DateTime now = DateTime.now();
-    DateTime validDate =
-        DateFormat("MMMM DD, yyyy").parse(widget.vendorData.validDate);
-
-    if (now.isAfter(validDate)) {
-      widget.vendorData.menus.forEach((day, menu) {
-        menu.forEach((mealKey, value) {
-          value = 0;
-        });
-      });
-
-      widget.vendorData.update();
-    }
-  }
-
   void updateMeals() {
     getAllMeals().then((meals) => {
           setState(() {
@@ -59,26 +43,12 @@ class _CheckOrdersState extends State<CheckOrders> {
         });
   }
 
-  void checkValidOrder() {
-    DateTime now = DateTime.now();
-    for (var order in orders) {
-      DateTime validDate = DateFormat("MMMM DD, yyyy").parse(order.date);
-
-      if (now.isAfter(validDate)) {
-        order.isValid = false;
-        order.update();
-      }
-    }
-  }
-
   void updateOrders() {
     getAllOrders().then((orders) => {
           setState(() {
             this.orders = orders
                 .where((order) => order.vendorID == widget.vendorData.getID())
                 .toList();
-
-            checkValidOrder();
           })
         });
   }
