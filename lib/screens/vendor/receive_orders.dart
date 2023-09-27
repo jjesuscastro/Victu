@@ -110,6 +110,13 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
     });
   }
 
+  bool checkToday(String date) {
+    DateTime now = DateTime.now();
+    DateTime orderDate = DateFormat("MMMM DD, yyyy").parse(date);
+
+    return now == orderDate;
+  }
+
   void showPopup(Order order) {
     showDialog(
       barrierDismissible: false,
@@ -152,22 +159,39 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
             }).toList()
           ]),
         ),
-        actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                controller!.resumeCamera();
-                deleteOrder(order.getID());
-                updateVendorMenu(order.orders, order.date);
-              },
-              child: const Text("Order(s) Claimed")),
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                controller!.resumeCamera();
-              },
-              child: const Text("Close")),
-        ],
+        actions: checkToday(order.date)
+            ? [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      controller!.resumeCamera();
+                      if (checkToday(order.date)) {
+                        deleteOrder(order.getID());
+                        updateVendorMenu(order.orders, order.date);
+                      }
+                    },
+                    child: const Text("Order(s) Claimed")),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      controller!.resumeCamera();
+                    },
+                    child: const Text("Close")),
+              ]
+            : [
+                TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      "Incorrect Date!",
+                      style: TextStyle(color: Colors.red),
+                    )),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      controller!.resumeCamera();
+                    },
+                    child: const Text("Close")),
+              ],
       ),
     );
   }
@@ -179,14 +203,9 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
 
     String weekday =
         DateFormat('EEEE').format(DateFormat("MMMM DD, yyyy").parse(date));
-    print(weekday);
 
     orders.forEach((key, qty) {
-      print("Updating $weekday with $key - $qty");
-
-      print("Updating ${widget.vendorData.menus[weekday]![key]}");
       widget.vendorData.menus[weekday]!.update(key, (value) => value - qty);
-      print("Updating ${widget.vendorData.menus[weekday]![key]}");
     });
 
     widget.vendorData.update();

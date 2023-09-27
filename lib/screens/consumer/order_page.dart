@@ -110,6 +110,7 @@ class _OrderPageState extends State<OrderPage> {
               : time == "L"
                   ? timeFrames[1]
                   : timeFrames[2],
+          true,
           orders);
 
       order.setId(saveOrder(order));
