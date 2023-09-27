@@ -88,6 +88,7 @@ class _HomePageState extends State<HomePage> {
     if (now.isAfter(validDate)) {
       vendorData.menus.forEach((day, menu) {
         menu.forEach((mealKey, value) {
+          vendorData.menus[day]![mealKey] = 0;
           value = 0;
         });
       });
