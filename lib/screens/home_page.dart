@@ -12,6 +12,7 @@ import 'package:victu/screens/farmer/edit_products.dart';
 import 'package:victu/screens/farmer/nearby_vendors.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/check_orders.dart';
+import 'package:victu/screens/vendor/create_meal.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
 import 'package:victu/screens/vendor/receive_orders.dart';
 import 'package:victu/utils/auth.dart';
@@ -187,7 +188,9 @@ class _HomePageState extends State<HomePage> {
                   if (userLoaded && widget.userData.userType == UserType.farmer)
                     ...farmerActionCards(context, userData),
                   if (userLoaded && widget.userData.userType == UserType.vendor)
-                    ...vendorActionCards(context, userData)
+                    ...vendorActionCards(context, userData),
+                  if (userLoaded && widget.userData.isAdmin)
+                    ...adminActionCards(context),
                 ],
               ),
             ],
@@ -284,6 +287,19 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
             builder: (context) => ReceiveOrders(vendorData: vendorData)),
       ),
     ),
+    actionCard(
+      "Unclaimed Orders",
+      const Icon(
+        Icons.warning,
+        color: Color(0xff212435),
+        size: 24,
+      ),
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReceiveOrders(vendorData: vendorData)),
+      ),
+    ),
   ];
 }
 
@@ -315,6 +331,33 @@ List<Widget> farmerActionCards(BuildContext context, FarmerData farmerData) {
             builder: (context) => NearbyVendors(location: farmerData.location)),
       ),
     ),
+  ];
+}
+
+List<Widget> adminActionCards(BuildContext context) {
+  return [
+    actionCard(
+        "Create Meal",
+        const Icon(
+          Icons.food_bank_sharp,
+          color: Color(0xff212435),
+          size: 24,
+        ),
+        () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CreateMeal()),
+            )),
+    actionCard(
+        "Create Article",
+        const Icon(
+          Icons.article,
+          color: Color(0xff212435),
+          size: 24,
+        ),
+        () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CreateMeal()),
+            ))
   ];
 }
 

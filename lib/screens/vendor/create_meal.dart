@@ -15,20 +15,22 @@ class CreateMeal extends StatefulWidget {
 class _CreateMealState extends State<CreateMeal> {
   TextEditingController dishNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  TextEditingController recipeController = TextEditingController();
+  TextEditingController imageURLController = TextEditingController();
   List<TextEditingController> ingredientControllers =
       List<TextEditingController>.empty(growable: true);
   List<TextEditingController> quantityControllers =
+      List<TextEditingController>.empty(growable: true);
+  List<MeasurementType> measurementTypes =
+      List<MeasurementType>.empty(growable: true);
+  List<TextEditingController> recipeControllers =
       List<TextEditingController>.empty(growable: true);
 
   @override
   void initState() {
     ingredientControllers.add(TextEditingController());
-    ingredientControllers.add(TextEditingController());
-    ingredientControllers.add(TextEditingController());
     quantityControllers.add(TextEditingController());
-    quantityControllers.add(TextEditingController());
-    quantityControllers.add(TextEditingController());
+    measurementTypes.add(MeasurementType.kg);
+    recipeControllers.add(TextEditingController());
     super.initState();
   }
 
@@ -48,43 +50,45 @@ class _CreateMealState extends State<CreateMeal> {
   createIngredient() {
     ingredientControllers.add(TextEditingController());
     quantityControllers.add(TextEditingController());
+    measurementTypes.add(MeasurementType.kg);
   }
 
-  deleteIngredient(TextEditingController ingredientController,
-      TextEditingController quantityController) {
+  createRecipe() {
+    recipeControllers.add(TextEditingController());
+  }
+
+  changeMeasurement(MeasurementType measurementType, int index) {
     setState(() {
-      ingredientControllers.remove(ingredientController);
-      quantityControllers.remove(quantityController);
+      measurementTypes[index] = measurementType;
     });
   }
 
-  // void newUser(User user) {
-  //   var userData =
-  //       UserData(user.displayName!, UserType.none, isRegistered: true);
+  deleteIngredient(int index) {
+    setState(() {
+      ingredientControllers.removeAt(index);
+      quantityControllers.removeAt(index);
+      measurementTypes.removeAt(index);
+    });
+  }
 
-  //   userData.setId(saveUser(user.uid, userData));
-
-  //   Navigator.of(context).pushReplacement(
-  //     MaterialPageRoute(
-  //       builder: (context) => HomePage(user: user, userData: userData),
-  //     ),
-  //   );
-  // }
+  deleteRecipe(TextEditingController recipeController) {
+    setState(() {
+      recipeControllers.remove(recipeController);
+    });
+  }
 
   newMeal() {
     List<Ingredient> ingredients = [];
-    ingredients.add(Ingredient("Sample Ingredient 1", 10, MeasurementType.pcs));
-    ingredients.add(Ingredient("Sample Ingredient 2", 200, MeasurementType.g));
-    ingredients.add(Ingredient("Sample Ingredient 1", 1, MeasurementType.kg));
 
-    List<String> recipe = [
-      "Sample Recipe step 1",
-      "Sample Recipe step 2",
-      "Sample Recipe step 3"
-    ];
+    ingredientControllers.asMap().forEach((key, value) {
+      int quantity = int.parse(quantityControllers[key].text);
+      ingredients.add(Ingredient(value.text, quantity, measurementTypes[key]));
+    });
+
+    List<String> recipe = recipeControllers.map((e) => e.text).toList();
 
     Meal meal = Meal(dishNameController.text, descriptionController.text,
-        ingredients, recipe);
+        imageURLController.text, ingredients, recipe);
 
     meal.setId(saveMeal(meal));
   }
@@ -192,6 +196,52 @@ class _CreateMealState extends State<CreateMeal> {
                 ),
               ),
               Padding(
+                padding: const EdgeInsets.fromLTRB(0, 40, 0, 0),
+                child: TextField(
+                  controller: imageURLController,
+                  obscureText: false,
+                  textAlign: TextAlign.start,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
+                  decoration: InputDecoration(
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          const BorderSide(color: Color(0xff2d9871), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          const BorderSide(color: Color(0xff2d9871), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide:
+                          const BorderSide(color: Color(0xff2d9871), width: 1),
+                    ),
+                    hintText: "Image URL",
+                    hintStyle: const TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.normal,
+                      fontSize: 14,
+                      color: Color(0xff000000),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xffffffff),
+                    isDense: false,
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    prefixIcon: const Icon(Icons.image,
+                        color: Color(0xff212435), size: 24),
+                  ),
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                 child: TextField(
                   controller: descriptionController,
@@ -245,9 +295,12 @@ class _CreateMealState extends State<CreateMeal> {
                   itemCount: ingredientControllers.length,
                   itemBuilder: (BuildContext context, int index) {
                     return IngredientEntry(
+                      index: index,
                       ingredientController:
                           ingredientControllers.elementAt(index),
                       quantityController: quantityControllers.elementAt(index),
+                      measurementType: measurementTypes.elementAt(index),
+                      changeMeasurementCallback: changeMeasurement,
                       deleteCallback: deleteIngredient,
                     );
                   }),
@@ -277,50 +330,40 @@ class _CreateMealState extends State<CreateMeal> {
                   ),
                 ),
               ),
+              ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: recipeControllers.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return RecipeEntry(
+                      recipeController: recipeControllers.elementAt(index),
+                      deleteCallback: deleteRecipe,
+                    );
+                  }),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                child: TextField(
-                  controller: recipeController,
-                  textAlign: TextAlign.start,
-                  maxLines: null,
-                  minLines: 10,
-                  keyboardType: TextInputType.multiline,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 14,
-                    color: Color(0xff000000),
+                child: MaterialButton(
+                  onPressed: () {
+                    setState(() {
+                      createRecipe();
+                    });
+                  },
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  decoration: InputDecoration(
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide:
-                          const BorderSide(color: Color(0xff2d9871), width: 1),
-                    ),
-                    label: const Text("Recipe"),
-                    hintStyle: const TextStyle(
-                      fontWeight: FontWeight.w400,
+                  padding: const EdgeInsets.all(10),
+                  textColor: const Color(0xff2d9871),
+                  height: 25,
+                  minWidth: MediaQuery.of(context).size.width,
+                  child: const Text(
+                    "Add Recipe",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                       fontStyle: FontStyle.normal,
-                      fontSize: 14,
-                      color: Color(0xff000000),
                     ),
-                    filled: true,
-                    fillColor: const Color(0xffffffff),
-                    isDense: false,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    prefixIcon: const Icon(Icons.list_alt,
-                        color: Color(0xff212435), size: 24),
                   ),
                 ),
               ),
@@ -329,6 +372,7 @@ class _CreateMealState extends State<CreateMeal> {
                 child: MaterialButton(
                   onPressed: () {
                     newMeal();
+                    Navigator.of(context).pop();
                   },
                   color: const Color(0xff2d9871),
                   elevation: 0,
@@ -357,17 +401,28 @@ class _CreateMealState extends State<CreateMeal> {
   }
 }
 
-class IngredientEntry extends StatelessWidget {
+class IngredientEntry extends StatefulWidget {
   const IngredientEntry(
       {super.key,
+      required this.index,
       required this.ingredientController,
       required this.quantityController,
+      required this.measurementType,
+      required this.changeMeasurementCallback,
       required this.deleteCallback});
 
+  final int index;
   final TextEditingController ingredientController;
   final TextEditingController quantityController;
+  final MeasurementType measurementType;
+  final Function changeMeasurementCallback;
   final Function deleteCallback;
 
+  @override
+  State<IngredientEntry> createState() => _IngredientEntryState();
+}
+
+class _IngredientEntryState extends State<IngredientEntry> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -381,7 +436,7 @@ class IngredientEntry extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
               child: TextField(
-                controller: ingredientController,
+                controller: widget.ingredientController,
                 obscureText: false,
                 textAlign: TextAlign.start,
                 maxLines: 1,
@@ -435,7 +490,7 @@ class IngredientEntry extends StatelessWidget {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(3),
                 ],
-                controller: quantityController,
+                controller: widget.quantityController,
                 obscureText: false,
                 textAlign: TextAlign.start,
                 maxLines: 1,
@@ -477,12 +532,145 @@ class IngredientEntry extends StatelessWidget {
             ),
           ),
           SizedBox(
+            width: 70,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xffffffff),
+                  border: Border.all(color: const Color(0xff2d9871), width: 1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton(
+                    value: widget.measurementType,
+                    items: MeasurementType.values
+                        .map((MeasurementType measurementType) {
+                      return DropdownMenuItem<MeasurementType>(
+                          value: measurementType,
+                          child: Text(measurementType.name));
+                    }).toList(),
+                    style: const TextStyle(
+                      color: Color(0xff000000),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      fontStyle: FontStyle.normal,
+                    ),
+                    onChanged: (newValue) {
+                      setState(() {
+                        widget.changeMeasurementCallback(
+                            newValue, widget.index);
+                      });
+                    },
+                    elevation: 8,
+                    isExpanded: true,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
             width: 40,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               child: MaterialButton(
                 onPressed: () {
-                  deleteCallback(ingredientController, quantityController);
+                  widget.deleteCallback(widget.index);
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+                color: Colors.red,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: const EdgeInsets.all(0),
+                textColor: const Color(0xffffffff),
+                height: 45,
+                minWidth: MediaQuery.of(context).size.width,
+                child: const Icon(Icons.delete),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class RecipeEntry extends StatelessWidget {
+  const RecipeEntry(
+      {super.key,
+      required this.recipeController,
+      required this.deleteCallback});
+
+  final TextEditingController recipeController;
+  final Function deleteCallback;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+              child: TextField(
+                controller: recipeController,
+                obscureText: false,
+                textAlign: TextAlign.start,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 14,
+                  color: Color(0xff000000),
+                ),
+                decoration: InputDecoration(
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xff2d9871), width: 1),
+                  ),
+                  hintText: "Recipe",
+                  hintStyle: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff000000),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xffffffff),
+                  isDense: false,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  prefixIcon: const Icon(Icons.menu,
+                      color: Color(0xff212435), size: 24),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 40,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+              child: MaterialButton(
+                onPressed: () {
+                  deleteCallback(recipeController);
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 color: Colors.red,

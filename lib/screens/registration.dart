@@ -352,6 +352,7 @@ class _RegistrationState extends State<Registration> {
           'Friday': {'Empty': 0},
           'Saturday': {'Empty': 0},
         },
+        "January 31, 1994",
         isRegistered: true);
 
     vendorData.setId(saveUser(user.uid, vendorData));

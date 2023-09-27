@@ -9,6 +9,7 @@ class VendorData extends FarmerData {
   late DatabaseReference _id;
   String school;
   Map<String, Map<String, int>> menus;
+  String validDate;
 
   VendorData(
     super.businessName,
@@ -17,8 +18,10 @@ class VendorData extends FarmerData {
     super.location,
     super.contactNumber,
     this.school,
-    this.menus, {
+    this.menus,
+    this.validDate, {
     super.isRegistered = false,
+    super.isAdmin = false,
   });
 
   @override
@@ -69,7 +72,9 @@ class VendorData extends FarmerData {
       'contactNumber': contactNumber,
       'school': school,
       'menus': menus,
+      'validDate': validDate,
       'isRegistered': isRegistered,
+      'isAdmin': isAdmin,
     };
   }
 }
@@ -83,7 +88,9 @@ VendorData createVendorData(value) {
     'contactNumber': '',
     'school': '',
     'menus': {},
+    'validDate': '',
     'isRegistered': false,
+    'isAdmin': false,
   };
 
   value.forEach((key, value) => {attributes[key] = value});
@@ -103,7 +110,9 @@ VendorData createVendorData(value) {
       'Friday': attributes['menus']['Friday'].cast<String, int>(),
       'Saturday': attributes['menus']['Saturday'].cast<String, int>(),
     },
+    attributes['validDate'],
     isRegistered: attributes['isRegistered'],
+    isAdmin: attributes['isAdmin'],
   );
 
   return userData;

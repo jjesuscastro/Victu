@@ -17,7 +17,9 @@ class FarmerData extends UserData {
 
   FarmerData(this.businessName, super.displayName, super.userType,
       this.location, this.contactNumber,
-      {this.products = const [], super.isRegistered = false});
+      {this.products = const [],
+      super.isRegistered = false,
+      super.isAdmin = false});
 
   @override
   void setId(DatabaseReference id) {
@@ -38,6 +40,7 @@ class FarmerData extends UserData {
       'contactNumber': contactNumber,
       'products': jsonEncode(products),
       'isRegistered': isRegistered,
+      'isAdmin': isAdmin,
     };
   }
 }
@@ -51,6 +54,7 @@ FarmerData createFarmerData(value) {
     'contactNumber': '',
     'products': [],
     'isRegistered': false,
+    'isAdmin': false,
   };
 
   value.forEach((key, value) => {attributes[key] = value});
@@ -64,6 +68,7 @@ FarmerData createFarmerData(value) {
     products: List<Product>.from(
         jsonDecode(attributes['products']).map((i) => createProduct(i))),
     isRegistered: attributes['isRegistered'],
+    isAdmin: attributes['isAdmin'],
   );
 
   return userData;

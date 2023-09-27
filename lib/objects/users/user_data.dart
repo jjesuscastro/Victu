@@ -7,9 +7,11 @@ class UserData {
   late DatabaseReference _id;
   String displayName = "";
   bool isRegistered = false;
+  bool isAdmin = false;
   UserType userType = UserType.none;
 
-  UserData(this.displayName, this.userType, {this.isRegistered = false});
+  UserData(this.displayName, this.userType,
+      {this.isRegistered = false, this.isAdmin = false});
 
   void setId(DatabaseReference id) {
     _id = id;
@@ -25,6 +27,7 @@ UserData createUserData(value) {
     'displayName': '',
     'userType': UserType.none,
     'isRegistered': false,
+    'isAdmin': false,
   };
 
   value.forEach((key, value) => {attributes[key] = value});
@@ -33,6 +36,7 @@ UserData createUserData(value) {
     attributes['displayName'],
     UserType.fromJson(attributes['userType']),
     isRegistered: attributes['isRegistered'],
+    isAdmin: attributes['isAdmin'],
   );
 
   return userData;

@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:victu/utils/database.dart';
 
 class Order {
   late DatabaseReference _id;
@@ -13,10 +14,11 @@ class Order {
   String date;
   String time;
   String timeFrame;
+  bool isValid;
   Map<String, int> orders;
 
   Order(this.vendorID, this.studentID, this.date, this.time, this.timeFrame,
-      this.orders);
+      this.isValid, this.orders);
 
   void setId(DatabaseReference id) {
     _id = id;
@@ -26,6 +28,11 @@ class Order {
     return _id.key!;
   }
 
+  @override
+  void update() {
+    updateDatabase(this, _id);
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'vendorID': vendorID,
@@ -33,6 +40,7 @@ class Order {
       'date': date,
       'time': time,
       'timeFrame': timeFrame,
+      'isvalid': isValid,
       'orders': orders,
     };
   }
@@ -45,6 +53,7 @@ Order createOrder(value) {
     'date': '',
     'time': '',
     'timeFrame': '',
+    'isValid': true,
     'orders': {},
   };
 
@@ -56,6 +65,7 @@ Order createOrder(value) {
     attributes['date'],
     attributes['time'],
     attributes['timeFrame'],
+    attributes['isValid'],
     attributes['orders'].cast<String, int>(),
   );
 

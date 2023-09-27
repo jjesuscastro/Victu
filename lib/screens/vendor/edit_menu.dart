@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/screens/about_meal.dart';
+import 'package:victu/screens/vendor/create_meal.dart';
 import 'package:victu/screens/vendor/ingredient_summary.dart';
 import 'package:victu/utils/database.dart';
 
@@ -70,17 +71,6 @@ class _EditMenuState extends State<EditMenu> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      //? Floating Action Button: Uncomment to add ability to create meals
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => Navigator.push(
-      //     context,
-      //     MaterialPageRoute(builder: (context) => const CreateMeal()),
-      //   ),
-      //   shape: const CircleBorder(),
-      //   backgroundColor: const Color(0xff2d9871),
-      //   foregroundColor: Colors.white,
-      //   child: const Icon(Icons.add),
-      // ),
       body: !mealsLoaded
           ? const Center(
               child: CircularProgressIndicator(
