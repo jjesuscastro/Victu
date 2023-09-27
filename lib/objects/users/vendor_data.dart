@@ -19,6 +19,7 @@ class VendorData extends FarmerData {
     this.school,
     this.menus, {
     super.isRegistered = false,
+    super.isAdmin = false,
   });
 
   @override
@@ -70,6 +71,7 @@ class VendorData extends FarmerData {
       'school': school,
       'menus': menus,
       'isRegistered': isRegistered,
+      'isAdmin': isAdmin,
     };
   }
 }
@@ -84,6 +86,7 @@ VendorData createVendorData(value) {
     'school': '',
     'menus': {},
     'isRegistered': false,
+    'isAdmin': false,
   };
 
   value.forEach((key, value) => {attributes[key] = value});
@@ -104,6 +107,7 @@ VendorData createVendorData(value) {
       'Saturday': attributes['menus']['Saturday'].cast<String, int>(),
     },
     isRegistered: attributes['isRegistered'],
+    isAdmin: attributes['isAdmin'],
   );
 
   return userData;

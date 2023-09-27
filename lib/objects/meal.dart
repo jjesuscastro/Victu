@@ -11,10 +11,12 @@ class Meal {
 
   String title = "";
   String description;
+  String imageURL;
   List<Ingredient> ingredients;
   List<String> recipe;
 
-  Meal(this.title, this.description, this.ingredients, this.recipe);
+  Meal(this.title, this.description, this.imageURL, this.ingredients,
+      this.recipe);
 
   void setId(DatabaseReference id) {
     _id = id;
@@ -28,6 +30,7 @@ class Meal {
     return {
       'title': title,
       'description': description,
+      'imageURL': imageURL,
       'ingredients': ingredients.map((e) => e.toJson()).toList(),
       'recipe': recipe,
     };
@@ -38,6 +41,7 @@ Meal createMeal(value) {
   Map<String, dynamic> attributes = {
     'title': '',
     'description': '',
+    'imageURL': '',
     'ingredients': <Ingredient>[],
     'recipe': <String>[],
   };
@@ -47,6 +51,7 @@ Meal createMeal(value) {
   Meal meal = Meal(
     attributes['title'],
     attributes['description'],
+    attributes['imageURL'],
     (attributes['ingredients'] as List)
         .map((item) => createIngredient(item))
         .toList(),

@@ -21,8 +21,7 @@ class AboutMeal extends StatelessWidget {
                 ///***If you have exported images you must have to copy those images in assets/images directory.
 
                 Image(
-                  image: const NetworkImage(
-                      "https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg"),
+                  image: NetworkImage(meal.imageURL),
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.cover,
