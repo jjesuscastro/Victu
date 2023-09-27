@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:victu/objects/order.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/farmer_data.dart';
@@ -60,10 +62,66 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         userData = value;
         userLoaded = true;
+
+        if (widget.userData.userType == UserType.vendor) {
+          validateMenus(userData);
+        }
       });
     });
 
     super.initState();
+  }
+
+  DateTime getMonday() {
+    DateTime now = DateTime.now();
+    if (now.weekday == 7) now = now.add(const Duration(days: 1));
+    DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
+
+    return weekStart;
+  }
+
+  void validateMenus(VendorData vendorData) {
+    DateTime now = DateTime.now();
+    DateTime validDate =
+        DateFormat("MMMM DD, yyyy").parse(vendorData.validDate);
+
+    if (now.isAfter(validDate)) {
+      vendorData.menus.forEach((day, menu) {
+        menu.forEach((mealKey, value) {
+          value = 0;
+        });
+      });
+
+      vendorData.validDate =
+          DateFormat.yMMMMd().format(getMonday().add(const Duration(days: 6)));
+
+      vendorData.update();
+    }
+  }
+
+  void updateOrders(VendorData vendorData) {
+    List<Order> vendorOrders = List<Order>.empty(growable: true);
+    getAllOrders().then((orders) => {
+          setState(() {
+            vendorOrders = orders
+                .where((order) => order.vendorID == vendorData.getID())
+                .toList();
+
+            validateOrders(vendorData, vendorOrders);
+          })
+        });
+  }
+
+  void validateOrders(VendorData vendorData, List<Order> orders) {
+    DateTime now = DateTime.now();
+    for (var order in orders) {
+      DateTime validDate = DateFormat("MMMM DD, yyyy").parse(order.date);
+
+      if (now.isAfter(validDate)) {
+        order.isValid = false;
+        order.update();
+      }
+    }
   }
 
   Future<dynamic> getUserData() async {
