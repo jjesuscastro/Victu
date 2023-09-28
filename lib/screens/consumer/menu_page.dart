@@ -24,7 +24,7 @@ class _MenuPageState extends State<MenuPage> {
     super.initState();
 
     LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
-          LocalDB.updateVendorBySchool(value.school).then((value) => {
+          LocalDB.updateVendor(value.vendorID).then((value) => {
                 setState(() {
                   vendorLoaded = true;
                 })

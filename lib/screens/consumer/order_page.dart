@@ -38,7 +38,7 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
 
     LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
-          LocalDB.updateVendorBySchool(value.school).then((value) => {
+          LocalDB.updateVendor(value.vendorID).then((value) => {
                 setState(() {
                   vendorLoaded = true;
                 })
@@ -67,7 +67,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   void placeOrder() async {
-    await LocalDB.updateVendorBySchool(LocalDB.consumerData.school);
+    await LocalDB.updateVendor(LocalDB.consumerData.vendorID);
     updateVendorMenu();
     createOrder("B");
   }

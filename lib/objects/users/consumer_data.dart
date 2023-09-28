@@ -12,10 +12,10 @@ class ConsumerData extends UserData {
   int height = 0;
   int weight = 0;
   int points = 0;
-  String school;
+  String vendorID;
 
   ConsumerData(super.displayName, super.userType, this.isMale, this.age,
-      this.height, this.weight, this.points, this.school,
+      this.height, this.weight, this.points, this.vendorID,
       {super.isRegistered = false});
 
   @override
@@ -23,6 +23,7 @@ class ConsumerData extends UserData {
     _id = id;
   }
 
+  @override
   String getID() {
     return _id.key!;
   }
@@ -41,7 +42,7 @@ class ConsumerData extends UserData {
       'height': height,
       'weight': weight,
       'points': points,
-      'school': school,
+      'vendorID': vendorID,
       'isRegistered': isRegistered,
     };
   }
@@ -56,7 +57,7 @@ ConsumerData createConsumerData(value) {
     'height': 0,
     'weight': 0,
     'points': 0,
-    'school': '',
+    'vendorID': '',
     'isRegistered': false,
   };
 
@@ -70,7 +71,7 @@ ConsumerData createConsumerData(value) {
     attributes['height'],
     attributes['weight'],
     attributes['points'],
-    attributes['school'],
+    attributes['vendorID'],
     isRegistered: attributes['isRegistered'],
   );
 

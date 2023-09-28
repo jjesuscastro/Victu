@@ -29,6 +29,7 @@ class VendorData extends FarmerData {
     _id = id;
   }
 
+  @override
   String getID() {
     return _id.key!;
   }
