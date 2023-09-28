@@ -13,6 +13,10 @@ class UserData {
   UserData(this.displayName, this.userType,
       {this.isRegistered = false, this.isAdmin = false});
 
+  String getID() {
+    return _id.key!;
+  }
+
   void setId(DatabaseReference id) {
     _id = id;
   }

@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class NearbyVendors extends StatefulWidget {
-  const NearbyVendors({super.key, required this.location});
-
-  final String location;
+  final UserData userData;
+  const NearbyVendors({super.key, required this.userData});
 
   @override
   State<NearbyVendors> createState() => _NearbyVendorsState();
 }
 
 class _NearbyVendorsState extends State<NearbyVendors> {
-  List<VendorData> vendors = [];
-
   @override
   void initState() {
-    getVendors();
-    super.initState();
-  }
-
-  void getVendors() {
-    getAllVendors(location: widget.location).then((vendors) => {
-          setState(() {
-            this.vendors = vendors;
-          })
+    LocalDB.updateFarmer(widget.userData.getID()).then((farmer) => {
+          LocalDB.updateVendorsByLocation(farmer.location)
+              .then((vendors) => {setState(() {})})
         });
+
+    super.initState();
   }
 
   @override
@@ -54,17 +48,13 @@ class _NearbyVendorsState extends State<NearbyVendors> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: VendorList(
-        vendors: vendors,
-      ),
+      body: const VendorList(),
     );
   }
 }
 
 class VendorList extends StatefulWidget {
-  const VendorList({super.key, required this.vendors});
-
-  final List<VendorData> vendors;
+  const VendorList({super.key});
 
   @override
   State<VendorList> createState() => _VendorListState();
@@ -74,9 +64,9 @@ class _VendorListState extends State<VendorList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: widget.vendors.length,
+        itemCount: LocalDB.vendors.length,
         itemBuilder: (context, index) {
-          var vendor = widget.vendors[index];
+          var vendor = LocalDB.vendors[index];
           return vendorWidget(vendor);
         });
   }

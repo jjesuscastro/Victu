@@ -1,49 +1,39 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
-import 'package:victu/objects/users/consumer_data.dart';
-import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/utils/date_util.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({super.key, required this.consumerData});
+  const MenuPage({super.key, required this.userData});
 
-  final ConsumerData consumerData;
+  final UserData userData;
 
   @override
   State<MenuPage> createState() => _MenuPageState();
 }
 
 class _MenuPageState extends State<MenuPage> {
-  List<Meal> meals = [];
-  late VendorData vendor;
   bool mealsLoaded = false;
   bool vendorLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    updateMeals();
-    updateVendor();
-  }
 
-  void updateMeals() {
-    getAllMeals().then((meals) => {
-          setState(() {
-            this.meals = meals;
-            mealsLoaded = true;
-          })
+    LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
+          LocalDB.updateVendor(value.vendorID).then((value) => {
+                setState(() {
+                  vendorLoaded = true;
+                })
+              })
         });
-  }
 
-  void updateVendor() {
-    getAllVendors().then((vendors) => {
+    LocalDB.updateMeals().then((value) => {
           setState(() {
-            vendor = vendors
-                .firstWhere((v) => v.school == widget.consumerData.school);
-            vendorLoaded = true;
+            mealsLoaded = true;
           })
         });
   }
@@ -91,50 +81,16 @@ class _MenuPageState extends State<MenuPage> {
             mainAxisSize: MainAxisSize.max,
             children: [
               if (mealsLoaded && vendorLoaded)
-                ListView(
+                ListView.builder(
                   scrollDirection: Axis.vertical,
                   padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
-                  children: [
-                    dayCard(context, "Monday",
-                        DateFormat.yMMMMd().format(getMonday()), meals, vendor),
-                    dayCard(
-                        context,
-                        "Tuesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 1))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Wednesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 2))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Thursday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 3))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Friday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 4))),
-                        meals,
-                        vendor),
-                    dayCard(
-                        context,
-                        "Saturday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 5))),
-                        meals,
-                        vendor),
-                  ],
+                  itemCount: 6,
+                  itemBuilder: (BuildContext context, int index) {
+                    return dayCard(context, DateUtil.getDay(index + 1).weekday,
+                        DateUtil.getDay(index + 1).formattedDate);
+                  },
                 ),
             ],
           ),
@@ -144,8 +100,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 }
 
-Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData) {
+Widget dayCard(BuildContext context, String day, String date) {
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -210,12 +165,9 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MealTime(
-                    time: "B", day: day, vendorData: vendorData, meals: meals),
-                MealTime(
-                    time: "L", day: day, vendorData: vendorData, meals: meals),
-                MealTime(
-                    time: "D", day: day, vendorData: vendorData, meals: meals)
+                MealTime(time: "B", day: day),
+                MealTime(time: "L", day: day),
+                MealTime(time: "D", day: day)
               ],
             ),
           ),
@@ -226,16 +178,13 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
 }
 
 class MealTime extends StatefulWidget {
-  const MealTime(
-      {super.key,
-      required this.time,
-      required this.day,
-      required this.vendorData,
-      required this.meals});
+  const MealTime({
+    super.key,
+    required this.time,
+    required this.day,
+  });
   final String time;
   final String day;
-  final List<Meal> meals;
-  final VendorData vendorData;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
@@ -243,7 +192,7 @@ class MealTime extends StatefulWidget {
 class _MealTimeState extends State<MealTime> {
   Meal findMeal(List<String> mealValues) {
     Meal meal =
-        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
+        LocalDB.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
   }
@@ -269,9 +218,9 @@ class _MealTimeState extends State<MealTime> {
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              itemCount: widget.vendorData.menus[widget.day]!.length,
+              itemCount: LocalDB.vendorData.menus[widget.day]!.length,
               itemBuilder: (BuildContext context, int index) {
-                List<String> mealValues = widget
+                List<String> mealValues = LocalDB
                     .vendorData.menus[widget.day]!.keys
                     .elementAt(index)
                     .split(';');

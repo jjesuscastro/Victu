@@ -1,98 +1,45 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/order.dart';
-import 'package:victu/objects/users/vendor_data.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/utils/date_util.dart';
+import 'package:victu/utils/localDatabase.dart';
 import 'package:victu/utils/time_frames.dart';
 
 class CheckOrders extends StatefulWidget {
-  VendorData vendorData;
+  final UserData userData;
 
-  CheckOrders({super.key, required this.vendorData});
+  const CheckOrders({super.key, required this.userData});
 
   @override
   State<CheckOrders> createState() => _CheckOrdersState();
 }
 
 class _CheckOrdersState extends State<CheckOrders> {
-  List<Meal> meals = [];
   List<Order> orders = [];
   bool mealsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    updateVendorData();
-    updateMeals();
-    updateOrders();
-  }
 
-  void updateVendorData() {
-    getVendor(widget.vendorData.getID())
-        .then((value) => {widget.vendorData = value});
-  }
+    LocalDB.updateVendor(widget.userData.getID())
+        .then((value) => {setState(() {})});
 
-  void updateMeals() {
-    getAllMeals().then((meals) => {
+    LocalDB.updateMeals().then((value) => {
           setState(() {
-            this.meals = meals;
             mealsLoaded = true;
           })
         });
-  }
 
-  void updateOrders() {
-    getAllOrders().then((orders) => {
+    LocalDB.updateOrders().then((value) => {
           setState(() {
-            this.orders = orders
-                .where((order) => order.vendorID == widget.vendorData.getID())
+            orders = orders
+                .where((order) => order.vendorID == widget.userData.getID())
                 .toList();
           })
         });
-  }
-
-  DateTime getMonday() {
-    DateTime now = DateTime.now();
-    if (now.weekday == 7) now = now.add(const Duration(days: 1));
-    DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
-
-    return weekStart;
-  }
-
-  Map<String, DateTime> getTomorrow() {
-    Map<String, DateTime> tomorrow = {};
-    DateTime now = DateTime.now();
-
-    DateTime tmrw = now.add(const Duration(days: 1));
-    if (tmrw.weekday == 7) tmrw = now.add(const Duration(days: 1));
-
-    String weekday = getWeekdayString(tmrw.weekday);
-
-    tomorrow[weekday] = tmrw;
-    return tomorrow;
-  }
-
-  String getWeekdayString(int weekday) {
-    switch (weekday) {
-      case 1:
-        return "Monday";
-      case 2:
-        return "Tuesday";
-      case 3:
-        return "Wednesday";
-      case 4:
-        return "Thursday";
-      case 5:
-        return "Friday";
-      case 6:
-        return "Saturday";
-      case 7:
-        return "Sunday";
-      default:
-        return "";
-    }
   }
 
   @override
@@ -136,14 +83,8 @@ class _CheckOrdersState extends State<CheckOrders> {
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
                   children: [
-                    dayCard(
-                        context,
-                        getTomorrow().keys.elementAt(0),
-                        DateFormat.yMMMMd()
-                            .format(getTomorrow().values.elementAt(0)),
-                        meals,
-                        widget.vendorData,
-                        orders),
+                    dayCard(context, DateUtil.getTomorrow().weekday,
+                        DateUtil.getTomorrow().formattedDate, orders),
                   ],
                 ),
             ],
@@ -154,8 +95,8 @@ class _CheckOrdersState extends State<CheckOrders> {
   }
 }
 
-Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData, List<Order> orders) {
+Widget dayCard(
+    BuildContext context, String day, String date, List<Order> orders) {
   return ExpandableNotifier(
     initialExpanded: true,
     child: Card(
@@ -221,24 +162,9 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MealTime(
-                    time: "B",
-                    day: day,
-                    vendorData: vendorData,
-                    meals: meals,
-                    orders: orders),
-                MealTime(
-                    time: "L",
-                    day: day,
-                    vendorData: vendorData,
-                    meals: meals,
-                    orders: orders),
-                MealTime(
-                    time: "D",
-                    day: day,
-                    vendorData: vendorData,
-                    meals: meals,
-                    orders: orders)
+                MealTime(time: "B", day: day, orders: orders),
+                MealTime(time: "L", day: day, orders: orders),
+                MealTime(time: "D", day: day, orders: orders)
               ],
             ),
           ),
@@ -250,17 +176,10 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
 
 class MealTime extends StatefulWidget {
   const MealTime(
-      {super.key,
-      required this.time,
-      required this.day,
-      required this.vendorData,
-      required this.meals,
-      required this.orders});
+      {super.key, required this.time, required this.day, required this.orders});
   final String time;
   final String day;
-  final List<Meal> meals;
   final List<Order> orders;
-  final VendorData vendorData;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
@@ -294,7 +213,7 @@ class _MealTimeState extends State<MealTime> {
 
   Meal findMeal(List<String> mealValues) {
     Meal meal =
-        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
+        LocalDB.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
   }
@@ -311,7 +230,7 @@ class _MealTimeState extends State<MealTime> {
               style:
                   const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
           const Divider(),
-          timeFrameCards(timeFrames, widget.meals, widget.orders),
+          timeFrameCards(timeFrames, widget.orders),
           Container(height: 25),
           Text("Total Orders for $time:",
               style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -320,9 +239,9 @@ class _MealTimeState extends State<MealTime> {
             physics: const NeverScrollableScrollPhysics(),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
-            itemCount: widget.vendorData.menus[widget.day]!.length,
+            itemCount: LocalDB.vendorData.menus[widget.day]!.length,
             itemBuilder: (BuildContext context, int index) {
-              List<String> mealValues = widget
+              List<String> mealValues = LocalDB
                   .vendorData.menus[widget.day]!.keys
                   .elementAt(index)
                   .split(';');
@@ -333,7 +252,7 @@ class _MealTimeState extends State<MealTime> {
 
                 int servings = int.parse(mealValues[2]);
 
-                int orders = widget.vendorData.menus[widget.day]!.values
+                int orders = LocalDB.vendorData.menus[widget.day]!.values
                     .elementAt(index);
 
                 return MenuEntry(meal, servings, orders);
@@ -356,10 +275,6 @@ Map<String, int> getTimeframeOrders(List<Order> orders) {
     });
   }
 
-  timeFrameOrders.forEach((key, value) {
-    print("$key : $value");
-  });
-
   return timeFrameOrders;
 }
 
@@ -369,8 +284,7 @@ Meal findMeal(List<Meal> meals, List<String> mealValues) {
   return meal;
 }
 
-Widget timeFrameCards(
-    List<String> timeFrames, List<Meal> meals, List<Order> orders) {
+Widget timeFrameCards(List<String> timeFrames, List<Order> orders) {
   List<Order> timeFrameOrders = [];
 
   return ListView.builder(
@@ -448,7 +362,7 @@ Widget timeFrameCards(
                             finalOrders.keys.elementAt(index).split(';');
 
                         Meal? meal;
-                        meal = findMeal(meals, mealValues);
+                        meal = findMeal(LocalDB.meals, mealValues);
 
                         int servings = int.parse(mealValues[2]);
 

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:victu/objects/measurement_type.dart';
 import 'package:victu/objects/product.dart';
-import 'package:victu/objects/users/farmer_data.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class EditProducts extends StatefulWidget {
-  final FarmerData farmerData;
-  const EditProducts({super.key, required this.farmerData});
+  final UserData userData;
+  const EditProducts({super.key, required this.userData});
 
   @override
   State<EditProducts> createState() => _EditProductsState();
@@ -27,12 +26,14 @@ class _EditProductsState extends State<EditProducts> {
     super.initState();
   }
 
-  void initializeProducts() {
-    widget.farmerData.products.forEach((element) {
+  void initializeProducts() async {
+    await LocalDB.updateFarmer(widget.userData.getID());
+
+    for (var element in LocalDB.farmerData.products) {
       productNameControllers.add(TextEditingController(text: element.title));
       productPriceControllers
           .add(TextEditingController(text: element.price.toString()));
-    });
+    }
   }
 
   @override
@@ -72,8 +73,8 @@ class _EditProductsState extends State<EditProducts> {
       }
     }
 
-    widget.farmerData.products = newProducts;
-    widget.farmerData.update();
+    LocalDB.farmerData.products = newProducts;
+    LocalDB.farmerData.update();
   }
 
   @override

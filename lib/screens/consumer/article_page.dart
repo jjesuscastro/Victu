@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
-import 'package:victu/objects/users/consumer_data.dart';
+import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class ArticlePage extends StatefulWidget {
   final Article article;
-  const ArticlePage(
-      {super.key, required this.article, required this.consumerData});
+  const ArticlePage({super.key, required this.article, required this.userData});
 
-  final ConsumerData consumerData;
+  final UserData userData;
 
   @override
   State<ArticlePage> createState() => _ArticlePageState();
@@ -19,6 +19,9 @@ class _ArticlePageState extends State<ArticlePage>
 
   @override
   void initState() {
+    LocalDB.updateConsumer(widget.userData.getID())
+        .then((value) => {setState(() {})});
+
     controller = AnimationController(
       /// [AnimationController]s can be created with `vsync: this` because of
       /// [TickerProviderStateMixin].
@@ -27,8 +30,8 @@ class _ArticlePageState extends State<ArticlePage>
     )
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          widget.consumerData.points += 10;
-          widget.consumerData.update();
+          LocalDB.consumerData.points += 10;
+          LocalDB.consumerData.update();
         }
       })
       ..addListener(() {
@@ -61,8 +64,7 @@ class _ArticlePageState extends State<ArticlePage>
               children: [
                 ///***If you have exported images you must have to copy those images in assets/images directory.
                 Image(
-                  image: const NetworkImage(
-                      "https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg"),
+                  image: NetworkImage(widget.article.imageURL),
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.cover,

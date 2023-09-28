@@ -1,33 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
-import 'package:victu/objects/users/consumer_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/consumer/article_page.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class ReadingGoals extends StatefulWidget {
-  const ReadingGoals({super.key, required this.consumerData});
+  const ReadingGoals({super.key, required this.userData});
 
-  final ConsumerData consumerData;
+  final UserData userData;
 
   @override
   State<ReadingGoals> createState() => _ReadingGoalsState();
 }
 
 class _ReadingGoalsState extends State<ReadingGoals> {
-  List<Article> articles = [];
+  bool userLoaded = false;
   bool articlesLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    // newArticle("title", "body", 5);
-    updateArticles();
-  }
 
-  void updateArticles() {
-    getAllArticles().then((articles) => {
+    LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
           setState(() {
-            this.articles = articles;
+            userLoaded = true;
+          })
+        });
+
+    LocalDB.updateArticles().then((value) => {
+          setState(() {
             articlesLoaded = true;
           })
         });
@@ -39,7 +41,7 @@ class _ReadingGoalsState extends State<ReadingGoals> {
         MaterialPageRoute(
             builder: (context) => ArticlePage(
                   article: article,
-                  consumerData: widget.consumerData,
+                  userData: widget.userData,
                 )));
   }
 
@@ -80,7 +82,9 @@ class _ReadingGoalsState extends State<ReadingGoals> {
             child: Align(
               alignment: Alignment.center,
               child: Text(
-                "Earned Points: ${widget.consumerData.points}",
+                userLoaded
+                    ? "Earned Points: ${LocalDB.consumerData.points}"
+                    : "Loading Data",
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.clip,
@@ -95,7 +99,6 @@ class _ReadingGoalsState extends State<ReadingGoals> {
           ),
           articlesLoaded
               ? ArticleList(
-                  articles: articles,
                   openArticle: openArticle,
                 )
               : const Center(
@@ -108,23 +111,11 @@ class _ReadingGoalsState extends State<ReadingGoals> {
       ),
     );
   }
-
-  void newArticle(String title, String body) {
-    var article = Article(title, "Article Author", body);
-    article.setId(saveArticle(article));
-    setState(() {
-      articles.add(article);
-    });
-  }
 }
 
 class ArticleList extends StatefulWidget {
-  //For testing
   final Function openArticle;
-  const ArticleList(
-      {super.key, required this.articles, required this.openArticle});
-
-  final List<Article> articles;
+  const ArticleList({super.key, required this.openArticle});
 
   @override
   State<ArticleList> createState() => _ArticleListState();
@@ -136,9 +127,9 @@ class _ArticleListState extends State<ArticleList> {
     return ListView.builder(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
-        itemCount: widget.articles.length,
+        itemCount: LocalDB.articles.length,
         itemBuilder: (context, index) {
-          var article = widget.articles[index];
+          var article = LocalDB.articles[index];
           return articleWidget(article, widget.openArticle);
         });
   }
@@ -158,13 +149,12 @@ Widget articleWidget(Article article, Function openArticle) {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const ClipRRect(
-          borderRadius: BorderRadius.only(
+        ClipRRect(
+          borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(12.0),
               bottomLeft: Radius.circular(12.0)),
           child: Image(
-            image: NetworkImage(
-                "https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg"),
+            image: NetworkImage(article.imageURL),
             height: 130,
             width: 100,
             fit: BoxFit.cover,

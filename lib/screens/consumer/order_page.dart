@@ -11,17 +11,17 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/order.dart';
-import 'package:victu/objects/users/consumer_data.dart';
-import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/localDatabase.dart';
 import 'package:victu/utils/qr.dart';
 import 'package:victu/utils/time_frames.dart';
 
 class OrderPage extends StatefulWidget {
-  const OrderPage({super.key, required this.consumerData});
+  const OrderPage({super.key, required this.userData});
 
-  final ConsumerData consumerData;
+  final UserData userData;
 
   @override
   State<OrderPage> createState() => _OrderPageState();
@@ -29,8 +29,6 @@ class OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<OrderPage> {
   Map<String, int> allOrders = {};
-  List<Meal> meals = [];
-  late VendorData vendor;
   bool mealsLoaded = false;
   bool vendorLoaded = false;
   List<String> timeFrames = List<String>.filled(3, "");
@@ -38,14 +36,17 @@ class _OrderPageState extends State<OrderPage> {
   @override
   void initState() {
     super.initState();
-    updateMeals();
-    updateVendor();
-  }
 
-  void updateMeals() {
-    getAllMeals().then((meals) => {
+    LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
+          LocalDB.updateVendor(value.vendorID).then((value) => {
+                setState(() {
+                  vendorLoaded = true;
+                })
+              })
+        });
+
+    LocalDB.updateMeals().then((value) => {
           setState(() {
-            this.meals = meals;
             mealsLoaded = true;
           })
         });
@@ -65,18 +66,8 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  Future<void> updateVendor() async {
-    await getAllVendors().then((vendors) => {
-          setState(() {
-            vendor = vendors
-                .firstWhere((v) => v.school == widget.consumerData.school);
-            vendorLoaded = true;
-          })
-        });
-  }
-
   void placeOrder() async {
-    await updateVendor();
+    await LocalDB.updateVendor(LocalDB.consumerData.vendorID);
     updateVendorMenu();
     createOrder("B");
   }
@@ -85,12 +76,12 @@ class _OrderPageState extends State<OrderPage> {
     String day = getTomorrow().keys.elementAt(0);
     int currentOrders = 0;
     allOrders.forEach((key, value) {
-      currentOrders = vendor.menus[day]![key]!;
+      currentOrders = LocalDB.vendorData.menus[day]![key]!;
       currentOrders += value;
-      vendor.menus[day]![key] = currentOrders;
+      LocalDB.vendorData.menus[day]![key] = currentOrders;
     });
 
-    vendor.update();
+    LocalDB.vendorData.update();
   }
 
   void createOrder(String time) {
@@ -101,8 +92,8 @@ class _OrderPageState extends State<OrderPage> {
 
     if (orders.isNotEmpty) {
       Order order = Order(
-          vendor.getID(),
-          widget.consumerData.getID(),
+          LocalDB.vendorData.getID(),
+          widget.userData.getID(),
           DateFormat.yMMMMd().format(getTomorrow().values.elementAt(0)),
           time,
           time == "B"
@@ -290,8 +281,6 @@ class _OrderPageState extends State<OrderPage> {
                         getTomorrow().keys.elementAt(0),
                         DateFormat.yMMMMd()
                             .format(getTomorrow().values.elementAt(0)),
-                        meals,
-                        vendor,
                         allOrders,
                         changeTimeFrame),
                     Padding(
@@ -327,14 +316,8 @@ class _OrderPageState extends State<OrderPage> {
   }
 }
 
-Widget dayCard(
-    BuildContext context,
-    String day,
-    String date,
-    List<Meal> meals,
-    VendorData vendorData,
-    Map<String, int> orders,
-    Function(String, String) changeTimeFrame) {
+Widget dayCard(BuildContext context, String day, String date,
+    Map<String, int> orders, Function(String, String) changeTimeFrame) {
   return ExpandableNotifier(
     initialExpanded: true,
     child: Card(
@@ -403,24 +386,18 @@ Widget dayCard(
                 MealTime(
                     time: "B",
                     day: day,
-                    vendorData: vendorData,
-                    meals: meals,
                     timeRanges: TimeFrames.breakfastTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
                 MealTime(
                     time: "L",
                     day: day,
-                    vendorData: vendorData,
-                    meals: meals,
                     timeRanges: TimeFrames.lunchTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
                 MealTime(
                     time: "D",
                     day: day,
-                    vendorData: vendorData,
-                    meals: meals,
                     timeRanges: TimeFrames.dinnerTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
@@ -438,16 +415,12 @@ class MealTime extends StatefulWidget {
       {super.key,
       required this.time,
       required this.day,
-      required this.vendorData,
-      required this.meals,
       required this.timeRanges,
       required this.orders,
       required this.changeTimeFrame});
   final String time;
   final String day;
-  final List<Meal> meals;
   final List<String> timeRanges;
-  final VendorData vendorData;
   final Map<String, int> orders;
   Function(String, String) changeTimeFrame;
   @override
@@ -466,7 +439,7 @@ class _MealTimeState extends State<MealTime> {
 
   Meal findMeal(List<String> mealValues) {
     Meal meal =
-        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
+        LocalDB.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
   }
@@ -544,14 +517,14 @@ class _MealTimeState extends State<MealTime> {
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              itemCount: widget.vendorData.menus[widget.day]!.length,
+              itemCount: LocalDB.vendorData.menus[widget.day]!.length,
               itemBuilder: (BuildContext context, int index) {
                 //mealValues is a List of String
                 //0 = B/L/D time of day the meal is prepared
                 //1 = ID of the meal in meals db
                 //2 = Quantity of meals prepared
                 String mealID =
-                    widget.vendorData.menus[widget.day]!.keys.elementAt(index);
+                    LocalDB.vendorData.menus[widget.day]!.keys.elementAt(index);
 
                 List<String> mealValues = mealID.split(';');
 

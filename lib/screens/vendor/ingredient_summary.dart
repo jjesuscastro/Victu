@@ -1,36 +1,34 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:victu/objects/ingredient.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/measurement_type.dart';
-import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/vendor/nearby_farmers.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/utils/date_util.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class IngredientSummary extends StatefulWidget {
-  final VendorData vendorData;
+  final UserData userData;
 
-  const IngredientSummary({super.key, required this.vendorData});
+  const IngredientSummary({super.key, required this.userData});
 
   @override
   State<IngredientSummary> createState() => _IngredientSummaryState();
 }
 
 class _IngredientSummaryState extends State<IngredientSummary> {
-  List<Meal> meals = [];
   bool mealsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    updateMeals();
-  }
 
-  void updateMeals() {
-    getAllMeals().then((meals) => {
+    LocalDB.updateVendor(widget.userData.getID())
+        .then((value) => {setState(() {})});
+
+    LocalDB.updateMeals().then((value) => {
           setState(() {
-            this.meals = meals;
             mealsLoaded = true;
           })
         });
@@ -79,83 +77,45 @@ class _IngredientSummaryState extends State<IngredientSummary> {
             mainAxisSize: MainAxisSize.max,
             children: [
               if (mealsLoaded)
-                ListView(
+                ListView.builder(
                   scrollDirection: Axis.vertical,
-                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
-                  children: [
-                    dayCard(
-                        context,
-                        "Monday",
-                        DateFormat.yMMMMd().format(getMonday()),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Tuesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 1))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Wednesday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 2))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Thursday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 3))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Friday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 4))),
-                        meals,
-                        widget.vendorData),
-                    dayCard(
-                        context,
-                        "Saturday",
-                        DateFormat.yMMMMd()
-                            .format(getMonday().add(const Duration(days: 5))),
-                        meals,
-                        widget.vendorData),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                      child: MaterialButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => NearbyFarmers(
-                                  location: widget.vendorData.location)),
-                        ),
-                        color: const Color(0xff2d9871),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        textColor: const Color(0xffffffff),
-                        height: 45,
-                        minWidth: MediaQuery.of(context).size.width,
-                        child: const Text(
-                          "See Available Local Businesses",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.normal,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  itemCount: 6,
+                  itemBuilder: (BuildContext context, int index) {
+                    return dayCard(context, DateUtil.getDay(index + 1).weekday,
+                        DateUtil.getDay(index + 1).formattedDate);
+                  },
                 ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 50),
+                child: MaterialButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => NearbyFarmers(
+                            location: LocalDB.vendorData.location)),
+                  ),
+                  color: const Color(0xff2d9871),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  textColor: const Color(0xffffffff),
+                  height: 45,
+                  minWidth: MediaQuery.of(context).size.width,
+                  child: const Text(
+                    "See Available Local Businesses",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      fontStyle: FontStyle.normal,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -164,8 +124,7 @@ class _IngredientSummaryState extends State<IngredientSummary> {
   }
 }
 
-Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData) {
+Widget dayCard(BuildContext context, String day, String date) {
   List<Ingredient> getIngredients(Map<String, int> menuEntries) {
     List<Ingredient> ingredientsList = [];
     menuEntries.forEach((key, value) {
@@ -175,8 +134,8 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
       List<String> keyValues = key.split(';');
 
       if (keyValues.length == 3) {
-        Meal meal =
-            meals.firstWhere((element) => element.id.key == keyValues[1]);
+        Meal meal = LocalDB.meals
+            .firstWhere((element) => element.id.key == keyValues[1]);
 
         for (var ingredient in meal.ingredients) {
           Ingredient ing = ingredientsList.firstWhere(
@@ -201,7 +160,8 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
     return ingredientsList;
   }
 
-  List<Ingredient> ingredientsList = getIngredients(vendorData.menus[day]!);
+  List<Ingredient> ingredientsList =
+      getIngredients(LocalDB.vendorData.menus[day]!);
 
   return ExpandableNotifier(
     child: Card(

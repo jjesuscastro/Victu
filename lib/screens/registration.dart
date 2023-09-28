@@ -15,6 +15,7 @@ import 'package:victu/screens/registration/user_registration.dart';
 import 'package:victu/screens/registration/vendor_registration.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class Registration extends StatefulWidget {
   const Registration({Key? key, required User user})
@@ -289,7 +290,9 @@ class _RegistrationState extends State<Registration> {
     );
   }
 
-  void newConsumer(User user) {
+  void newConsumer(User user) async {
+    await LocalDB.updateVendorBySchool(schoolValue);
+
     var consumerData = ConsumerData(
         user.displayName!,
         UserType.consumer,
@@ -298,7 +301,7 @@ class _RegistrationState extends State<Registration> {
         int.parse(heightController.text),
         int.parse(weightController.text),
         0,
-        schoolValue,
+        LocalDB.vendorData.getID(),
         isRegistered: true);
 
     consumerData.setId(saveUser(user.uid, consumerData));
