@@ -29,6 +29,11 @@ class LocalDB {
     return LocalDB.orders;
   }
 
+  static Future<List<Order>> updateOrdersByStudentID(String studentID) async {
+    LocalDB.orders = await getAllOrdersByStudentID(studentID);
+    return LocalDB.orders;
+  }
+
   static Future<List<Article>> updateArticles() async {
     LocalDB.articles = await getAllArticles();
     return LocalDB.articles;

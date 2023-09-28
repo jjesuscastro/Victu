@@ -279,6 +279,26 @@ Future<List<Order>> getAllOrders() async {
   return orders;
 }
 
+Future<List<Order>> getAllOrdersByStudentID(String studentID) async {
+  DataSnapshot dataSnapshot = await databaseReference.child('orders/').get();
+  List<Order> orders = [];
+
+  if (dataSnapshot.exists) {
+    Map<dynamic, dynamic> values = dataSnapshot.value as Map<dynamic, dynamic>;
+
+    values.forEach((key, value) {
+      Order order = createOrder(value);
+      order.setId(databaseReference.child('orders/$key'));
+
+      if (order.studentID == studentID) {
+        orders.add(order);
+      }
+    });
+  }
+
+  return orders;
+}
+
 void deleteOrder(String uid) async {
   DataSnapshot dataSnapshot =
       await databaseReference.child('orders/$uid').get();

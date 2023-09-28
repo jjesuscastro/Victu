@@ -31,6 +31,7 @@ class _OrderPageState extends State<OrderPage> {
   Map<String, int> allOrders = {};
   bool mealsLoaded = false;
   bool vendorLoaded = false;
+  bool ordersLoaded = false;
   List<String> timeFrames = List<String>.filled(3, "");
 
   @override
@@ -50,6 +51,18 @@ class _OrderPageState extends State<OrderPage> {
             mealsLoaded = true;
           })
         });
+
+    updateOrders();
+  }
+
+  void updateOrders() {
+    LocalDB.updateOrdersByStudentID(LocalDB.consumerData.getID())
+        .then((value) => {
+              setState(() {
+                ordersLoaded = true;
+                allOrders.clear();
+              })
+            });
   }
 
   void changeTimeFrame(String time, String timeFrame) {
@@ -89,6 +102,11 @@ class _OrderPageState extends State<OrderPage> {
     Map<String, int> orders = Map.fromEntries(
       allOrders.entries.where((entry) => entry.key.split(';')[0] == time),
     );
+
+    allOrders.removeWhere((key, value) => orders.containsKey(key));
+    if (allOrders.isEmpty) {
+      updateOrders();
+    }
 
     if (orders.isNotEmpty) {
       Order order = Order(
@@ -148,12 +166,24 @@ class _OrderPageState extends State<OrderPage> {
           ],
         ),
       );
+
+      if (allOrders.isEmpty) {
+        updateOrders();
+      }
     } else {
       if (time == "B") {
         createOrder("L");
       } else if (time == "L") {
         createOrder("D");
       }
+
+      if (allOrders.isEmpty) {
+        updateOrders();
+      }
+    }
+
+    if (allOrders.isEmpty) {
+      updateOrders();
     }
   }
 
@@ -251,7 +281,7 @@ class _OrderPageState extends State<OrderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              if (mealsLoaded && vendorLoaded)
+              if (mealsLoaded && vendorLoaded && ordersLoaded)
                 ListView(
                   scrollDirection: Axis.vertical,
                   padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
@@ -386,18 +416,21 @@ Widget dayCard(BuildContext context, String day, String date,
                 MealTime(
                     time: "B",
                     day: day,
+                    date: date,
                     timeRanges: TimeFrames.breakfastTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
                 MealTime(
                     time: "L",
                     day: day,
+                    date: date,
                     timeRanges: TimeFrames.lunchTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
                 MealTime(
                     time: "D",
                     day: day,
+                    date: date,
                     timeRanges: TimeFrames.dinnerTimes,
                     orders: orders,
                     changeTimeFrame: changeTimeFrame),
@@ -415,11 +448,13 @@ class MealTime extends StatefulWidget {
       {super.key,
       required this.time,
       required this.day,
+      required this.date,
       required this.timeRanges,
       required this.orders,
       required this.changeTimeFrame});
   final String time;
   final String day;
+  final String date;
   final List<String> timeRanges;
   final Map<String, int> orders;
   Function(String, String) changeTimeFrame;
@@ -428,12 +463,20 @@ class MealTime extends StatefulWidget {
 }
 
 class _MealTimeState extends State<MealTime> {
+  late String _time;
   var selectedTime;
 
   @override
   void initState() {
     selectedTime = widget.timeRanges[0];
     widget.changeTimeFrame(widget.time, selectedTime);
+    _time = widget.time == "B"
+        ? "Breakfast"
+        : widget.time == "L"
+            ? "Lunch"
+            : "Dinner";
+
+    checkIfOrderExists();
     super.initState();
   }
 
@@ -442,6 +485,16 @@ class _MealTimeState extends State<MealTime> {
         LocalDB.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
+  }
+
+  bool checkIfOrderExists() {
+    for (var order in LocalDB.orders) {
+      if (order.date == widget.date && order.time == widget.time) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @override
@@ -455,12 +508,7 @@ class _MealTimeState extends State<MealTime> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                  widget.time == "B"
-                      ? "Breakfast"
-                      : widget.time == "L"
-                          ? "Lunch"
-                          : "Dinner",
+              Text(_time,
                   style: const TextStyle(
                       fontWeight: FontWeight.w700, fontSize: 20)),
               Padding(
@@ -513,30 +561,32 @@ class _MealTimeState extends State<MealTime> {
             ],
           ),
           const Divider(),
-          ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: LocalDB.vendorData.menus[widget.day]!.length,
-              itemBuilder: (BuildContext context, int index) {
-                //mealValues is a List of String
-                //0 = B/L/D time of day the meal is prepared
-                //1 = ID of the meal in meals db
-                //2 = Quantity of meals prepared
-                String mealID =
-                    LocalDB.vendorData.menus[widget.day]!.keys.elementAt(index);
+          !checkIfOrderExists()
+              ? ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: LocalDB.vendorData.menus[widget.day]!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    //mealValues is a List of String
+                    //0 = B/L/D time of day the meal is prepared
+                    //1 = ID of the meal in meals db
+                    //2 = Quantity of meals prepared
+                    String mealID = LocalDB.vendorData.menus[widget.day]!.keys
+                        .elementAt(index);
 
-                List<String> mealValues = mealID.split(';');
+                    List<String> mealValues = mealID.split(';');
 
-                if (mealValues[0] == widget.time) {
-                  Meal? meal;
-                  meal = findMeal(mealValues);
+                    if (mealValues[0] == widget.time) {
+                      Meal? meal;
+                      meal = findMeal(mealValues);
 
-                  return MenuEntry(mealID, meal, widget.orders);
-                }
+                      return MenuEntry(mealID, meal, widget.orders);
+                    }
 
-                return const SizedBox(); //If meal isn't correct time or doesnt exist
-              }),
+                    return const SizedBox(); //If meal isn't correct time or doesnt exist
+                  })
+              : Text("You already have an order for $_time tomorrow"),
         ],
       ),
     );
