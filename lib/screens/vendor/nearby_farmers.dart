@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:victu/objects/users/farmer_data.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class NearbyFarmers extends StatefulWidget {
   const NearbyFarmers({super.key, required this.location});
@@ -12,20 +12,11 @@ class NearbyFarmers extends StatefulWidget {
 }
 
 class _NearbyFarmersState extends State<NearbyFarmers> {
-  List<FarmerData> farmers = [];
-
   @override
   void initState() {
-    getFarmers();
-    super.initState();
-  }
+    LocalDB.updateFarmers(widget.location).then((value) => {setState(() {})});
 
-  void getFarmers() {
-    getAllFarmers(widget.location).then((farmers) => {
-          setState(() {
-            this.farmers = farmers;
-          })
-        });
+    super.initState();
   }
 
   @override
@@ -54,17 +45,13 @@ class _NearbyFarmersState extends State<NearbyFarmers> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: FarmerList(
-        farmers: farmers,
-      ),
+      body: const FarmerList(),
     );
   }
 }
 
 class FarmerList extends StatefulWidget {
-  const FarmerList({super.key, required this.farmers});
-
-  final List<FarmerData> farmers;
+  const FarmerList({super.key});
 
   @override
   State<FarmerList> createState() => _FarmerListState();
@@ -74,9 +61,9 @@ class _FarmerListState extends State<FarmerList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: widget.farmers.length,
+        itemCount: LocalDB.farmers.length,
         itemBuilder: (context, index) {
-          var farmer = widget.farmers[index];
+          var farmer = LocalDB.farmers[index];
           return farmerWidget(farmer);
         });
   }

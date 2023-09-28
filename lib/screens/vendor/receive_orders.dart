@@ -1,16 +1,20 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/order.dart';
-import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/date_util.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class ReceiveOrders extends StatefulWidget {
-  VendorData vendorData;
+  final UserData userData;
 
-  ReceiveOrders({super.key, required this.vendorData});
+  const ReceiveOrders({super.key, required this.userData});
 
   @override
   State<ReceiveOrders> createState() => _ReceiveOrdersState();
@@ -21,27 +25,18 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
-  String studentName = "";
-  List<Meal> mealsDB = [];
   Map<Meal, int> meals = {};
   bool mealsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    updateVendorData();
-    updateMeals();
-  }
 
-  void updateVendorData() {
-    getVendor(widget.vendorData.getID())
-        .then((value) => {widget.vendorData = value});
-  }
+    LocalDB.updateVendor(widget.userData.getID())
+        .then((value) => {setState(() {})});
 
-  void updateMeals() {
-    getAllMeals().then((meals) => {
+    LocalDB.updateMeals().then((value) => {
           setState(() {
-            mealsDB = meals;
             mealsLoaded = true;
           })
         });
@@ -56,8 +51,6 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
     });
   }
 
-  // In order to get hot reload to work we need to pause the camera if the platform
-  // is android, or resume the camera if the platform is iOS.
   @override
   void reassemble() {
     super.reassemble();
@@ -71,8 +64,6 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
   void readQr() async {
     if (result != null) {
       controller!.pauseCamera();
-      //logic after scanning qr
-      //print(result!.code); result!.code is the scanned string
       checkOrder(result!.code!);
     }
   }
@@ -88,11 +79,11 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
     }
   }
 
-  Future<Map<Meal, int>> getMeals(Order order) async {
+  Future<Map<Meal, int>> getMealsFromOrder(Order order) async {
     Map<Meal, int> meals = {};
     order.orders.forEach((key, value) async {
-      Meal meal =
-          mealsDB.firstWhere((element) => element.getID() == key.split(';')[1]);
+      Meal meal = LocalDB.meals
+          .firstWhere((element) => element.getID() == key.split(';')[1]);
       meals[meal] = value;
     });
 
@@ -101,23 +92,16 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
 
   void processOrder(Order order) async {
     getUser(order.studentID).then((value) {
-      studentName = value.displayName;
+      var studentName = value.displayName;
 
-      getMeals(order).then((value) {
+      getMealsFromOrder(order).then((value) {
         meals = value;
-        showPopup(order);
+        showPopup(order, studentName);
       });
     });
   }
 
-  bool checkToday(String date) {
-    DateTime now = DateTime.now();
-    DateTime orderDate = DateFormat("MMMM DD, yyyy").parse(date);
-
-    return now == orderDate;
-  }
-
-  void showPopup(Order order) {
+  void showPopup(Order order, String studentName) {
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -159,13 +143,13 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
             }).toList()
           ]),
         ),
-        actions: checkToday(order.date)
+        actions: DateUtil.checkToday(order.date)
             ? [
                 TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                       controller!.resumeCamera();
-                      if (checkToday(order.date)) {
+                      if (DateUtil.checkToday(order.date)) {
                         deleteOrder(order.getID());
                         updateVendorMenu(order.orders, order.date);
                       }
@@ -205,10 +189,10 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
         DateFormat('EEEE').format(DateFormat("MMMM DD, yyyy").parse(date));
 
     orders.forEach((key, qty) {
-      widget.vendorData.menus[weekday]!.update(key, (value) => value - qty);
+      LocalDB.vendorData.menus[weekday]!.update(key, (value) => value - qty);
     });
 
-    widget.vendorData.update();
+    LocalDB.vendorData.update();
   }
 
   @override

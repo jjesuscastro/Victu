@@ -1,48 +1,37 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:victu/objects/meal.dart';
-import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
-import 'package:victu/screens/vendor/create_meal.dart';
 import 'package:victu/screens/vendor/ingredient_summary.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/utils/date_util.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class EditMenu extends StatefulWidget {
-  final VendorData vendorData;
+  final UserData userData;
 
-  const EditMenu({super.key, required this.vendorData});
+  const EditMenu({super.key, required this.userData});
 
   @override
   State<EditMenu> createState() => _EditMenuState();
 }
 
 class _EditMenuState extends State<EditMenu> {
-  List<Meal> meals = [];
   bool mealsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    updateMeals();
-  }
 
-  void updateMeals() {
-    getAllMeals().then((meals) => {
+    LocalDB.updateVendor(widget.userData.getID())
+        .then((value) => {setState(() {})});
+
+    LocalDB.updateMeals().then((meals) => {
           setState(() {
-            this.meals = meals;
             mealsLoaded = true;
           })
         });
-  }
-
-  DateTime getMonday() {
-    DateTime now = DateTime.now();
-    if (now.weekday == 7) now = now.add(const Duration(days: 1));
-    DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
-
-    return weekStart;
   }
 
   @override
@@ -86,83 +75,47 @@ class _EditMenuState extends State<EditMenu> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     if (mealsLoaded)
-                      ListView(
+                      ListView.builder(
                         scrollDirection: Axis.vertical,
-                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                         shrinkWrap: true,
                         physics: const ScrollPhysics(),
-                        children: [
-                          dayCard(
+                        itemCount: 6,
+                        itemBuilder: (BuildContext context, int index) {
+                          return dayCard(
                               context,
-                              "Monday",
-                              DateFormat.yMMMMd().format(getMonday()),
-                              meals,
-                              widget.vendorData),
-                          dayCard(
-                              context,
-                              "Tuesday",
-                              DateFormat.yMMMMd().format(
-                                  getMonday().add(const Duration(days: 1))),
-                              meals,
-                              widget.vendorData),
-                          dayCard(
-                              context,
-                              "Wednesday",
-                              DateFormat.yMMMMd().format(
-                                  getMonday().add(const Duration(days: 2))),
-                              meals,
-                              widget.vendorData),
-                          dayCard(
-                              context,
-                              "Thursday",
-                              DateFormat.yMMMMd().format(
-                                  getMonday().add(const Duration(days: 3))),
-                              meals,
-                              widget.vendorData),
-                          dayCard(
-                              context,
-                              "Friday",
-                              DateFormat.yMMMMd().format(
-                                  getMonday().add(const Duration(days: 4))),
-                              meals,
-                              widget.vendorData),
-                          dayCard(
-                              context,
-                              "Saturday",
-                              DateFormat.yMMMMd().format(
-                                  getMonday().add(const Duration(days: 5))),
-                              meals,
-                              widget.vendorData),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                            child: MaterialButton(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => IngredientSummary(
-                                        vendorData: widget.vendorData)),
-                              ),
-                              color: const Color(0xff2d9871),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              textColor: const Color(0xffffffff),
-                              height: 45,
-                              minWidth: MediaQuery.of(context).size.width,
-                              child: const Text(
-                                "Summary of Ingredients",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  fontStyle: FontStyle.normal,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                              DateUtil.getDay(index + 1).weekday,
+                              DateUtil.getDay(index + 1).formattedDate);
+                        },
                       ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 50),
+                      child: MaterialButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  IngredientSummary(userData: widget.userData)),
+                        ),
+                        color: const Color(0xff2d9871),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        textColor: const Color(0xffffffff),
+                        height: 45,
+                        minWidth: MediaQuery.of(context).size.width,
+                        child: const Text(
+                          "Summary of Ingredients",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -171,8 +124,7 @@ class _EditMenuState extends State<EditMenu> {
   }
 }
 
-Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
-    VendorData vendorData) {
+Widget dayCard(BuildContext context, String day, String date) {
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -237,12 +189,9 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MealTime(
-                    time: "B", day: day, vendorData: vendorData, meals: meals),
-                MealTime(
-                    time: "L", day: day, vendorData: vendorData, meals: meals),
-                MealTime(
-                    time: "D", day: day, vendorData: vendorData, meals: meals)
+                MealTime(time: "B", day: day),
+                MealTime(time: "L", day: day),
+                MealTime(time: "D", day: day)
               ],
             ),
           ),
@@ -253,16 +202,13 @@ Widget dayCard(BuildContext context, String day, String date, List<Meal> meals,
 }
 
 class MealTime extends StatefulWidget {
-  const MealTime(
-      {super.key,
-      required this.time,
-      required this.day,
-      required this.vendorData,
-      required this.meals});
+  const MealTime({
+    super.key,
+    required this.time,
+    required this.day,
+  });
   final String time;
   final String day;
-  final List<Meal> meals;
-  final VendorData vendorData;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
@@ -278,7 +224,7 @@ class _MealTimeState extends State<MealTime> {
 
   Meal findMeal(List<String> mealValues) {
     Meal meal =
-        widget.meals.firstWhere((element) => element.id.key == mealValues[1]);
+        LocalDB.meals.firstWhere((element) => element.id.key == mealValues[1]);
 
     return meal;
   }
@@ -287,7 +233,7 @@ class _MealTimeState extends State<MealTime> {
     int currentOrders = 0;
     String removeKey = '';
 
-    widget.vendorData.menus[widget.day]!.forEach((key, value) {
+    LocalDB.vendorData.menus[widget.day]!.forEach((key, value) {
       if (key.contains("${widget.time};${currentMeal.id.key}")) {
         currentOrders = value;
         removeKey = key;
@@ -295,21 +241,21 @@ class _MealTimeState extends State<MealTime> {
     });
 
     if (removeKey.isNotEmpty) {
-      widget.vendorData.menus[widget.day]!.remove(removeKey);
+      LocalDB.vendorData.menus[widget.day]!.remove(removeKey);
     }
 
-    widget.vendorData.menus[widget.day]![
+    LocalDB.vendorData.menus[widget.day]![
             "${widget.time};${currentMeal.id.key};${int.parse(quantityController.text)}"] =
         currentOrders;
 
-    widget.vendorData.update();
+    LocalDB.vendorData.update();
   }
 
   deleteMeal(String menuKey) {
     setState(() {
-      widget.vendorData.menus[widget.day]!.remove(menuKey);
+      LocalDB.vendorData.menus[widget.day]!.remove(menuKey);
 
-      widget.vendorData.update();
+      LocalDB.vendorData.update();
     });
   }
 
@@ -334,9 +280,9 @@ class _MealTimeState extends State<MealTime> {
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              itemCount: widget.vendorData.menus[widget.day]!.length,
+              itemCount: LocalDB.vendorData.menus[widget.day]!.length,
               itemBuilder: (BuildContext context, int index) {
-                List<String> mealValues = widget
+                List<String> mealValues = LocalDB
                     .vendorData.menus[widget.day]!.keys
                     .elementAt(index)
                     .split(';');
@@ -349,7 +295,7 @@ class _MealTimeState extends State<MealTime> {
                       meal,
                       int.parse(mealValues[2]),
                       deleteMeal,
-                      widget.vendorData.menus[widget.day]!.keys
+                      LocalDB.vendorData.menus[widget.day]!.keys
                           .elementAt(index));
                 }
 
@@ -375,7 +321,7 @@ class _MealTimeState extends State<MealTime> {
                           child: DropdownButton(
                             hint: const Text("Meal"),
                             value: currentMeal,
-                            items: widget.meals
+                            items: LocalDB.meals
                                 .map<DropdownMenuItem<Meal>>((Meal value) {
                               return DropdownMenuItem<Meal>(
                                 value: value,

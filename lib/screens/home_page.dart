@@ -305,7 +305,7 @@ List<Widget> consumerActionCards(
   ];
 }
 
-List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
+List<Widget> vendorActionCards(BuildContext context, UserData userData) {
   return [
     actionCard(
       "Schedule Recipes",
@@ -316,8 +316,7 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => EditMenu(vendorData: vendorData)),
+        MaterialPageRoute(builder: (context) => EditMenu(userData: userData)),
       ),
     ),
     actionCard(
@@ -330,7 +329,7 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
       () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => CheckOrders(vendorData: vendorData)),
+            builder: (context) => CheckOrders(userData: userData)),
       ),
     ),
     actionCard(
@@ -343,7 +342,7 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
       () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReceiveOrders(vendorData: vendorData)),
+            builder: (context) => ReceiveOrders(userData: userData)),
       ),
     ),
     actionCard(
@@ -356,7 +355,7 @@ List<Widget> vendorActionCards(BuildContext context, VendorData vendorData) {
       () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReceiveOrders(vendorData: vendorData)),
+            builder: (context) => ReceiveOrders(userData: userData)),
       ),
     ),
   ];

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/screens/consumer/article_page.dart';
-import 'package:victu/utils/database.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class ReadingGoals extends StatefulWidget {
   const ReadingGoals({super.key, required this.consumerData});
@@ -14,20 +14,14 @@ class ReadingGoals extends StatefulWidget {
 }
 
 class _ReadingGoalsState extends State<ReadingGoals> {
-  List<Article> articles = [];
   bool articlesLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    // newArticle("title", "body", 5);
-    updateArticles();
-  }
 
-  void updateArticles() {
-    getAllArticles().then((articles) => {
+    LocalDB.updateArticles().then((value) => {
           setState(() {
-            this.articles = articles;
             articlesLoaded = true;
           })
         });
@@ -95,7 +89,6 @@ class _ReadingGoalsState extends State<ReadingGoals> {
           ),
           articlesLoaded
               ? ArticleList(
-                  articles: articles,
                   openArticle: openArticle,
                 )
               : const Center(
@@ -108,23 +101,12 @@ class _ReadingGoalsState extends State<ReadingGoals> {
       ),
     );
   }
-
-  void newArticle(String title, String body) {
-    var article = Article(title, "Article Author", body);
-    article.setId(saveArticle(article));
-    setState(() {
-      articles.add(article);
-    });
-  }
 }
 
 class ArticleList extends StatefulWidget {
   //For testing
   final Function openArticle;
-  const ArticleList(
-      {super.key, required this.articles, required this.openArticle});
-
-  final List<Article> articles;
+  const ArticleList({super.key, required this.openArticle});
 
   @override
   State<ArticleList> createState() => _ArticleListState();
@@ -136,9 +118,9 @@ class _ArticleListState extends State<ArticleList> {
     return ListView.builder(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
-        itemCount: widget.articles.length,
+        itemCount: LocalDB.articles.length,
         itemBuilder: (context, index) {
-          var article = widget.articles[index];
+          var article = LocalDB.articles[index];
           return articleWidget(article, widget.openArticle);
         });
   }
