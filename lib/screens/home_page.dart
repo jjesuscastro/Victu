@@ -260,8 +260,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-List<Widget> consumerActionCards(
-    BuildContext context, ConsumerData consumerData) {
+List<Widget> consumerActionCards(BuildContext context, UserData userData) {
   return [
     actionCard(
       "Reading goals",
@@ -273,7 +272,7 @@ List<Widget> consumerActionCards(
       () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReadingGoals(consumerData: consumerData)),
+            builder: (context) => ReadingGoals(userData: userData)),
       ),
     ),
     actionCard(
@@ -285,8 +284,7 @@ List<Widget> consumerActionCards(
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => MenuPage(consumerData: consumerData)),
+        MaterialPageRoute(builder: (context) => MenuPage(userData: userData)),
       ),
     ),
     actionCard(
@@ -298,8 +296,7 @@ List<Widget> consumerActionCards(
       ),
       () => Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => OrderPage(consumerData: consumerData)),
+        MaterialPageRoute(builder: (context) => OrderPage(userData: userData)),
       ),
     ),
   ];

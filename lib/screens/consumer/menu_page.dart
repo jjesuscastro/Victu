@@ -1,45 +1,39 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:victu/objects/meal.dart';
-import 'package:victu/objects/users/consumer_data.dart';
-import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
-import 'package:victu/utils/database.dart';
 import 'package:victu/utils/date_util.dart';
 import 'package:victu/utils/localDatabase.dart';
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({super.key, required this.consumerData});
+  const MenuPage({super.key, required this.userData});
 
-  final ConsumerData consumerData;
+  final UserData userData;
 
   @override
   State<MenuPage> createState() => _MenuPageState();
 }
 
 class _MenuPageState extends State<MenuPage> {
-  late VendorData vendor;
   bool mealsLoaded = false;
   bool vendorLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    updateVendor();
+
+    LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
+          LocalDB.updateVendorBySchool(value.school).then((value) => {
+                setState(() {
+                  vendorLoaded = true;
+                })
+              })
+        });
 
     LocalDB.updateMeals().then((value) => {
           setState(() {
             mealsLoaded = true;
-          })
-        });
-  }
-
-  void updateVendor() {
-    getAllVendors().then((vendors) => {
-          setState(() {
-            vendor = vendors
-                .firstWhere((v) => v.school == widget.consumerData.school);
-            vendorLoaded = true;
           })
         });
   }
@@ -95,7 +89,7 @@ class _MenuPageState extends State<MenuPage> {
                   itemCount: 6,
                   itemBuilder: (BuildContext context, int index) {
                     return dayCard(context, DateUtil.getDay(index + 1).weekday,
-                        DateUtil.getDay(index + 1).formattedDate, vendor);
+                        DateUtil.getDay(index + 1).formattedDate);
                   },
                 ),
             ],
@@ -106,8 +100,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 }
 
-Widget dayCard(
-    BuildContext context, String day, String date, VendorData vendorData) {
+Widget dayCard(BuildContext context, String day, String date) {
   return ExpandableNotifier(
     child: Card(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
@@ -172,9 +165,9 @@ Widget dayCard(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MealTime(time: "B", day: day, vendorData: vendorData),
-                MealTime(time: "L", day: day, vendorData: vendorData),
-                MealTime(time: "D", day: day, vendorData: vendorData)
+                MealTime(time: "B", day: day),
+                MealTime(time: "L", day: day),
+                MealTime(time: "D", day: day)
               ],
             ),
           ),
@@ -189,11 +182,9 @@ class MealTime extends StatefulWidget {
     super.key,
     required this.time,
     required this.day,
-    required this.vendorData,
   });
   final String time;
   final String day;
-  final VendorData vendorData;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
@@ -227,9 +218,9 @@ class _MealTimeState extends State<MealTime> {
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              itemCount: widget.vendorData.menus[widget.day]!.length,
+              itemCount: LocalDB.vendorData.menus[widget.day]!.length,
               itemBuilder: (BuildContext context, int index) {
-                List<String> mealValues = widget
+                List<String> mealValues = LocalDB
                     .vendorData.menus[widget.day]!.keys
                     .elementAt(index)
                     .split(';');
