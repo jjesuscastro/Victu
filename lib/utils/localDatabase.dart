@@ -3,6 +3,7 @@ import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/consumer_data.dart';
 import 'package:victu/objects/users/farmer_data.dart';
+import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
 import 'package:victu/utils/database.dart';
 
@@ -12,6 +13,8 @@ class LocalDB {
   static late List<Meal> meals;
   static late List<Article> articles;
   static late List<FarmerData> farmers;
+  static late List<VendorData> vendors;
+  static late UserData userData;
   static late ConsumerData consumerData;
   static late VendorData vendorData;
   static late FarmerData farmerData;
@@ -31,9 +34,21 @@ class LocalDB {
     return LocalDB.articles;
   }
 
-  static Future<List<FarmerData>> updateFarmers(String location) async {
+  static Future<List<FarmerData>> updateFarmersByLocation(
+      String location) async {
     LocalDB.farmers = await getAllFarmers(location);
     return LocalDB.farmers;
+  }
+
+  static Future<List<VendorData>> updateVendorsByLocation(
+      String location) async {
+    LocalDB.vendors = await getAllVendors(location: location);
+    return LocalDB.vendors;
+  }
+
+  static Future<UserData> updateUser(String uid) async {
+    LocalDB.userData = await getUser(uid);
+    return LocalDB.userData;
   }
 
   static Future<ConsumerData> updateConsumer(String uid) async {

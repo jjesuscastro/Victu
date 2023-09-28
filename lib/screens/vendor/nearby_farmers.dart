@@ -14,7 +14,8 @@ class NearbyFarmers extends StatefulWidget {
 class _NearbyFarmersState extends State<NearbyFarmers> {
   @override
   void initState() {
-    LocalDB.updateFarmers(widget.location).then((value) => {setState(() {})});
+    LocalDB.updateFarmersByLocation(widget.location)
+        .then((value) => {setState(() {})});
 
     super.initState();
   }

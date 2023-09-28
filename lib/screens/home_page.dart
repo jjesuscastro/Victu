@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:victu/objects/order.dart';
 import 'package:victu/objects/user_type.dart';
-import 'package:victu/objects/users/consumer_data.dart';
-import 'package:victu/objects/users/farmer_data.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/objects/users/vendor_data.dart';
+import 'package:victu/screens/admin/create_article.dart';
 import 'package:victu/screens/consumer/menu_page.dart';
 import 'package:victu/screens/consumer/order_page.dart';
 import 'package:victu/screens/consumer/reading_goals.dart';
@@ -14,11 +13,13 @@ import 'package:victu/screens/farmer/edit_products.dart';
 import 'package:victu/screens/farmer/nearby_vendors.dart';
 import 'package:victu/screens/login.dart';
 import 'package:victu/screens/vendor/check_orders.dart';
-import 'package:victu/screens/vendor/create_meal.dart';
+import 'package:victu/screens/admin/create_meal.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
 import 'package:victu/screens/vendor/receive_orders.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/date_util.dart';
+import 'package:victu/utils/localDatabase.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.user, required this.userData});
@@ -31,9 +32,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late User _user;
   bool userLoaded = false;
-  var userData;
 
   Route _routeToSignInScreen() {
     return PageRouteBuilder(
@@ -56,28 +55,20 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _user = widget.user;
+    if (widget.userData.userType == UserType.vendor) {
+      LocalDB.updateVendor(widget.userData.getID()).then((userData) => {
+            setState(() {
+              userLoaded = true;
 
-    getUserData().then((value) {
-      setState(() {
-        userData = value;
-        userLoaded = true;
-
-        if (widget.userData.userType == UserType.vendor) {
-          validateMenus(userData);
-        }
-      });
-    });
+              validateMenus(userData);
+              updateOrders(userData);
+            })
+          });
+    } else {
+      userLoaded = true;
+    }
 
     super.initState();
-  }
-
-  DateTime getMonday() {
-    DateTime now = DateTime.now();
-    if (now.weekday == 7) now = now.add(const Duration(days: 1));
-    DateTime weekStart = now.subtract(Duration(days: (now.weekday - 1)));
-
-    return weekStart;
   }
 
   void validateMenus(VendorData vendorData) {
@@ -93,8 +84,7 @@ class _HomePageState extends State<HomePage> {
         });
       });
 
-      vendorData.validDate =
-          DateFormat.yMMMMd().format(getMonday().add(const Duration(days: 6)));
+      vendorData.validDate = DateUtil.getDay(7).formattedDate;
 
       vendorData.update();
     }
@@ -123,27 +113,6 @@ class _HomePageState extends State<HomePage> {
         order.update();
       }
     }
-  }
-
-  Future<dynamic> getUserData() async {
-    // ignore: prefer_typing_uninitialized_variables
-    var userData;
-    switch (widget.userData.userType) {
-      case UserType.consumer:
-        userData = await getConsumer(_user.uid);
-        break;
-      case UserType.vendor:
-        userData = await getVendor(_user.uid);
-        break;
-      case UserType.farmer:
-        userData = await getFarmer(_user.uid);
-        break;
-      case UserType.none:
-        userData = await getUser(_user.uid);
-        break;
-    }
-
-    return userData;
   }
 
   @override
@@ -206,7 +175,7 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                 child: Text(
-                  _user.displayName!,
+                  widget.user.displayName!,
                   textAlign: TextAlign.left,
                   overflow: TextOverflow.clip,
                   style: const TextStyle(
@@ -243,11 +212,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                   if (userLoaded &&
                       widget.userData.userType == UserType.consumer)
-                    ...consumerActionCards(context, userData),
+                    ...consumerActionCards(context, widget.userData),
                   if (userLoaded && widget.userData.userType == UserType.farmer)
-                    ...farmerActionCards(context, userData),
+                    ...farmerActionCards(context, widget.userData),
                   if (userLoaded && widget.userData.userType == UserType.vendor)
-                    ...vendorActionCards(context, userData),
+                    ...vendorActionCards(context, widget.userData),
                   if (userLoaded && widget.userData.isAdmin)
                     ...adminActionCards(context),
                 ],
@@ -358,7 +327,7 @@ List<Widget> vendorActionCards(BuildContext context, UserData userData) {
   ];
 }
 
-List<Widget> farmerActionCards(BuildContext context, FarmerData farmerData) {
+List<Widget> farmerActionCards(BuildContext context, UserData userData) {
   return [
     actionCard(
       "Update Available Products",
@@ -370,7 +339,7 @@ List<Widget> farmerActionCards(BuildContext context, FarmerData farmerData) {
       () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => EditProducts(farmerData: farmerData)),
+            builder: (context) => EditProducts(userData: userData)),
       ),
     ),
     actionCard(
@@ -383,7 +352,7 @@ List<Widget> farmerActionCards(BuildContext context, FarmerData farmerData) {
       () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => NearbyVendors(location: farmerData.location)),
+            builder: (context) => NearbyVendors(userData: userData)),
       ),
     ),
   ];
@@ -411,7 +380,7 @@ List<Widget> adminActionCards(BuildContext context) {
         ),
         () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const CreateMeal()),
+              MaterialPageRoute(builder: (context) => const CreateArticle()),
             ))
   ];
 }

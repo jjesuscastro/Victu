@@ -14,9 +14,18 @@ class ConsumerData extends UserData {
   int points = 0;
   String vendorID;
 
-  ConsumerData(super.displayName, super.userType, this.isMale, this.age,
-      this.height, this.weight, this.points, this.vendorID,
-      {super.isRegistered = false});
+  ConsumerData(
+    super.displayName,
+    super.userType,
+    this.isMale,
+    this.age,
+    this.height,
+    this.weight,
+    this.points,
+    this.vendorID, {
+    super.isRegistered = false,
+    super.isAdmin = false,
+  });
 
   @override
   void setId(DatabaseReference id) {
@@ -44,6 +53,7 @@ class ConsumerData extends UserData {
       'points': points,
       'vendorID': vendorID,
       'isRegistered': isRegistered,
+      'isAdmin': isAdmin,
     };
   }
 }
@@ -59,6 +69,7 @@ ConsumerData createConsumerData(value) {
     'points': 0,
     'vendorID': '',
     'isRegistered': false,
+    'isAdmin': false,
   };
 
   value.forEach((key, value) => {attributes[key] = value});
@@ -73,6 +84,7 @@ ConsumerData createConsumerData(value) {
     attributes['points'],
     attributes['vendorID'],
     isRegistered: attributes['isRegistered'],
+    isAdmin: attributes['isAdmin'],
   );
 
   return userData;

@@ -7,8 +7,9 @@ class Article {
   String title = "";
   String author = "";
   String body = "";
+  String imageURL = "";
 
-  Article(this.title, this.author, this.body);
+  Article(this.title, this.author, this.body, this.imageURL);
 
   void setId(DatabaseReference id) {
     _id = id;
@@ -19,6 +20,7 @@ class Article {
       'title': title,
       'author': author,
       'body': body,
+      'imageURL': imageURL,
     };
   }
 }
@@ -28,13 +30,14 @@ Article createArticle(value) {
     'title': '',
     'author': '',
     'body': '',
+    'imageURL': '',
     'timeToRead': 0,
   };
 
   value.forEach((key, value) => {attributes[key] = value});
 
-  Article article =
-      Article(attributes['title'], attributes['author'], attributes['body']);
+  Article article = Article(attributes['title'], attributes['author'],
+      attributes['body'], attributes['imageURL']);
 
   return article;
 }

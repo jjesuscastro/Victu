@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/consumer/article_page.dart';
+import 'package:victu/utils/database.dart';
 import 'package:victu/utils/localDatabase.dart';
 
 class ReadingGoals extends StatefulWidget {
@@ -14,14 +15,18 @@ class ReadingGoals extends StatefulWidget {
 }
 
 class _ReadingGoalsState extends State<ReadingGoals> {
+  bool userLoaded = false;
   bool articlesLoaded = false;
 
   @override
   void initState() {
     super.initState();
 
-    LocalDB.updateConsumer(widget.userData.getID())
-        .then((value) => {setState(() {})});
+    LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
+          setState(() {
+            userLoaded = true;
+          })
+        });
 
     LocalDB.updateArticles().then((value) => {
           setState(() {
@@ -77,7 +82,9 @@ class _ReadingGoalsState extends State<ReadingGoals> {
             child: Align(
               alignment: Alignment.center,
               child: Text(
-                "Earned Points: ${LocalDB.consumerData.points}",
+                userLoaded
+                    ? "Earned Points: ${LocalDB.consumerData.points}"
+                    : "Loading Data",
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.clip,
@@ -107,7 +114,6 @@ class _ReadingGoalsState extends State<ReadingGoals> {
 }
 
 class ArticleList extends StatefulWidget {
-  //For testing
   final Function openArticle;
   const ArticleList({super.key, required this.openArticle});
 
@@ -143,13 +149,12 @@ Widget articleWidget(Article article, Function openArticle) {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const ClipRRect(
-          borderRadius: BorderRadius.only(
+        ClipRRect(
+          borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(12.0),
               bottomLeft: Radius.circular(12.0)),
           child: Image(
-            image: NetworkImage(
-                "https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg"),
+            image: NetworkImage(article.imageURL),
             height: 130,
             width: 100,
             fit: BoxFit.cover,
