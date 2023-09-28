@@ -196,7 +196,7 @@ class _CreateMealState extends State<CreateMeal> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(0, 40, 0, 0),
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                 child: TextField(
                   controller: imageURLController,
                   obscureText: false,
