@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:victu/objects/meal.dart';
@@ -14,6 +13,7 @@ import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
+import 'package:victu/utils/date_util.dart';
 import 'package:victu/utils/localDatabase.dart';
 import 'package:victu/utils/qr.dart';
 import 'package:victu/utils/time_frames.dart';
@@ -28,6 +28,7 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
+  late Day orderDate;
   Map<String, int> allOrders = {};
   bool mealsLoaded = false;
   bool vendorLoaded = false;
@@ -36,6 +37,8 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   void initState() {
+    orderDate = DateUtil.getOrderDate();
+
     super.initState();
 
     LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
@@ -86,7 +89,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   void updateVendorMenu() {
-    String day = getTomorrow().keys.elementAt(0);
+    String day = orderDate.weekday;
     int currentOrders = 0;
     allOrders.forEach((key, value) {
       currentOrders = LocalDB.vendorData.menus[day]![key]!;
@@ -112,7 +115,7 @@ class _OrderPageState extends State<OrderPage> {
       Order order = Order(
           LocalDB.vendorData.getID(),
           widget.userData.getID(),
-          DateFormat.yMMMMd().format(getTomorrow().values.elementAt(0)),
+          orderDate.formattedDate,
           time,
           time == "B"
               ? timeFrames[0]
@@ -213,40 +216,6 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  Map<String, DateTime> getTomorrow() {
-    Map<String, DateTime> tomorrow = {};
-    DateTime now = DateTime.now();
-
-    DateTime tmrw = now.add(const Duration(days: 1));
-    if (tmrw.weekday == 7) tmrw = now.add(const Duration(days: 1));
-
-    String weekday = getWeekdayString(tmrw.weekday);
-
-    tomorrow[weekday] = tmrw;
-    return tomorrow;
-  }
-
-  String getWeekdayString(int weekday) {
-    switch (weekday) {
-      case 1:
-        return "Monday";
-      case 2:
-        return "Tuesday";
-      case 3:
-        return "Wednesday";
-      case 4:
-        return "Thursday";
-      case 5:
-        return "Friday";
-      case 6:
-        return "Saturday";
-      case 7:
-        return "Sunday";
-      default:
-        return "";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -306,13 +275,8 @@ class _OrderPageState extends State<OrderPage> {
                         ),
                       ),
                     ),
-                    dayCard(
-                        context,
-                        getTomorrow().keys.elementAt(0),
-                        DateFormat.yMMMMd()
-                            .format(getTomorrow().values.elementAt(0)),
-                        allOrders,
-                        changeTimeFrame),
+                    dayCard(context, orderDate.weekday, orderDate.formattedDate,
+                        allOrders, changeTimeFrame),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                       child: MaterialButton(

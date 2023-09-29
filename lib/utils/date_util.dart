@@ -14,6 +14,19 @@ class DateUtil {
     return weekStart;
   }
 
+  static Day getOrderDate() {
+    DateTime orderDate = DateTime.now();
+
+    if (orderDate.hour > 12) {
+      do {
+        orderDate.add(const Duration(days: 1));
+      } while (orderDate.weekday == 7);
+    }
+
+    return Day(
+        getWeekdayString(orderDate.weekday), orderDate, formatDate(orderDate));
+  }
+
   ///Get the Day object of a specified weekday (Monday = 1, Tuesday = 2...)
   static Day getDay(int dayToGet) {
     DateTime day = getReferenceMonday().add(Duration(days: (dayToGet - 1)));
@@ -23,7 +36,7 @@ class DateUtil {
   /// Checks if date string is today. Date string must be MMMM DD, yyyy
   static bool checkToday(String date) {
     DateTime now = DateTime.now();
-    DateTime orderDate = DateFormat("MMMM DD, yyyy").parse(date);
+    DateTime orderDate = parseDate(date);
 
     return now == orderDate;
   }
@@ -33,6 +46,10 @@ class DateUtil {
     DateTime now = DateTime.now();
 
     DateTime tmrw = now.add(const Duration(days: 1));
+    if (tmrw.weekday == 7) {
+      tmrw = tmrw.add(const Duration(days: 1));
+    }
+
     String weekday = getWeekdayString(tmrw.weekday);
 
     return Day(weekday, tmrw, formatDate(tmrw));
@@ -40,6 +57,12 @@ class DateUtil {
 
   ///Converts DateTime to String MMMM DD, yyyy
   static String formatDate(DateTime date) => DateFormat.yMMMMd().format(date);
+
+  static String getWeekdayFromDate(String date) =>
+      getWeekdayString(parseDate(date).weekday);
+
+  static DateTime parseDate(String date) =>
+      DateFormat("MMMM DD, yyyy").parse(date);
 
   ///Converts weekday int to String (1 = Monday, 2 = Tuesday, ...)
   static String getWeekdayString(int weekday) {

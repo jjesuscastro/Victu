@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/consumer/article_page.dart';
-import 'package:victu/utils/database.dart';
 import 'package:victu/utils/localDatabase.dart';
 
 class ReadingGoals extends StatefulWidget {

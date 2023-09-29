@@ -16,6 +16,7 @@ import 'package:victu/screens/vendor/check_orders.dart';
 import 'package:victu/screens/admin/create_meal.dart';
 import 'package:victu/screens/vendor/edit_menu.dart';
 import 'package:victu/screens/vendor/receive_orders.dart';
+import 'package:victu/screens/vendor/unclaimed_orders.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
 import 'package:victu/utils/date_util.dart';
@@ -321,7 +322,7 @@ List<Widget> vendorActionCards(BuildContext context, UserData userData) {
       () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReceiveOrders(userData: userData)),
+            builder: (context) => UnclaimedOrders(userData: userData)),
       ),
     ),
   ];

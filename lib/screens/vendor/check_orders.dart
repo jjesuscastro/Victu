@@ -38,7 +38,6 @@ class _CheckOrdersState extends State<CheckOrders> {
             orders = value
                 .where((order) => order.vendorID == widget.userData.getID())
                 .toList();
-            print(orders);
           })
         });
   }
@@ -242,7 +241,6 @@ class _MealTimeState extends State<MealTime> {
             shrinkWrap: true,
             itemCount: LocalDB.vendorData.menus[widget.day]!.length,
             itemBuilder: (BuildContext context, int index) {
-              print(LocalDB.vendorData.menus[widget.day]!.length);
               List<String> mealValues = LocalDB
                   .vendorData.menus[widget.day]!.keys
                   .elementAt(index)
