@@ -419,7 +419,7 @@ Widget dayCard(BuildContext context, String day, String date,
 }
 
 class MealTime extends StatefulWidget {
-  MealTime(
+  const MealTime(
       {super.key,
       required this.time,
       required this.day,
@@ -432,7 +432,7 @@ class MealTime extends StatefulWidget {
   final String date;
   final List<String> timeRanges;
   final Map<String, int> orders;
-  Function(String, String) changeTimeFrame;
+  final Function(String, String) changeTimeFrame;
   @override
   State<MealTime> createState() => _MealTimeState();
 }
