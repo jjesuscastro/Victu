@@ -190,7 +190,6 @@ class _MealTimeState extends State<MealTime> {
 
   String time = "";
   List<String> timeFrames = [];
-  var currentMeal;
 
   @override
   void initState() {
@@ -267,12 +266,11 @@ class _MealTimeState extends State<MealTime> {
   }
 }
 
-Map<String, int> getTimeframeOrders(List<Order> orders) {
-  Map<String, int> timeFrameOrders = {};
+Map<String, Map<String, int>> getTimeframeOrders(List<Order> orders) {
+  Map<String, Map<String, int>> timeFrameOrders = {};
+
   for (var element in orders) {
-    element.orders.forEach((key, add) {
-      timeFrameOrders.update(key, (value) => value + add, ifAbsent: () => add);
-    });
+    timeFrameOrders[element.orderNumber] = element.orders;
   }
 
   return timeFrameOrders;
@@ -298,7 +296,8 @@ Widget timeFrameCards(List<String> timeFrames, List<Order> orders) {
               (order) => order.timeFrame == timeFrames[index] && order.isValid)
           .toList();
 
-      Map<String, int> finalOrders = getTimeframeOrders(timeFrameOrders);
+      Map<String, Map<String, int>> finalOrders =
+          getTimeframeOrders(timeFrameOrders);
 
       return ExpandableNotifier(
         child: Card(
@@ -358,17 +357,11 @@ Widget timeFrameCards(List<String> timeFrames, List<Order> orders) {
                       shrinkWrap: true,
                       itemCount: finalOrders.length,
                       itemBuilder: (BuildContext context, int index) {
-                        List<String> mealValues =
-                            finalOrders.keys.elementAt(index).split(';');
+                        String orderNumber = finalOrders.keys.elementAt(index);
 
-                        Meal? meal;
-                        meal = findMeal(LocalDB.meals, mealValues);
-
-                        int servings = int.parse(mealValues[2]);
-
-                        int orders = finalOrders.values.elementAt(index);
-
-                        return MenuEntry(meal, servings, orders);
+                        return OrderItems(
+                            orderNumber: orderNumber,
+                            orderItems: finalOrders.values.elementAt(index));
                       },
                     ),
                   ],
@@ -380,6 +373,50 @@ Widget timeFrameCards(List<String> timeFrames, List<Order> orders) {
       );
     },
   );
+}
+
+class OrderItems extends StatelessWidget {
+  const OrderItems(
+      {super.key, required this.orderNumber, required this.orderItems});
+
+  final String orderNumber;
+  final Map<String, int> orderItems;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            const Text(
+              "Order Number: ",
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            Text(orderNumber),
+          ]),
+          ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: orderItems.length,
+            itemBuilder: (BuildContext context, int index) {
+              List<String> mealValues =
+                  orderItems.keys.elementAt(index).split(';');
+
+              Meal? meal;
+              meal = findMeal(LocalDB.meals, mealValues);
+
+              int servings = int.parse(mealValues[2]);
+
+              int orders = orderItems.values.elementAt(index);
+
+              return MenuEntry(meal, servings, orders);
+            },
+          ),
+          const Divider(),
+        ]);
+  }
 }
 
 class MenuEntry extends StatefulWidget {
