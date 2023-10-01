@@ -15,6 +15,7 @@ import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
 import 'package:victu/utils/date_util.dart';
 import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/order_number.dart';
 import 'package:victu/utils/qr.dart';
 import 'package:victu/utils/time_frames.dart';
 
@@ -45,6 +46,8 @@ class _OrderPageState extends State<OrderPage> {
           LocalDB.updateVendor(value.vendorID).then((value) => {
                 setState(() {
                   vendorLoaded = true;
+
+                  updateOrders();
                 })
               })
         });
@@ -54,8 +57,6 @@ class _OrderPageState extends State<OrderPage> {
             mealsLoaded = true;
           })
         });
-
-    updateOrders();
   }
 
   void updateOrders() {
@@ -115,6 +116,7 @@ class _OrderPageState extends State<OrderPage> {
       Order order = Order(
           LocalDB.vendorData.getID(),
           widget.userData.getID(),
+          OrderNumber.generateOrderNumber(widget.userData.getID()),
           orderDate.formattedDate,
           time,
           time == "B"
@@ -250,58 +252,67 @@ class _OrderPageState extends State<OrderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              if (mealsLoaded && vendorLoaded && ordersLoaded)
-                ListView(
-                  scrollDirection: Axis.vertical,
-                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
-                  shrinkWrap: true,
-                  physics: const ScrollPhysics(),
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Here's the menu for tomorrow",
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.clip,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.normal,
-                            fontSize: 14,
-                            color: Color(0xff000000),
+              mealsLoaded && vendorLoaded && ordersLoaded
+                  ? ListView(
+                      scrollDirection: Axis.vertical,
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 50),
+                      shrinkWrap: true,
+                      physics: const ScrollPhysics(),
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "Here's the menu for tomorrow",
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.clip,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontStyle: FontStyle.normal,
+                                fontSize: 14,
+                                color: Color(0xff000000),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    dayCard(context, orderDate.weekday, orderDate.formattedDate,
-                        allOrders, changeTimeFrame),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                      child: MaterialButton(
-                        onPressed: () => placeOrder(),
-                        color: const Color(0xff2d9871),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        textColor: const Color(0xffffffff),
-                        height: 45,
-                        minWidth: MediaQuery.of(context).size.width,
-                        child: const Text(
-                          "Place Order",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.normal,
+                        dayCard(
+                            context,
+                            orderDate.weekday,
+                            orderDate.formattedDate,
+                            allOrders,
+                            changeTimeFrame),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                          child: MaterialButton(
+                            onPressed: () => placeOrder(),
+                            color: const Color(0xff2d9871),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            textColor: const Color(0xffffffff),
+                            height: 45,
+                            minWidth: MediaQuery.of(context).size.width,
+                            child: const Text(
+                              "Place Order",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                fontStyle: FontStyle.normal,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        )
+                      ],
                     )
-                  ],
-                ),
+                  : const Center(
+                      heightFactor: 15,
+                      child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              Color(0xff2b9685)))),
             ],
           ),
         ),

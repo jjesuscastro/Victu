@@ -11,14 +11,15 @@ class Order {
 
   String vendorID;
   String studentID;
+  String orderNumber;
   String date;
   String time;
   String timeFrame;
   bool isValid;
   Map<String, int> orders;
 
-  Order(this.vendorID, this.studentID, this.date, this.time, this.timeFrame,
-      this.isValid, this.orders);
+  Order(this.vendorID, this.studentID, this.orderNumber, this.date, this.time,
+      this.timeFrame, this.isValid, this.orders);
 
   void setId(DatabaseReference id) {
     _id = id;
@@ -28,7 +29,6 @@ class Order {
     return _id.key!;
   }
 
-  @override
   void update() {
     updateDatabase(this, _id);
   }
@@ -37,6 +37,7 @@ class Order {
     return {
       'vendorID': vendorID,
       'studentID': studentID,
+      'orderNumber': orderNumber,
       'date': date,
       'time': time,
       'timeFrame': timeFrame,
@@ -50,6 +51,7 @@ Order createOrder(value) {
   Map<String, dynamic> attributes = {
     'vendorID': '',
     'studentID': '',
+    'orderNumber': '',
     'date': '',
     'time': '',
     'timeFrame': '',
@@ -62,6 +64,7 @@ Order createOrder(value) {
   Order order = Order(
     attributes['vendorID'],
     attributes['studentID'],
+    attributes['orderNumber'],
     attributes['date'],
     attributes['time'],
     attributes['timeFrame'],

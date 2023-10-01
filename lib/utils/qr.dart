@@ -17,7 +17,7 @@ RepaintBoundary generateQR(var qrKey, String qrData, String time, Order order) {
         color: const Color(0xffe1eddf),
       ),
       Positioned(
-        top: 15,
+        top: 8,
         child: QrImageView(
           data: qrData, //This is the part we give data to our QR
           embeddedImage: Image.asset('assets/images/victu_logo.png').image,
@@ -28,6 +28,7 @@ RepaintBoundary generateQR(var qrKey, String qrData, String time, Order order) {
         ),
       ),
       Text("${order.date} - $timeText"),
+      Positioned(bottom: 0, child: Text("Order #: ${order.orderNumber}"))
     ]),
   );
 }
