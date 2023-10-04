@@ -30,8 +30,12 @@ class _ArticlePageState extends State<ArticlePage>
     )
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          LocalDB.consumerData.points += 10;
-          LocalDB.consumerData.update();
+          String articleID = widget.article.getID();
+          if (!LocalDB.consumerData.completedArticles.contains(articleID)) {
+            LocalDB.consumerData.points += 10;
+            LocalDB.consumerData.completedArticles.add(articleID);
+            LocalDB.consumerData.update();
+          }
         }
       })
       ..addListener(() {

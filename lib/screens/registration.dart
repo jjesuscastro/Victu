@@ -302,6 +302,7 @@ class _RegistrationState extends State<Registration> {
         int.parse(weightController.text),
         0,
         LocalDB.vendorData.getID(),
+        [],
         isRegistered: true);
 
     consumerData.setId(saveUser(user.uid, consumerData));

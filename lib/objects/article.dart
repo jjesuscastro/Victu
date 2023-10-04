@@ -15,6 +15,10 @@ class Article {
     _id = id;
   }
 
+  String getID() {
+    return _id.key!;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,

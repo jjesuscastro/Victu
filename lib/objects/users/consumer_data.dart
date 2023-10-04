@@ -13,6 +13,7 @@ class ConsumerData extends UserData {
   int weight = 0;
   int points = 0;
   String vendorID;
+  List<String> completedArticles;
 
   ConsumerData(
     super.displayName,
@@ -22,7 +23,8 @@ class ConsumerData extends UserData {
     this.height,
     this.weight,
     this.points,
-    this.vendorID, {
+    this.vendorID,
+    this.completedArticles, {
     super.isRegistered = false,
     super.isAdmin = false,
   });
@@ -52,6 +54,7 @@ class ConsumerData extends UserData {
       'weight': weight,
       'points': points,
       'vendorID': vendorID,
+      'completedArticles': completedArticles,
       'isRegistered': isRegistered,
       'isAdmin': isAdmin,
     };
@@ -68,6 +71,7 @@ ConsumerData createConsumerData(value) {
     'weight': 0,
     'points': 0,
     'vendorID': '',
+    'completedArticles': '',
     'isRegistered': false,
     'isAdmin': false,
   };
@@ -83,6 +87,7 @@ ConsumerData createConsumerData(value) {
     attributes['weight'],
     attributes['points'],
     attributes['vendorID'],
+    attributes['completedArticles'],
     isRegistered: attributes['isRegistered'],
     isAdmin: attributes['isAdmin'],
   );
