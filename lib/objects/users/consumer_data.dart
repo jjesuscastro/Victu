@@ -1,5 +1,7 @@
 // ignore_for_file: unused_field
 
+import 'dart:convert';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:victu/objects/user_type.dart';
 import 'package:victu/objects/users/user_data.dart';
@@ -78,6 +80,15 @@ ConsumerData createConsumerData(value) {
 
   value.forEach((key, value) => {attributes[key] = value});
 
+  List<String> completedArticles = [];
+
+  try {
+    completedArticles = List<String>.from(
+        attributes['completedArticles'].map((s) => s.toString()));
+  } catch (e) {
+    print(e);
+  }
+
   ConsumerData userData = ConsumerData(
     attributes['displayName'],
     UserType.fromJson(attributes['userType']),
@@ -87,7 +98,7 @@ ConsumerData createConsumerData(value) {
     attributes['weight'],
     attributes['points'],
     attributes['vendorID'],
-    attributes['completedArticles'],
+    completedArticles,
     isRegistered: attributes['isRegistered'],
     isAdmin: attributes['isAdmin'],
   );
