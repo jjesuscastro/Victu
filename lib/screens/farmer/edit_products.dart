@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:victu/objects/product.dart';
 import 'package:victu/objects/users/user_data.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class EditProducts extends StatefulWidget {
   final UserData userData;

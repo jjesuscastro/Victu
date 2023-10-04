@@ -15,7 +15,7 @@ import 'package:victu/screens/registration/user_registration.dart';
 import 'package:victu/screens/registration/vendor_registration.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class Registration extends StatefulWidget {
   const Registration({Key? key, required User user})
@@ -307,6 +307,7 @@ class _RegistrationState extends State<Registration> {
 
     consumerData.setId(saveUser(user.uid, consumerData));
 
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => HomePage(user: user, userData: consumerData),

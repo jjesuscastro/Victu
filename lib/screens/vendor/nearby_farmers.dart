@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:victu/objects/users/farmer_data.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class NearbyFarmers extends StatefulWidget {
   const NearbyFarmers({super.key, required this.location});

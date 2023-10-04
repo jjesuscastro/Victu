@@ -4,7 +4,7 @@ import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/date_util.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key, required this.userData});

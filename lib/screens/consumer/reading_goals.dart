@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/consumer/article_page.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class ReadingGoals extends StatefulWidget {
   const ReadingGoals({super.key, required this.userData});
@@ -24,7 +24,6 @@ class _ReadingGoalsState extends State<ReadingGoals> {
     LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
           LocalDB.updateArticles().then((value) => {
                 setState(() {
-                  print(LocalDB.consumerData.completedArticles);
                   for (var article in value) {
                     if (LocalDB.consumerData.completedArticles
                         .contains(article.getID())) {

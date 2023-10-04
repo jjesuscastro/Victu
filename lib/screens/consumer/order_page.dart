@@ -14,7 +14,7 @@ import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/utils/database.dart';
 import 'package:victu/utils/date_util.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 import 'package:victu/utils/order_number.dart';
 import 'package:victu/utils/qr.dart';
 import 'package:victu/utils/time_frames.dart';
@@ -439,6 +439,7 @@ class MealTime extends StatefulWidget {
 
 class _MealTimeState extends State<MealTime> {
   late String _time;
+  // ignore: prefer_typing_uninitialized_variables
   var selectedTime;
 
   @override

@@ -6,7 +6,7 @@ import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/about_meal.dart';
 import 'package:victu/screens/vendor/ingredient_summary.dart';
 import 'package:victu/utils/date_util.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class EditMenu extends StatefulWidget {
   final UserData userData;
@@ -216,6 +216,7 @@ class MealTime extends StatefulWidget {
 class _MealTimeState extends State<MealTime> {
   bool showDropdown = false;
   TextEditingController quantityController = TextEditingController();
+  // ignore: prefer_typing_uninitialized_variables
   var currentMeal;
 
   showMealDropDown(bool value) {

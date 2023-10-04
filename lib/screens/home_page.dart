@@ -21,7 +21,7 @@ import 'package:victu/screens/vendor/unclaimed_orders.dart';
 import 'package:victu/utils/auth.dart';
 import 'package:victu/utils/database.dart';
 import 'package:victu/utils/date_util.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.user, required this.userData});

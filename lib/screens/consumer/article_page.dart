@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:victu/objects/article.dart';
 import 'package:victu/objects/users/user_data.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class ArticlePage extends StatefulWidget {
   final Article article;

@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/utils/date_util.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 import 'package:victu/utils/qr.dart';
 
 class ActiveOrders extends StatefulWidget {

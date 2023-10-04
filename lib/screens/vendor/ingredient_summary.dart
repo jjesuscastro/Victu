@@ -6,7 +6,7 @@ import 'package:victu/objects/measurement_type.dart';
 import 'package:victu/objects/users/user_data.dart';
 import 'package:victu/screens/vendor/nearby_farmers.dart';
 import 'package:victu/utils/date_util.dart';
-import 'package:victu/utils/localDatabase.dart';
+import 'package:victu/utils/local_database.dart';
 
 class IngredientSummary extends StatefulWidget {
   final UserData userData;
