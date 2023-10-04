@@ -8,6 +8,7 @@ class Article {
   String author = "";
   String body = "";
   String imageURL = "";
+  bool completed = false;
 
   Article(this.title, this.author, this.body, this.imageURL);
 

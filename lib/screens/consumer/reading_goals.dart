@@ -22,15 +22,20 @@ class _ReadingGoalsState extends State<ReadingGoals> {
     super.initState();
 
     LocalDB.updateConsumer(widget.userData.getID()).then((value) => {
-          setState(() {
-            userLoaded = true;
-          })
-        });
+          LocalDB.updateArticles().then((value) => {
+                setState(() {
+                  print(LocalDB.consumerData.completedArticles);
+                  for (var article in value) {
+                    if (LocalDB.consumerData.completedArticles
+                        .contains(article.getID())) {
+                      article.completed = true;
+                    }
+                  }
 
-    LocalDB.updateArticles().then((value) => {
-          setState(() {
-            articlesLoaded = true;
-          })
+                  userLoaded = true;
+                  articlesLoaded = true;
+                })
+              })
         });
   }
 
@@ -112,15 +117,11 @@ class _ReadingGoalsState extends State<ReadingGoals> {
   }
 }
 
-class ArticleList extends StatefulWidget {
+class ArticleList extends StatelessWidget {
   final Function openArticle;
+
   const ArticleList({super.key, required this.openArticle});
 
-  @override
-  State<ArticleList> createState() => _ArticleListState();
-}
-
-class _ArticleListState extends State<ArticleList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -129,7 +130,7 @@ class _ArticleListState extends State<ArticleList> {
         itemCount: LocalDB.articles.length,
         itemBuilder: (context, index) {
           var article = LocalDB.articles[index];
-          return articleWidget(article, widget.openArticle);
+          return articleWidget(article, openArticle);
         });
   }
 }
@@ -207,21 +208,25 @@ Widget articleWidget(Article article, Function openArticle) {
                         ),
                       ],
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Icon(
-                          Icons.access_time,
-                          color: Color(0xff212435),
+                          article.completed
+                              ? Icons.check_circle
+                              : Icons.access_time,
+                          color: article.completed
+                              ? const Color(0xff27927c)
+                              : const Color(0xff212435),
                           size: 12,
                         ),
                         Text(
-                          " 5 min",
+                          article.completed ? " Completed" : " 5 min",
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.clip,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontStyle: FontStyle.normal,
                             fontSize: 12,
