@@ -36,7 +36,8 @@ class _CheckOrdersState extends State<CheckOrders> {
     LocalDB.updateOrders().then((value) => {
           setState(() {
             orders = value
-                .where((order) => order.vendorID == widget.userData.getID())
+                .where((order) =>
+                    order.vendorID == widget.userData.getID() && order.isValid)
                 .toList();
           })
         });

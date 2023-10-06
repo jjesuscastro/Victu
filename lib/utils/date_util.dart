@@ -44,7 +44,7 @@ class DateUtil {
     DateTime now = DateTime.now();
     DateTime orderDate = parseDate(date);
 
-    return now == orderDate;
+    return now.compareTo(orderDate) <= 0;
   }
 
   ///Gets tomorrow

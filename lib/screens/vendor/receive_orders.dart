@@ -143,7 +143,7 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
             }).toList()
           ]),
         ),
-        actions: DateUtil.checkToday(order.date)
+        actions: order.isValid
             ? [
                 TextButton(
                     onPressed: () {
