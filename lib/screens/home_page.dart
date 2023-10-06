@@ -106,11 +106,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void validateOrders(VendorData vendorData, List<Order> orders) {
-    DateTime now = DateTime.now();
     for (var order in orders) {
-      DateTime validDate = DateFormat("MMMM DD, yyyy").parse(order.date);
-
-      if (now.isAfter(validDate)) {
+      if (!DateUtil.checkToday(order.date)) {
         order.isValid = false;
         order.update();
       }
