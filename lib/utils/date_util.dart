@@ -17,17 +17,19 @@ class DateUtil {
   static Day getOrderDate() {
     DateTime orderDate = DateTime.now();
 
-    if (orderDate.weekday == 7) {
-      orderDate = orderDate.add(const Duration(days: 1));
-      return Day(getWeekdayString(orderDate.weekday), orderDate,
-          formatDate(orderDate));
-    }
+    orderDate = orderDate.add(const Duration(days: 1));
 
-    if (orderDate.hour > 12) {
-      do {
-        orderDate = orderDate.add(const Duration(days: 1));
-      } while (orderDate.weekday == 7);
-    }
+    // if (orderDate.weekday == 7) {
+    //   orderDate = orderDate.add(const Duration(days: 1));
+    //   return Day(getWeekdayString(orderDate.weekday), orderDate,
+    //       formatDate(orderDate));
+    // }
+
+    // if (orderDate.hour > 12) {
+    //   do {
+    //     orderDate = orderDate.add(const Duration(days: 1));
+    //   } while (orderDate.weekday == 7);
+    // }
 
     return Day(
         getWeekdayString(orderDate.weekday), orderDate, formatDate(orderDate));
