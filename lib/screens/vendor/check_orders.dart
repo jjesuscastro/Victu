@@ -84,8 +84,8 @@ class _CheckOrdersState extends State<CheckOrders> {
                   shrinkWrap: true,
                   physics: const ScrollPhysics(),
                   children: [
-                    dayCard(context, DateUtil.getTomorrow().weekday,
-                        DateUtil.getTomorrow().formattedDate, orders),
+                    dayCard(context, DateUtil.getToday().weekday,
+                        DateUtil.getToday().formattedDate, orders),
                   ],
                 ),
             ],
