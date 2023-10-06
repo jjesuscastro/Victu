@@ -66,6 +66,11 @@ class DateUtil {
   ///Get today
   static Day getToday() {
     DateTime now = DateTime.now();
+
+    if (now.weekday == 7) {
+      now = now.add(const Duration(days: 1));
+    }
+
     String weekday = getWeekdayString(now.weekday);
     return Day(weekday, now, formatDate(now));
   }
