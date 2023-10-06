@@ -55,7 +55,7 @@ Order createOrder(value) {
     'date': '',
     'time': '',
     'timeFrame': '',
-    'isValid': true,
+    'isvalid': true,
     'orders': {},
   };
 
@@ -68,7 +68,7 @@ Order createOrder(value) {
     attributes['date'],
     attributes['time'],
     attributes['timeFrame'],
-    attributes['isValid'],
+    attributes['isvalid'],
     attributes['orders'].cast<String, int>(),
   );
 

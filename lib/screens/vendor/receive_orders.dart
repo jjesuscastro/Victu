@@ -143,13 +143,13 @@ class _ReceiveOrdersState extends State<ReceiveOrders> {
             }).toList()
           ]),
         ),
-        actions: DateUtil.checkToday(order.date)
+        actions: order.isValid
             ? [
                 TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                       controller!.resumeCamera();
-                      if (DateUtil.checkToday(order.date)) {
+                      if (order.isValid) {
                         deleteOrder(order.getID());
                         updateVendorMenu(order.orders, order.date);
                       }
