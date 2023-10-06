@@ -63,6 +63,13 @@ class DateUtil {
     return Day(weekday, tmrw, formatDate(tmrw));
   }
 
+  ///Get today
+  static Day getToday() {
+    DateTime now = DateTime.now();
+    String weekday = getWeekdayString(now.weekday);
+    return Day(weekday, now, formatDate(now));
+  }
+
   ///Converts DateTime to String MMMM DD, yyyy
   static String formatDate(DateTime date) => DateFormat.yMMMMd().format(date);
 
