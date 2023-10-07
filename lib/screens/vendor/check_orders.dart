@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:victu/objects/meal.dart';
 import 'package:victu/objects/order.dart';
 import 'package:victu/objects/users/user_data.dart';
+import 'package:victu/utils/database.dart';
 import 'package:victu/utils/date_util.dart';
 import 'package:victu/utils/local_database.dart';
 import 'package:victu/utils/time_frames.dart';
@@ -19,27 +20,26 @@ class CheckOrders extends StatefulWidget {
 class _CheckOrdersState extends State<CheckOrders> {
   List<Order> orders = [];
   bool mealsLoaded = false;
+  bool ordersLoaded = false;
 
   @override
   void initState() {
     super.initState();
 
-    LocalDB.updateVendor(widget.userData.getID())
-        .then((value) => {setState(() {})});
-
-    LocalDB.updateMeals().then((value) => {
-          setState(() {
-            mealsLoaded = true;
-          })
-        });
-
-    LocalDB.updateOrders().then((value) => {
-          setState(() {
-            orders = value
-                .where((order) =>
-                    order.vendorID == widget.userData.getID() && order.isValid)
-                .toList();
-          })
+    LocalDB.updateVendor(widget.userData.getID()).then((value) => {
+          LocalDB.updateMeals().then((value) => {
+                LocalDB.updateOrders().then((value) => {
+                      orders = value
+                          .where((order) =>
+                              order.vendorID == widget.userData.getID() &&
+                              order.isValid)
+                          .toList(),
+                      setState(() {
+                        mealsLoaded = true;
+                        ordersLoaded = true;
+                      })
+                    })
+              })
         });
   }
 
@@ -186,14 +186,21 @@ class MealTime extends StatefulWidget {
 }
 
 class _MealTimeState extends State<MealTime> {
-  bool showDropdown = false;
+  bool ordersUpdated = false;
   TextEditingController quantityController = TextEditingController();
+  Map<String, int> mealOrders = {};
 
   String time = "";
   List<String> timeFrames = [];
 
   @override
   void initState() {
+    getTimes();
+    getMealOrders();
+    super.initState();
+  }
+
+  getTimes() {
     time = widget.time == "B"
         ? "Breakfast"
         : widget.time == "L"
@@ -204,11 +211,22 @@ class _MealTimeState extends State<MealTime> {
         : widget.time == "L"
             ? TimeFrames.lunchTimes
             : TimeFrames.dinnerTimes;
-    super.initState();
   }
 
-  showMealDropDown(bool value) {
-    showDropdown = value;
+  getMealOrders() {
+    for (var e in widget.orders) {
+      e.orders.forEach((key, value) {
+        List<String> oValues = key.split(';');
+
+        if (oValues[0] == widget.time) {
+          mealOrders.update(key, (v) => v += value, ifAbsent: () => value);
+        }
+      });
+    }
+
+    setState(() {
+      ordersUpdated = true;
+    });
   }
 
   Meal findMeal(List<String> mealValues) {
@@ -235,32 +253,27 @@ class _MealTimeState extends State<MealTime> {
           Text("Total Orders for $time:",
               style: const TextStyle(fontWeight: FontWeight.bold)),
           const Divider(),
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: LocalDB.vendorData.menus[widget.day]!.length,
-            itemBuilder: (BuildContext context, int index) {
-              List<String> mealValues = LocalDB
-                  .vendorData.menus[widget.day]!.keys
-                  .elementAt(index)
-                  .split(';');
+          ordersUpdated
+              ? ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: mealOrders.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    List<String> mealValues =
+                        mealOrders.keys.elementAt(index).split(';');
 
-              if (mealValues[0] == widget.time) {
-                Meal? meal;
-                meal = findMeal(mealValues);
+                    Meal? meal;
+                    meal = findMeal(mealValues);
 
-                int servings = int.parse(mealValues[2]);
+                    int servings = int.parse(mealValues[2]);
 
-                int orders = LocalDB.vendorData.menus[widget.day]!.values
-                    .elementAt(index);
+                    int orders = mealOrders.values.elementAt(index);
 
-                return MenuEntry(meal, servings, orders);
-              }
-
-              return const SizedBox(); //If meal isn't correct time or doesnt exist
-            },
-          ),
+                    return MenuEntry(meal, servings, orders);
+                  },
+                )
+              : const SizedBox(),
         ],
       ),
     );
@@ -271,7 +284,7 @@ Map<String, Map<String, int>> getTimeframeOrders(List<Order> orders) {
   Map<String, Map<String, int>> timeFrameOrders = {};
 
   for (var element in orders) {
-    timeFrameOrders[element.orderNumber] = element.orders;
+    timeFrameOrders["${element.orderNumber} ${element.date}"] = element.orders;
   }
 
   return timeFrameOrders;
