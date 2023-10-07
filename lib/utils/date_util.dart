@@ -18,6 +18,8 @@ class DateUtil {
     DateTime orderDate = DateTime.now();
 
     orderDate = orderDate.add(const Duration(days: 1));
+    if (orderDate.weekday == 7)
+      orderDate = orderDate.add(const Duration(days: 1));
 
     // if (orderDate.weekday == 7) {
     //   orderDate = orderDate.add(const Duration(days: 1));
