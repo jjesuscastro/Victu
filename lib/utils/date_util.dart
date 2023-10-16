@@ -18,8 +18,9 @@ class DateUtil {
     DateTime orderDate = DateTime.now();
 
     orderDate = orderDate.add(const Duration(days: 1));
-    if (orderDate.weekday == 7)
+    if (orderDate.weekday == 7) {
       orderDate = orderDate.add(const Duration(days: 1));
+    }
 
     // if (orderDate.weekday == 7) {
     //   orderDate = orderDate.add(const Duration(days: 1));
@@ -48,7 +49,13 @@ class DateUtil {
     DateTime now = DateTime.now();
     DateTime orderDate = parseDate(date);
 
+    //-1 if now is before order date
+    //0 if now is same as order date
+    //1 if now is after order date
+    //true (>0) if now is on or before order date
     return now.compareTo(orderDate) <= 0;
+    //orderDate --- now = 1
+    //now --- orderDate = -1
   }
 
   ///Gets tomorrow

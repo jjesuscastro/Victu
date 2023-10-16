@@ -29,23 +29,19 @@ class _UnclaimedOrdersState extends State<UnclaimedOrders> {
   void initState() {
     super.initState();
 
-    LocalDB.updateVendor(widget.userData.getID())
-        .then((value) => {setState(() {})});
+    LocalDB.updateVendor(widget.userData.getID()).then((value) => {
+          LocalDB.updateMeals().then((value) => {
+                LocalDB.updateOrders().then((value) => {
+                      setState(() {
+                        orders = value
+                            .where((order) =>
+                                order.vendorID == widget.userData.getID())
+                            .toList();
 
-    LocalDB.updateMeals().then((value) => {
-          setState(() {
-            mealsLoaded = true;
-          })
-        });
-
-    LocalDB.updateOrders().then((value) => {
-          setState(() {
-            orders = value
-                .where((order) => order.vendorID == widget.userData.getID())
-                .toList();
-
-            organizeOrders();
-          })
+                        organizeOrders();
+                      })
+                    })
+              })
         });
   }
 
