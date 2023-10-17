@@ -46,16 +46,25 @@ class DateUtil {
 
   /// Checks if date string is today. Date string must be MMMM DD, yyyy
   static bool checkToday(String date) {
-    DateTime now = DateTime.now();
+    DateTime now = nowWithoutTime();
     DateTime orderDate = parseDate(date);
 
     //-1 if now is before order date
     //0 if now is same as order date
     //1 if now is after order date
     //true (>0) if now is on or before order date
+
+    print(date);
+    print(now);
+    print(orderDate);
     return now.compareTo(orderDate) <= 0;
     //orderDate --- now = 1
     //now --- orderDate = -1
+  }
+
+  static DateTime nowWithoutTime() {
+    DateTime now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
   }
 
   ///Gets tomorrow
