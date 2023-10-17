@@ -107,13 +107,8 @@ class _HomePageState extends State<HomePage> {
 
   void validateOrders(VendorData vendorData, List<Order> orders) {
     for (var order in orders) {
-      if (DateUtil.checkToday(order.date)) {
-        order.isValid = true;
-        order.update();
-      } else {
-        order.isValid = false;
-        order.update();
-      }
+      order.isValid = DateUtil.checkToday(order.date);
+      order.update();
     }
   }
 
